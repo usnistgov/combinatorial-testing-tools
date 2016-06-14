@@ -1,0 +1,883 @@
+
+options {
+	static = false;
+}
+
+PARSER_BEGIN(ConstraintChocoParser)
+
+
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import choco.kernel.model.constraints.Constraint;
+
+
+public class ConstraintChocoParser {
+
+   // store parameter values
+   private HashMap params;
+   private meChoco choco;
+   private List list;
+      
+   // a list of parameters that appear in the constraint
+   private ArrayList<Parameter> usedParams;
+
+   
+   public ConstraintChocoParser (String constraint) {
+      this(new StringReader (constraint));
+    
+      params = new HashMap ();
+      list = l;
+      usedParams = new ArrayList<Parameter> ();
+   }
+   
+   public ConstraintChocoParser (String constraint, HashMap paramsMap,meChoc choc) {
+      this(new StringReader (constraint));
+   
+      params = paramsMap;
+	  choco=choc;
+      usedParams = new ArrayList<Parameter> ();
+   }
+ 
+   // add a param/value pair
+   public void addParam (String p_name, Object p_value) {
+      params.put(p_name, p_value);
+   } 
+	
+	// get the list of used parameters
+	public ArrayList<Parameter> getUsedParamList () {
+		return usedParams;
+	}
+	
+   public Object lookup (String p_name) {
+     return params.get(p_name);
+   }
+
+   public Constraint parse () throws ParseException {
+		return ((TypeInfo) ACTConstraint(true)).getConstraint();        
+   }
+
+   public boolean evaluate () {
+      boolean rval = true;
+      try {
+        rval = ((Boolean) ACTConstraint (false)).booleanValue();
+      }
+      catch (Exception ex) {
+    
+        rval = false;
+      }      
+
+      return rval;
+   }
+
+public static void main (String args[]) throws ParseException {
+    String constraint = "(p4=0 && p5=0 && p6=0 && p7=0)";
+
+    ArrayList<Parameter> params = new ArrayList<Parameter>();
+    params.add(new Parameter("p4"));
+    params.add(new Parameter("p5"));
+    params.add(new Parameter("p6"));
+    params.add(new Parameter("p7"));
+    
+    HashMap<String, Parameter> paramMap = new HashMap<String, Parameter>();
+    for (Parameter param : params) {
+        paramMap.put(param.getName(), param);
+    }
+
+    ConstraintChocoParser parser = new ConstraintChocoParser(constraint, paramMap);
+    try{
+    	 System.out.println( parser.parse().pretty());
+    } catch (Exception ex){
+         System.out.print(ex);
+    }
+
+  }
+
+}
+
+PARSER_END(ConstraintChocoParser)
+
+SKIP:
+{
+   " "
+   | "\t"
+   | "\n"
+   | "\r"
+}
+
+TOKEN: 
+{
+   < INTEGER_LITERAL: ["0"-"9"] (["0"-"9"])* >
+|
+   < STRING_LITERAL: 
+                "\"" 
+	(~["\"","\\","\n","\r"])*
+	"\""
+   >
+|  
+   < TRUE: "true" | "TRUE" | "True" >
+|
+   < FALSE: "false" | "FALSE" | "False" >
+|
+   < IDENTIFIER: <LETTER> (<LETTER> | <DIGIT>)* >
+| 
+   < #LETTER: ["A"-"Z", "a"-"z", "_"] >
+|
+   < #DIGIT: ["0"-"9"] >
+|
+   < EQ : "=" | "==" >
+|	
+   < GT:   ">"  >
+|	
+   < LT:   "<"  >
+|	
+   < LE:   "<=" >
+|	
+   < GE:   ">=" >
+|	
+   < NE:   "!=" >
+|	
+   < AND:  "&&" >
+|	
+   < OR:   "||" >
+|	
+   < NOT:  "!" | "~">
+|
+   < IM:   "=>" >
+|	
+   < PLUS: "+"  >
+|	
+   < MINUS: "-"  >
+|	
+   < MUL:  "*"  >
+|	
+   < DIV:  "/"  >
+|	
+   < MOD:  "%"  >
+|
+   < OPENPAR: "(" >
+|  
+   < CLOSEPAR: ")" >
+}
+
+Object ACTConstraint (boolean parse_only) :
+{
+   Object rval;
+}
+{
+   (rval = LogicalExpression (parse_only)) {
+     if (parse_only) {
+     	TypeInfo rvalTI = (TypeInfo) rval;
+     	if (rvalTI.getType() != Constants.TYPE_BOOL) {
+     	   throw new ParseException("Boolean expression expected:\n" + rvalTI.getText());
+     	}
+     }
+     return rval;
+   }
+}
+
+Object LogicalExpression (boolean parse_only) :
+{
+   Object rval;
+}
+{
+   (rval = ImplicativeExpression (parse_only)) {
+   	 return rval;
+   }
+}
+
+Object ImplicativeExpression (boolean parse_only) :
+{
+   Token t = null;
+   Object rval;
+   Object temp;
+   TypeInfo rvalTI = new TypeInfo();
+   TypeInfo tempTI = new TypeInfo();
+}
+{
+   (rval = OrExpression (parse_only))
+   ((t = <IM>) (temp = OrExpression (parse_only)) {
+		if(parse_only){
+            tempTI  = (TypeInfo)temp;
+            rvalTI = (TypeInfo)rval;
+            
+            TypeInfo rv = new TypeInfo();
+            rv.setType(Constants.TYPE_BOOL);
+            rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+                   
+        	if(rvalTI.getType() != Constants.TYPE_BOOL) {
+           		throw new ParseException("Boolean type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        	}
+        	else if(tempTI.getType() != Constants.TYPE_BOOL) {
+           		throw new ParseException("Boolean type expected: " + tempTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());           
+        	}
+            rv.setConstraint(meChoco.mk_cst(t.image, rvalTI.getConstraint(), tempTI.getConstraint()));
+            rval = rv;
+      } else {
+        rval = new Boolean (
+                  !((Boolean) rval).booleanValue () 
+                   || ((Boolean) temp).booleanValue ());
+      }
+    }
+   ) * 
+   {
+     return rval;
+   }
+}
+
+Object OrExpression (boolean parse_only) :
+{
+   Token t = null;
+   Object rval;
+   Object temp;
+   TypeInfo rvalTI = new TypeInfo();
+   TypeInfo tempTI = new TypeInfo();
+}
+{
+   (rval = AndExpression (parse_only)) 
+   ((t = <OR>) (temp = AndExpression (parse_only)) {
+       	if(parse_only){
+            tempTI  = (TypeInfo)temp;
+            rvalTI = (TypeInfo)rval;
+
+            TypeInfo rv = new TypeInfo();
+            rv.setType(Constants.TYPE_BOOL);
+            rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+        
+        	if(rvalTI.getType() != Constants.TYPE_BOOL) {
+           		throw new ParseException("Boolean type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        	}
+        	else if(tempTI.getType() != Constants.TYPE_BOOL) {
+            	throw new ParseException("Boolean type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+        	}
+
+            rv.setConstraint(meChoco.mk_cst(t.image, rvalTI.getConstraint(), tempTI.getConstraint()));
+            rval = rv;
+ 	    } else {
+           rval = new Boolean (
+               ((Boolean) rval).booleanValue() 
+               || ((Boolean) temp).booleanValue());
+        }
+   }) *
+   {
+      return rval;
+   }
+}
+
+Object AndExpression (boolean parse_only) :
+{
+   Token t = null;
+   Object rval;
+   Object temp;
+   TypeInfo rvalTI = null;
+   TypeInfo tempTI = null;
+}
+{
+   (rval = RelationalExpression (parse_only))
+   ( (t = <AND>) (temp = RelationalExpression (parse_only)) {
+       	if(parse_only){
+            tempTI  = (TypeInfo)temp;
+            rvalTI = (TypeInfo)rval;
+            
+            TypeInfo rv = new TypeInfo();
+            rv.setType(Constants.TYPE_BOOL);
+            rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+                
+	        if(rvalTI.getType() != Constants.TYPE_BOOL) {
+    	       throw new ParseException("Boolean type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+       	 	}
+        	else if(tempTI.getType() != Constants.TYPE_BOOL) {
+            	throw new ParseException("Boolean type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+        	}
+            rv.setConstraint(meChoco.mk_cst(t.image, rvalTI.getConstraint(), tempTI.getConstraint()));
+            rval = rv;
+	     } else {
+             rval = new Boolean(
+                   ((Boolean) rval).booleanValue () 
+                   && ((Boolean) temp).booleanValue ());
+         }
+       }
+   ) *
+   {
+       return rval;
+   }
+}
+
+Object RelationalExpression (boolean parse_only) :
+{
+   Token t = null;
+   Object rval;
+   Object temp;
+   TypeInfo rvalTI = null;
+   TypeInfo tempTI = null;
+}
+{
+   (rval = AdditiveExpression (parse_only))
+   (
+     ( (t=<LT>) (temp = AdditiveExpression (parse_only)) ) {
+ 	    if(parse_only){
+            tempTI  = (TypeInfo)temp;
+            rvalTI = (TypeInfo)rval;
+        
+            TypeInfo rv = new TypeInfo();
+            rv.setType(Constants.TYPE_BOOL);
+            rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+					        
+        	if(rvalTI.getType() != Constants.TYPE_INT
+           		&& rvalTI.getType () != Constants.TYPE_STRING) {
+           		throw new ParseException("Integer or String type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        	}
+        	else if(tempTI.getType() != Constants.TYPE_INT
+        	    && tempTI.getType() != Constants.TYPE_STRING) {
+            		throw new ParseException("Integer or String type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+        	}
+        	else if (tempTI.getType () != rvalTI.getType ()) {
+        		throw new ParseException("Type mismatch: " + rvalTI.getText() 
+        	                           + " " + t.image + " " + tempTI.getText());
+       		}
+       		
+        	rv.setConstraint(meChoco.mk_comp(t.image, rvalTI.getVariable(), tempTI.getVariable()));
+        	rval = rv;
+    	} else {
+      		if (temp instanceof Integer) {
+        		if(((Integer) rval).intValue() < ((Integer) temp).intValue ()) {
+           			rval = Boolean.TRUE;
+        	}
+        	else {
+           		rval = Boolean.FALSE;
+        	}
+      }
+      else if (temp instanceof String) {
+        int tmp = ((String) rval).compareTo ((String) temp);
+        if (tmp < 0) {
+           rval = Boolean.TRUE;
+        }
+        else {
+           rval = Boolean.FALSE;
+        }
+      }
+    }
+ }
+ |
+ ( (t=<GT>) (temp = AdditiveExpression (parse_only)) ) {
+    if(parse_only){
+        tempTI  = (TypeInfo)temp;
+        rvalTI = (TypeInfo)rval;
+        
+        TypeInfo rv = new TypeInfo();
+        rv.setType(Constants.TYPE_BOOL);
+        rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+    
+        if(rvalTI.getType() != Constants.TYPE_INT
+           && rvalTI.getType () != Constants.TYPE_STRING) {
+           throw new ParseException("Integer or String type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        }
+        else if(tempTI.getType() != Constants.TYPE_INT
+        	    && tempTI.getType() != Constants.TYPE_STRING) {
+            throw new ParseException("Integer or String type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+        }
+        else if (tempTI.getType () != rvalTI.getType ()) {
+        	throw new ParseException("Type mismatch: " + rvalTI.getText() 
+        	                           + " " + t.image + " " + tempTI.getText());
+        }
+        
+        rv.setConstraint(meChoco.mk_comp(t.image, rvalTI.getVariable(), tempTI.getVariable()));
+        rval = rv;
+     } else {
+       if (temp instanceof Integer) {
+         if(((Integer) rval).intValue() > ((Integer) temp).intValue()) {
+           rval = Boolean.TRUE;
+         } else {
+           rval = Boolean.FALSE;
+         }
+       }
+       else if (temp instanceof String) {
+         int tmp = ((String) rval).compareTo ((String) temp);
+         if (tmp > 0) {
+           rval = Boolean.TRUE;
+         }
+         else {
+           rval = Boolean.FALSE;
+         }
+       }
+    }
+ }
+ |
+ ( (t=<LE>) (temp = AdditiveExpression (parse_only)) ) {
+    if(parse_only){
+        tempTI  = (TypeInfo)temp;
+        rvalTI = (TypeInfo)rval;
+        
+        TypeInfo rv = new TypeInfo();
+        rv.setType(Constants.TYPE_BOOL);
+        rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+    
+        if(rvalTI.getType() != Constants.TYPE_INT
+           && rvalTI.getType () != Constants.TYPE_STRING) {
+           throw new ParseException("Integer or String type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        }
+        else if(tempTI.getType() != Constants.TYPE_INT
+        	    && tempTI.getType() != Constants.TYPE_STRING) {
+            throw new ParseException("Integer or String type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+        }
+        else if (tempTI.getType () != rvalTI.getType ()) {
+        	throw new ParseException("Type mismatch: " + rvalTI.getText() 
+        	                           + " " + t.image + " " + tempTI.getText());
+        }
+		rv.setConstraint(meChoco.mk_comp(t.image, rvalTI.getVariable(), tempTI.getVariable()));
+        rval = rv;
+    } else {
+      if (temp instanceof Integer) {
+        if(((Integer) rval).intValue() <= ((Integer) temp).intValue()) {
+           rval = Boolean.TRUE;
+        }
+        else {
+           rval = Boolean.FALSE;
+        }
+      }
+      else if (temp instanceof String) {
+        int tmp = ((String) rval).compareTo ((String) temp);
+        if (tmp <= 0) {
+           rval = Boolean.TRUE;
+        }
+        else {
+           rval = Boolean.FALSE;
+        }
+      }
+   }
+ }
+ |
+ ( (t=<GE>) (temp = AdditiveExpression (parse_only)) ) {
+    if(parse_only){
+        tempTI  = (TypeInfo)temp;
+        rvalTI = (TypeInfo)rval;
+
+        TypeInfo rv = new TypeInfo();
+        rv.setType(Constants.TYPE_BOOL);
+        rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+		
+        if(rvalTI.getType() != Constants.TYPE_INT
+           && rvalTI.getType () != Constants.TYPE_STRING) {
+           throw new ParseException("Integer or String type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        }
+        else if(tempTI.getType() != Constants.TYPE_INT
+        	    && tempTI.getType() != Constants.TYPE_STRING) {
+            throw new ParseException("Integer or String type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+        }
+        else if (tempTI.getType () != rvalTI.getType ()) {
+        	throw new ParseException("Type mismatch: " + rvalTI.getText() 
+        	                           + " " + t.image + " " + tempTI.getText());
+        }
+        rv.setConstraint(meChoco.mk_comp(t.image, rvalTI.getVariable(), tempTI.getVariable()));
+        rval = rv;
+    } else {
+       if (temp instanceof Integer) {
+         if(((Integer) rval).intValue() >= ((Integer) temp).intValue()) {
+           rval = Boolean.TRUE;
+         }
+         else {
+           rval = Boolean.FALSE;
+         }
+       }
+       else if (temp instanceof String) {
+         int tmp = ((String) rval).compareTo ((String) temp);
+         if (tmp >= 0) {
+           rval = Boolean.TRUE;
+         }
+         else {
+           rval = Boolean.FALSE;
+         }
+       }
+    }
+ }
+ |
+ ( (t=<EQ>) (temp = AdditiveExpression (parse_only)) ) {     
+   if(parse_only){
+        tempTI  = (TypeInfo)temp;
+        rvalTI = (TypeInfo)rval;           
+    
+        if(rvalTI.getType() != tempTI.getType()) {
+    	    throw new ParseException ("Type mismatch: " 
+    	    	+ rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+        } else  {
+            TypeInfo ti = new TypeInfo();
+            ti.setType(Constants.TYPE_BOOL);
+            ti.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+        	ti.setConstraint(meChoco.mk_comp(t.image, rvalTI.getVariable(), tempTI.getVariable()));
+            rval = ti;;
+       }
+    } else {
+      if (temp instanceof Integer) {
+         if(((Integer) rval).intValue() == ((Integer) temp).intValue()) {
+            rval = Boolean.TRUE;
+         }
+         else {
+           rval = Boolean.FALSE;
+         }
+      }
+      else if (temp instanceof String) {
+         int tmp = ((String) rval).compareTo ((String) temp);
+         if (tmp == 0) {
+           rval = Boolean.TRUE;
+         }
+         else {
+           rval = Boolean.FALSE;
+         }
+      }
+      else if (temp instanceof Boolean) {
+         if(((Boolean) rval).equals(temp)) {
+           rval = Boolean.TRUE;
+         }
+         else {
+           rval = Boolean.FALSE;
+         }
+      } 
+   }
+ }
+ |
+ ( (t=<NE>) (temp = AdditiveExpression (parse_only)) ) {
+   if(parse_only){
+        tempTI  = (TypeInfo)temp;
+        rvalTI = (TypeInfo)rval;           
+
+        TypeInfo ti = new TypeInfo();
+        ti.setType(Constants.TYPE_BOOL);
+        ti.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+    
+        if(rvalTI.getType() != tempTI.getType()) {
+    	    throw new ParseException ("Type mismatch: " 
+    	    	+ rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+        }
+        ti.setConstraint(meChoco.mk_comp(t.image, rvalTI.getVariable(), tempTI.getVariable()));
+        rval = ti;;
+        } else {
+            if (temp instanceof Integer) {
+              if(((Integer) rval).intValue() != ((Integer) temp).intValue()) {
+                rval = Boolean.TRUE;
+              }
+              else {
+                rval = Boolean.FALSE;
+              }
+            }
+            else if (temp instanceof String) {
+              int tmp = ((String) rval).compareTo ((String) temp);
+              if (tmp != 0) {
+                rval = Boolean.TRUE;
+              }
+              else {
+                rval = Boolean.FALSE;
+              }
+            }
+            else if (temp instanceof Boolean) {
+              if(!((Boolean) rval).equals(temp)) {
+                rval = Boolean.TRUE;
+              }
+              else {
+                rval = Boolean.FALSE;
+              }
+            }
+       } 
+     }
+   )* 
+   {
+     return rval;
+   }
+}
+
+Object AdditiveExpression (boolean parse_only) :
+{
+   Token t = null;
+   Object rval = null;
+   Object temp;
+   TypeInfo rvalTI = null;
+   TypeInfo tempTI = null;
+}
+{
+   (rval = MultiplicativeExpression (parse_only)) (
+      ( (t=<PLUS>) (temp = MultiplicativeExpression (parse_only)) ) {
+        if(parse_only){
+            tempTI  = (TypeInfo)temp;
+            rvalTI = (TypeInfo)rval;
+            
+            TypeInfo rv = new TypeInfo();
+            rv.setType(Constants.TYPE_INT);
+            rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+               
+        if(rvalTI.getType() != Constants.TYPE_INT) {
+           throw new ParseException("Integer type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        }
+        else if(tempTI.getType() != Constants.TYPE_INT) {
+            throw new ParseException("Integer type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+        }
+		rv.setVariable(meChoco.mk_op(t.image,rvalTI.getVariable(),tempTI.getVariable()));
+		        
+        rval = rv;
+    } else { 
+        rval = new Integer(((Integer) rval).intValue() + ((Integer) temp).intValue ());
+    }
+  }
+  |
+  ( (t=<MINUS>) (temp = MultiplicativeExpression (parse_only)) ) {
+    if(parse_only){
+        tempTI  = (TypeInfo)temp;
+        rvalTI = (TypeInfo)rval;
+
+        TypeInfo rv = new TypeInfo();
+        rv.setType(Constants.TYPE_INT);
+        rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+                
+        if(rvalTI.getType() != Constants.TYPE_INT) {
+           throw new ParseException("Integer type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        }
+        else if(tempTI.getType() != Constants.TYPE_INT) {
+            throw new ParseException("Integer type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+            }
+			rv.setVariable(meChoco.mk_op(t.image,rvalTI.getVariable(),tempTI.getVariable()));
+            
+            rval = rv;
+         } else {
+            rval = new Integer(((Integer) rval).intValue() - ((Integer) temp).intValue ());
+         }
+      }
+   )*
+   {
+      return rval;
+   }
+}
+
+Object MultiplicativeExpression (boolean parse_only) :
+{
+   Token t = null;
+   Object rval = null;
+   Object temp;
+   TypeInfo rvalTI = null;
+   TypeInfo tempTI = null;
+}
+{
+   (rval = UnaryExpression (parse_only)) 
+   (
+      ((t=<MUL>) (temp = UnaryExpression (parse_only))) {
+      	if(parse_only){
+            tempTI  = (TypeInfo)temp;
+            rvalTI = (TypeInfo)rval;
+        
+            TypeInfo rv = new TypeInfo();
+            rv.setType(Constants.TYPE_INT);
+            rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+                    
+        if(rvalTI.getType() != Constants.TYPE_INT) {
+           throw new ParseException("Integer type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        }
+        else if(tempTI.getType() != Constants.TYPE_INT) {
+            throw new ParseException("Integer type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+            }
+			rv.setVariable(meChoco.mk_op(t.image,rvalTI.getVariable(),tempTI.getVariable()));
+            
+            rval = rv;
+	    } else {
+         	rval = new Integer(((Integer) rval).intValue() * ((Integer) temp).intValue ());
+      	}
+      }
+      |
+      ((t=<DIV>) (temp = UnaryExpression (parse_only) )) {
+        if(parse_only){
+            tempTI  = (TypeInfo)temp;
+            rvalTI = (TypeInfo)rval;
+ 
+            TypeInfo rv = new TypeInfo();
+            rv.setType(Constants.TYPE_INT);
+            rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+                
+        if(rvalTI.getType() != Constants.TYPE_INT) {
+           throw new ParseException("Integer type expected: " + rvalTI.getText()
+                                    + "\n" + "   in expression: " + rv.getText());
+        }
+        else if(tempTI.getType() != Constants.TYPE_INT) {
+           throw new ParseException("Integer type expected: " + tempTI.getText()
+            						+ "\n" + "   in expression: " + rv.getText());           
+        }
+		rv.setVariable(meChoco.mk_op(t.image,rvalTI.getVariable(),tempTI.getVariable()));
+        
+        rval = rv;
+    } else {        
+        rval = new Integer(((Integer) rval).intValue() / ((Integer) temp).intValue ());
+    }
+  }
+  |
+  ((t=<MOD>) (temp = UnaryExpression (parse_only) )) {
+     if(parse_only){
+        tempTI  = (TypeInfo)temp;
+        rvalTI = (TypeInfo)rval;
+    
+        TypeInfo rv = new TypeInfo();
+        rv.setType(Constants.TYPE_INT);
+        rv.setText(rvalTI.getText() + " " + t.image + " " + tempTI.getText());
+                
+        if(rvalTI.getType() != Constants.TYPE_INT) {
+           throw new ParseException("Integer type expected: " + rvalTI.getText()
+           							 + "\n" + "  in expression: " + rv.getText());
+           							 
+        }
+        else if(tempTI.getType() != Constants.TYPE_INT) {
+           throw new ParseException("Integer type expected: " + tempTI.getText()
+                                     + "\n" + "   in expression: " + rv.getText());           
+            }
+			rv.setVariable(meChoco.mk_op(t.image,rvalTI.getVariable(),tempTI.getVariable()));
+            
+            rval = rv;
+          } else {
+            rval = new Integer(((Integer) rval).intValue() % ((Integer) temp).intValue ());
+         }
+      }
+   )*
+   { return rval; }
+}
+
+Object UnaryExpression (boolean parse_only) :
+{
+   Token t = null;
+   Token tt = null;
+   Object temp;
+   Object rval = null;
+}
+{	
+    ((t=<INTEGER_LITERAL>) {
+      if(parse_only) {
+    	TypeInfo rv = new TypeInfo();
+    	rv.setType(Constants.TYPE_INT);
+    	rv.setText(t.image);
+		rv.setVariable(meChoco.mk_int(Integer.parseInt(t.image)));
+		rval = rv;    	
+  } else {
+    int val = Integer.parseInt (t.image);
+    rval = new Integer (val);
+  }
+}
+|
+(t=<STRING_LITERAL>) {
+   if(parse_only) {
+      TypeInfo rv = new TypeInfo();
+      rv.setType(Constants.TYPE_STRING);
+      rv.setText(t.image);
+      //convert enum to int
+      rv.setVariable(meChoco.mk_enum(t.image.substring(1, t.image.length()-1).trim()));
+      rval = rv;
+	} else {
+      // strip the quotes
+      rval = t.image.substring(1, t.image.length()-1).trim();
+   }
+}
+|
+(t=<TRUE>) {
+  if(parse_only){
+	 TypeInfo rv = new TypeInfo();
+     rv.setType(Constants.TYPE_BOOL);
+     rv.setText(t.image);
+     rv.setVariable(meChoco.mk_true());
+     rval = rv;
+  } else {
+     rval = Boolean.TRUE;
+  }
+}
+|
+(t=<FALSE>) {
+  if(parse_only){
+	 TypeInfo rv = new TypeInfo();
+     rv.setType(Constants.TYPE_BOOL);
+     rv.setText(t.image);
+     rv.setVariable(meChoco.mk_false());
+     rval = rv;
+  } else {
+     rval = Boolean.FALSE;
+  }
+}
+|
+(t=<IDENTIFIER>) {    
+  if(parse_only){
+     Parameter param = (Parameter) lookup(t.image);
+     if (param == null) {
+        throw new ParseException("Unrecognized parameter: " + t.image
+        		   					+ "\nIf this is a param value (i.e., not a param name), it needs to be quoted.");
+     } else {	
+        TypeInfo rv = new TypeInfo();
+        rv.setType (param.getType ());
+        rv.setText (t.image);
+        if(param.getType() == Constants.TYPE_BOOL)
+        	rv.setVariable(meChoco.mk_bool_var(t.image));
+        else 
+        	rv.setVariable(meChoco.mk_int_var(t.image));
+
+        rval = rv;
+        
+        // add this valid parameter into usedParam list
+        usedParams.add (param);	        
+     }	            
+  } else {
+    // look up the value of a variable
+    rval = lookup (t.image);
+	if (rval == null) {
+	   throw new ParseException ("Unrecognized parameter: " + t.image 
+	   								+ "\nIf this is a param value (i.e., not a param name), it needs to be quoted.");
+    }
+  }
+}
+| (t=<NOT>) (temp = UnaryExpression (parse_only)) {        		 
+	if(parse_only) {
+	  TypeInfo ti = (TypeInfo) temp;
+	  if (ti.getType() != Constants.TYPE_BOOL) {
+	  	throw new ParseException ("Boolean type expected: " + ti.getText()
+	  	                          + "\n" + "   in expression: " + t.image + " " + ti.getText());
+	  } 
+  	  TypeInfo rv = new TypeInfo();
+      rv.setType(Constants.TYPE_BOOL);
+      rv.setText(t.image + " " + ti.getText());
+
+	  // set choco text
+      rv.setConstraint(meChoco.mk_cst(t.image,null,ti.getConstraint()));//TODO
+      rval = rv;
+    } else {
+      rval = new Boolean(
+               !((Boolean) temp).booleanValue ()
+             );
+    }
+}
+| (t=<OPENPAR>) (rval = LogicalExpression (parse_only)) (tt=<CLOSEPAR>) { 
+   if(parse_only) {
+     TypeInfo rvalTI = (TypeInfo) rval;
+     TypeInfo ti = new TypeInfo ();
+     ti.setType (rvalTI.getType());
+     ti.setText(t.image + rvalTI.getText() + tt.image);
+
+	 // set choco text
+     ti.setObj(rvalTI.getObj());
+         
+     rval = ti;
+   }
+  })
+  {
+     return rval; 
+  }
+    
+}
