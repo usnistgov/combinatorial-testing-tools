@@ -195,9 +195,10 @@ public class CSolver {
          chocoVariables = new ArrayList(lp.size());
          paraNames = new ArrayList(lp.size());
 
-         
+     
          for (Parameter p : lp)
          {
+        	
              if (p.getType() == Parameter.PARAM_TYPE_ENUM)//get all enum values from each parameter in a single list
              {
                  strings.addAll(p.getValues());
@@ -206,14 +207,16 @@ public class CSolver {
              parameters.put(p.getName(),  p); //add all parameters 
 
          }
-
+         
+         
          
          enumList = new ArrayList(strings);
          Collections.sort(enumList);
-
+         
          //load parameters
          for (Parameter p : lp)
          {
+        	 
              rvalue.put(p.getName(), p);
              paraNames.add(p.getName());// create a list with parameters name
              	
@@ -226,8 +229,9 @@ public class CSolver {
            
                  for (String v : p.getValues())
                  {
-                     values.add(new java.lang.Integer(v));  
+                     values.add(new java.lang.Integer(v.trim()));  
                  }
+
                  chocoVariables.add(new ChocoVariable(p, values));
              }
              else if (p.getType() == Parameter.PARAM_TYPE_BOOL) // for  bool type, true=1 and false=0
@@ -357,27 +361,28 @@ public class CSolver {
      	try
      	{
     	 ArrayList<ArrayList<Integer>> solution = new ArrayList<ArrayList<Integer>>();
-
+    	 
              m = new CPModel();
+             
              CreateVariables();//crate variable for the model
-          
+             
              CreateConstraintsForRandomTests(); //create chco constraint
 
              CPSolver s = new CPSolver(); //create object solver
-
+             
              s.read(m); //read model (contains variables and constraints)
              s.getConfiguration().putInt(Configuration.SOLUTION_POOL_CAPACITY, 1);
              s.setValIntSelector(new RandomIntValSelector());
               s.setRandomSelectors();
-         
+              
              int rootworld = s.getEnvironment().getWorldIndex();
-              s.worldPush();
+             s.worldPush();
      
               s.solve();
               int count=0;
              
               ISolutionPool pool = s.getSearchStrategy().getSolutionPool();
-             
+              
               
              ArrayList<Integer> t = new ArrayList<Integer>();
              int value;
@@ -428,7 +433,7 @@ public class CSolver {
                     	  line= line + x[j] + ",";
 
                   }
-                 
+               
 
                   while (line.endsWith(",")) line= line.substring(0,line.length()-1);
                   _infile[_countRandomTests++]=line;

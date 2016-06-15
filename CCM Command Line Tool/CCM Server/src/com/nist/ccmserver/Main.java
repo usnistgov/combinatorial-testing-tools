@@ -35,7 +35,6 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -265,6 +264,8 @@ public class Main{
 		 * End of command line arguments parsing
 		 */
 		
+		
+		
 		m.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		m.lblStepChart.setSize(500,500);
 		m.lblColumnChart.setSize(500,500);
@@ -272,27 +273,34 @@ public class Main{
 		m.pointChartPanel.add(m.lblPointChart);
 		m.frame.add(m.lblStepChart, BorderLayout.WEST);
 		m.frame.add(m.lblColumnChart, BorderLayout.EAST);
-		//m.frame.add(m.lblPointChart, BorderLayout.EAST);
+		m.frame.pack();
+		if(m.data.isActsFilePresent()){
+			m.readTestCaseConfigurationFile(m.ACTSpath);
+		}
+		if(m.tests_input_file_path != ""){
+			if (!m.readTestCaseInputFile(m.tests_input_file_path)) {
+				return;
+			}else{
+				
+				if(m.readConstraintsFile(constraints_path)){
+					/*
+					System.out.println("\n\nConstraints: \n\n");
+					for(meConstraint c : m.data.get_constraints()){
+						System.out.println(c.get_cons());
+					}
+					*/
+				}
+				
+			}
+		}
+
+		if(m.generateRandom)
+			m.GetRandomTests();
+		for(int i = 0; i < tway_values.length; i++){
+			m.Tway(tway_values[i]);
+		}
 		m.frame.pack();
 		
-		if (!m.readTestCaseInputFile(m.tests_input_file_path)) {
-			return;
-		}else{
-			
-			if(m.readConstraintsFile(constraints_path)){
-				System.out.println("\n\nConstraints: \n\n");
-				for(meConstraint c : m.data.get_constraints()){
-					System.out.println(c.get_cons());
-				}
-			}
-			if(m.generateRandom)
-				m.GetRandomTests();
-			for(int i = 0; i < tway_values.length; i++){
-				m.Tway(tway_values[i]);
-			}
-
-			
-		}
 		return;
 	}
 
@@ -303,9 +311,12 @@ public class Main{
 	 * format as the ACTS input files specified in the ACTS User manual.
 	 * 
 	 */
-	public void readTestCaseConfigurationFile(String path) {
+	public boolean readTestCaseConfigurationFile(String path) {
 		try{
+			List<String> params = new ArrayList<String>();
 			List<String> constraints = new ArrayList<String>();
+			List<String[]> values_array = new ArrayList<String[]>();
+			List<Integer> types = new ArrayList<Integer>();
 			FileInputStream fstream = new FileInputStream(path);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -335,21 +346,69 @@ public class Main{
 					continue;
 				
 				if(in_constraint_section && !data.isConstraintsFilePresent()){
+					//Constraints file isn't present
+					//add the line to the constraints...
 					constraints.add(line);
 					continue;
 				}else if(in_param_section){
 					//do this later...
 					String parameter_name = line.substring(0, line.indexOf("("));
+					String type = line.substring(line.indexOf("(") + 1, line.lastIndexOf(")"));
+					String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
+					values_array.add(value_line.split(","));
+					params.add(parameter_name);
+					switch(type){
+					case "enum":
+						types.add(1);
+						break;
+					case "boolean":
+						types.add(2);
+						break;
+					case "int":
+						types.add(0);
+						break;
+					default:
+							System.out.println("Incorrect data type : " + type);
+							return false;
+					}
 				}else
 					continue;
 			}
-			br.close();
-			HashMapParameters();
+			
+			//Format the parameter names to match the function CreateParameters format
+			String tempLine = "";
+			for(String str : params){
+				tempLine += str;
+				tempLine += ",";
+			}
+			
+			data.set_columns(params.size());
+			
+			
+			//This creates all the parameters...
+
+			CreateParameters(params.size(), tempLine.trim().substring(0, tempLine.length() - 1).replaceAll("\\s", ""));
+			
+			//Time to add the values to the parameters...
+			int i = 0;
+			for(Parameter tempParam : data.get_parameters()){
+				tempParam.setType(types.get(0));
+				for(int z = 0; z < values_array.get(i).length; z++){
+					tempParam.addValue(values_array.get(i)[z]);
+				}
+				i++;
+			}
+			
+			
+			//End of processing
+			
 			for(String str : constraints)
 				AddConstraint(str.trim());
+			return true;
 		}catch(Exception ex){
 			System.out.println(ex.getMessage());
 		}
+		return false;
 	}
 	
 	
@@ -363,6 +422,9 @@ public class Main{
 	 * 
 	 */
 	public boolean readConstraintsFile(String path){
+		if(data.isActsFilePresent()){
+			return false;
+		}
 		FileInputStream fstream;
 		try {
 			List<String> constraints = new ArrayList<String>();
@@ -424,6 +486,9 @@ public class Main{
 					CreateParameters(columns, "");
 					ncols = columns;
 					continue;
+				}else if(data.hasParamNames() && ncols == 0 && data.isActsFilePresent()){
+					ncols = data.get_parameters().size();
+					continue;
 				}
 				if (line.contains(",")) {
 					values = line.split(",");
@@ -476,12 +541,12 @@ public class Main{
 				}else if (line.contains(",")) {
 					values = line.split(",");
 					infile[i] = line;
-					AddValuesToParameters(values);
-					
+					if(!data.isActsFilePresent())
+						AddValuesToParameters(values);
 				}
 				i++;
 			}
-
+			
 			br.close();
 			if(setupFile() != 0)
 				return false;
@@ -532,7 +597,10 @@ public class Main{
 		names = parameterNames.split(",");
 		for (int i = 0; i < number; i++) {
 			// if names are not in file, by default parameters will be named P1, P2, p3...
-			if (!data.hasParamNames())
+			if(data.isActsFilePresent()){
+				p = new Parameter(names[i]);
+			}
+			if (!data.hasParamNames() && !data.isActsFilePresent())
 				p = new Parameter("P" + (i + 1));
 			else
 				p = new Parameter(names[i]);
@@ -730,23 +798,25 @@ public class Main{
 		 final int ERR = 5;
          if (infile == null) { System.out.println("Test file must be loaded."); return ERR;}
          if (rng == null)    { System.out.println("Set parameter values."); return ERR; }
+        
          
-         
-         
-
          int i = 0;
          while (i < data.get_rows() ) {
              values = infile[i].split(",");
             
              // locate this value in mapping array; if not found, create and return value
              // determine the index of each input row field and use it in the test array
-             // first read in the parameter values for this row as trings                                                                                                                                                                                                                                                                                                                                                                                           
+             // first read in the parameter values for this row as trings      
+             
              int j = 0; int m = 0;
              for (m = 0; m < data.get_columns(); m++) {
+            	 
                  if (!rng[m] && !grp[m]) {  // discrete values, not range
+                	 
 						// find value in map array and store its index as value for coverage calculation
                      Boolean fnd = false; int locn = 0;
                      for (j = 0; j < nmapMax && !fnd && map[m][j] != null; j++) {
+                    	 //ZACH THE BUG IS HERE IN THE FOR LOOP ABOVE
                          if (map[m][j].equals(values[m])) { fnd = true; locn = j; }
                      }
                      if (data.get_parameters().get(m).getValues().size() > nmapMax) {
@@ -755,6 +825,7 @@ public class Main{
                          return ERR;
                          //nmapMax = parameters[m].getValues().size();
                      } else {// if matching value not in map array, add it and save index
+              
                          if (!fnd) { map[m][j] = values[m]; locn = j; }
                          test[i][m] = locn;
                      }
@@ -821,6 +892,7 @@ public class Main{
             }
              i++;
          }
+         
          int j;
          for (i = 0; i < data.get_columns(); i++) { 	// set up number of values for automatically detected parms
              if (!rng[i] && !grp[i]) { 				// count how many value mappings used
@@ -828,9 +900,6 @@ public class Main{
                  nvals[i] = j;			// j = # of value mappings have been established
              }
          }
-
-
-       
 
 
          try {
@@ -1777,10 +1846,12 @@ public class Main{
 			lblStepChart.setIcon(imagen);
 			lblStepChart.repaint();
 			
-			frame.pack();
-			frame.setVisible(true);
+			
 			final ChartPanel chartPanel = new ChartPanel(chart);
 			chartPanel.setVisible(true);
+			
+			frame.pack();
+			frame.setVisible(true);
 		
 		}
 		
@@ -1940,7 +2011,6 @@ public class Main{
 						//if (chkMeasureCoverage.isSelected()) {
 						if(true){
 							infile = solver.infile();
-
 							//int ncols = data.get_columns();
 							//int nrows = solver.NoRandomTests();
 							//txtNumConstraints.setText(Integer.toString(constraints.size()));
