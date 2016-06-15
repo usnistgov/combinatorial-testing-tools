@@ -98,14 +98,20 @@ public class Main{
     public boolean heatmap = false;
     public boolean stepchart = false;
     public boolean barchart = false;
+    public boolean generateMissing = false;
+    public boolean appendTests = false;
     public String ACTSpath = "";
+    public int minCov = 0;
+    public String tests_input_file_path = "";
+    public String missingCombinationsFilePath = "";
+    
+    public static int tway_max = 0;
 	
 	//can change this or user define it as cmd parameter
 	public int nmapMax = 50;
 	
 	public static void main(String[] args){
 		Main m = new Main();
-		String tests_input_file_path = "";
 		String constraints_path = "";
 		String tway_values[] = new String[5];
 		m.data = new TestData();
@@ -142,7 +148,7 @@ public class Main{
 			switch (param){
 			case "--inputfile":
 			case "-I":
-				tests_input_file_path = argument;
+				m.tests_input_file_path = argument;
 				break;
 			case "--constraints":
 			case "-C":
@@ -173,6 +179,27 @@ public class Main{
 			case "-H":
 				m.heatmap = Boolean.parseBoolean(argument);
 				break;
+			case "--generate-missing":
+			case "-G":
+				m.generateMissing = Boolean.parseBoolean(argument);
+				break;
+			case "--append-tests":
+			case "-a":
+				m.appendTests = Boolean.parseBoolean(argument);
+				break;
+			case "output-file":
+			case "-o":
+				m.missingCombinationsFilePath = argument;
+				break;
+			case "--minimum-coverage":
+			case "-m":
+				m.minCov = Integer.parseInt(argument);
+				if(m.minCov <= 0 || m.minCov > 100){
+					System.out.println("Can't have a minimum coverage of " + argument);
+					m.appendTests = false;
+					m.generateMissing = false;
+				}
+				break;
 			case "--tway":
 			case "-T":
 				String[] vals = argument.split(",");
@@ -180,19 +207,28 @@ public class Main{
 				for(int i = 0; i < vals.length; i++){
 					switch (vals[i]){
 					case "2":
-						tway_values[0] = "2way";
+						tway_values[i] = "2way";
+						if(2 > tway_max)
+							tway_max = 2;
 						break;
 					case "3":
-						tway_values[1] = "3way";
+						tway_values[i] = "3way";
+						if(3 > tway_max)
+							tway_max = 3;
 						break;
 					case "4":
-						tway_values[2] = "4way";
+						tway_values[i] = "4way";
+						if(4 > tway_max)
+							tway_max = 4;
 						break;
 					case "5":
-						tway_values[3] = "5way";
+						tway_values[i] = "5way";
+						if(5 > tway_max)
+							tway_max = 5;
 						break;
 					case "6":
-						tway_values[4] = "6way";
+						tway_values[i] = "6way";
+						tway_max = 6;
 						break;
 					default:
 						System.out.println("Invalid T-way combination parameter: " + argument);
@@ -218,7 +254,7 @@ public class Main{
 		//m.frame.add(m.lblPointChart, BorderLayout.EAST);
 		m.frame.pack();
 		
-		if (!m.readTestCaseInputFile(tests_input_file_path)) {
+		if (!m.readTestCaseInputFile(m.tests_input_file_path)) {
 			return;
 		}else{
 			
@@ -406,17 +442,15 @@ public class Main{
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = "";
 			int i = 0;
-			while(i != data.get_rows()){
-				line = br.readLine();
-
+			boolean read_params = false;
+			while((line = br.readLine()) != null){
 				line.trim();
 				values = line.split(",");
 				int columns = values.length;
-				if (data.hasParamNames() && i == 0){
+				if (data.hasParamNames() && i == 0 && !read_params){
+					read_params = true;
 					continue;
-				}
-
-				if (line.contains(",")) {
+				}else if (line.contains(",")) {
 					values = line.split(",");
 					infile[i] = line;
 					AddValuesToParameters(values);
@@ -867,22 +901,26 @@ public class Main{
 					/*
 					 * For generating missing tests... incorporate later...
 					 * 
-					 *
-					if (GenTests.isSelected()) {
-						way.set_appendTests(appendTests.isSelected());
-						way.set_GenTests(GenTests.isSelected());
-						way.set_FileNameMissing(fileMissing.getPath());
-						way.set_rptMissingCom(rptMissingCom.isSelected());
+					 */
+					if (generateMissing) {
+						way.set_appendTests(appendTests);
+						way.set_GenTests(generateMissing);
+						way.set_FileNameMissing(missingCombinationsFilePath);
+						way.set_appendFile(tests_input_file_path);
+						way.set_rptMissingCom(false);
 						way.set_minCov(minCov);
-						way.set_NGenTests(MaxGenTests);
+						way.set_NGenTests(10000);
 						way.set_map(map);
-						way.set_parmName(parmName);
+						if(data.hasParamNames())
+							way.set_parmName(1);
+						else
+							way.set_parmName(0);
 
-						if (rptMissingCom.isSelected())
-							way.set_FileNameReport(fileReport.getPath());
+						//if (rptMissingCom.isSelected())
+							//way.set_FileNameReport(fileReport.getPath());
 
 					}
-					*/
+					
 					//End of generating missing tests
 
 					ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());

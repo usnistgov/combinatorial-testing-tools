@@ -71,11 +71,17 @@ public class Tway extends RecursiveTask {
 	public long _tot_varvalconfig;
 	public List<String[][]> _aInvalidComb = null;
 	public List<String[][]> _aInvalidNotIn = null;
+	
+	public String appendFile = "";
 
 	// set properties
 
 	public void set_wait(boolean w) {
 		wait = w;
+	}
+	
+	public void set_appendFile(String x){
+		appendFile = x;
 	}
 
 	public void set_parmName(int p) {
@@ -181,7 +187,7 @@ public class Tway extends RecursiveTask {
 			}
 			if (oFile.canWrite()) {
 				BufferedWriter oWriter = new BufferedWriter(new FileWriter(sFileName, true));
-				oWriter.write(sContent);
+				oWriter.append(sContent);
 				oWriter.newLine();
 				oWriter.flush();
 				oWriter.close();
@@ -2400,16 +2406,28 @@ public class Tway extends RecursiveTask {
 	private void GenerateMissingFile(int[][] out, int No_out) {
 		try {
 
+			if(Integer.parseInt(String.valueOf(_tway.charAt(0))) != Main.tway_max)
+				return;
 			CSolver validcomb = new CSolver();
 			validcomb.SetConstraints(_constraints);
 			validcomb.SetParameter(_parameters);
+						
+			//Add parameter names to file
+			if (_parmName == 1) {
+				String line = "";
+				for (Parameter p : _parameters)
+					line = line + p.getName() + ",";
+				while (line.endsWith(","))
+					line = line.substring(0, line.length() - 1);
+				write(_fileNameMissing, line);
+			}
 
 			if (_appendTests) { // append new tests to original, so write out
 								// original first
 
-				if (_constraints.size() > 0)
-					for (meConstraint c : _constraints)
-						write(_fileNameMissing, c.get_cons());
+				//if (_constraints.size() > 0)
+					//for (meConstraint c : _constraints)
+						//write(_fileNameMissing, c.get_cons());
 
 				for (int ii = 0; ii < _nrows; ii++) {
 					String outl = "";
@@ -2424,14 +2442,7 @@ public class Tway extends RecursiveTask {
 				}
 			}
 
-			if (_parmName == 1) {
-				String line = "";
-				for (Parameter p : _parameters)
-					line = line + p.getName() + ",";
-				while (line.endsWith(","))
-					line = line.substring(0, line.length() - 1);
-				write(_fileNameMissing, line);
-			}
+
 
 			for (int ii = 0; ii < No_out; ii++) {
 				String outl = "";
@@ -2511,7 +2522,6 @@ public class Tway extends RecursiveTask {
 				}
 
 				write(_fileNameMissing, outl);
-
 			}
 
 		} catch (Exception ex) {
