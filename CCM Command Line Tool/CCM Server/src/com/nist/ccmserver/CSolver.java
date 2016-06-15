@@ -295,7 +295,7 @@ public class CSolver {
              if (c == null)
              {
                 
-
+            	
                  throw new  Error();
 
              }
@@ -339,12 +339,12 @@ public class CSolver {
              }
              if (c == null)
              {
-                
+            	 
 
                  throw new  Error();
 
              }
-
+             
              m.addConstraint(c);  //add constraint to model
              
          //}
@@ -352,7 +352,7 @@ public class CSolver {
      }
 
      
-     public void SolverRandomTests(int NoSolutions, BufferedWriter bw, JProgressBar pb)
+     public void SolverRandomTests(int NoSolutions, BufferedWriter bw)
      {
      	try
      	{
@@ -372,8 +372,7 @@ public class CSolver {
          
              int rootworld = s.getEnvironment().getWorldIndex();
               s.worldPush();
-               
-              pb.setIndeterminate(true);
+     
               s.solve();
               int count=0;
              
@@ -392,10 +391,7 @@ public class CSolver {
              _infile=new String[NoSolutions];
              
              
-             pb.setIndeterminate(false);
-             pb.setValue(0);
-             pb.setStringPainted(true);
-             pb.setMaximum(NoSolutions);
+
              
             // for (Solution sol:pool.asList())
              //{
@@ -433,7 +429,7 @@ public class CSolver {
 
                   }
                  
-                  pb.setValue(pb.getValue()+1);
+
                   while (line.endsWith(",")) line= line.substring(0,line.length()-1);
                   _infile[_countRandomTests++]=line;
                   
@@ -445,9 +441,6 @@ public class CSolver {
                   }catch(Exception ex) {}
                   
          } while (s.nextSolution() && _countRandomTests<NoSolutions);
-             
-            if(pb.getValue()<100)
-                 pb.setValue(100);
             
             
             

@@ -86,6 +86,8 @@ public class Main{
     public final int NBINS = 20;
     public static final XYSeriesCollection  chart_data = new XYSeriesCollection();
     public static final XYSeriesCollection bars = new XYSeriesCollection();
+    public FileWriter fwRandomFile = null;
+    public BufferedWriter bwRandomTests = null;
     public JFreeChart chart;
     public JFreeChart chartcolumn;
     public JFrame frame = new JFrame("CCM");
@@ -100,6 +102,8 @@ public class Main{
     public boolean barchart = false;
     public boolean generateMissing = false;
     public boolean appendTests = false;
+    public boolean generateRandom = false;
+    public int numberOfRandom = 0;
     public String ACTSpath = "";
     public int minCov = 0;
     public String tests_input_file_path = "";
@@ -187,9 +191,26 @@ public class Main{
 			case "-a":
 				m.appendTests = Boolean.parseBoolean(argument);
 				break;
-			case "output-file":
+			case "--output-file":
 			case "-o":
 				m.missingCombinationsFilePath = argument;
+				break;
+			case "--generate-random":
+			case "-r":
+				m.generateRandom = Boolean.parseBoolean(argument);
+				break;
+			case "-n":
+				m.numberOfRandom = Integer.parseInt(argument);
+				break;
+			case "--output-random":
+			case "-f":
+				try {
+					m.fwRandomFile = new FileWriter(argument);
+					m.bwRandomTests = new BufferedWriter(m.fwRandomFile);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				break;
 			case "--minimum-coverage":
 			case "-m":
@@ -264,6 +285,8 @@ public class Main{
 					System.out.println(c.get_cons());
 				}
 			}
+			if(m.generateRandom)
+				m.GetRandomTests();
 			for(int i = 0; i < tway_values.length; i++){
 				m.Tway(tway_values[i]);
 			}
@@ -714,6 +737,7 @@ public class Main{
          int i = 0;
          while (i < data.get_rows() ) {
              values = infile[i].split(",");
+            
              // locate this value in mapping array; if not found, create and return value
              // determine the index of each input row field and use it in the test array
              // first read in the parameter values for this row as trings                                                                                                                                                                                                                                                                                                                                                                                           
@@ -1876,6 +1900,79 @@ public class Main{
 		 * =========================================================
 		 */
 		
+		
+		/*
+		 * =========================================================
+		 * GENERATING RANDOM TESTS
+		 * =========================================================
+		 */
+		
+		private void GetRandomTests() {
+
+			try {
+
+				/*
+				if (txtInputFileRand.getText().equals("")) {
+					JOptionPane.showMessageDialog(frame, "File with parameters isn't loaded!");
+					return;
+				}
+				if (txtOutputFileRand.getText().equals("")) {
+					JOptionPane.showMessageDialog(frame, "Output file isn't set!");
+					return;
+				}
+				if ((int) spnNoTestRand.getValue() == 0) {
+					JOptionPane.showMessageDialog(frame, "Number of tests must be grather than 0!");
+					return;
+				}
+	*/
+				//Thread RandomTests = new Thread() {
+					//@Override
+					//public void run() {
+						CSolver solver = new CSolver();
+						
+						solver.SetConstraints(data.get_constraints()); // set constraint to
+															// solver model
+						solver.SetParameter(data.get_parameters()); // set parameters to solver
+															// model
+
+						solver.SolverRandomTests((int) numberOfRandom, bwRandomTests);
+
+						//if (chkMeasureCoverage.isSelected()) {
+						if(true){
+							infile = solver.infile();
+
+							//int ncols = data.get_columns();
+							//int nrows = solver.NoRandomTests();
+							//txtNumConstraints.setText(Integer.toString(constraints.size()));
+							data.set_rows(numberOfRandom);
+							setupParams();
+							setupFile();
+							//tcMain.setEnabledAt(0, true);
+							//tcMain.setEnabledAt(1, false);
+							//tcMain.setSelectedIndex(0);
+							//nrowsBox.setValue(nrows);
+							//nColsBox.setValue(ncols);
+							//loadComplete = true;
+							//FileLoaded(loadComplete);
+
+						}
+					//}
+				//};
+
+				//RandomTests.start();
+
+			} catch (Exception ex) {
+				System.out.println("Error solving constraints");
+				return;
+			}
+
+		}
+		
+		/*
+		 * =========================================================
+		 * END OF GENERATING RANDOM TESTS
+		 * =========================================================
+		 */
 }
 
 
