@@ -35,6 +35,7 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -83,6 +84,8 @@ public class Main{
     public double TotCov5way;      // total coverage for 4-way combinations   
     public double TotCov6way;
     public final int NBINS = 20;
+    public int nbnds = 4;
+    public Boolean[] boundariesSet; // 1 = all parameters have had boundaries specified
     public static final XYSeriesCollection  chart_data = new XYSeriesCollection();
     public static final XYSeriesCollection bars = new XYSeriesCollection();
     public FileWriter fwRandomFile = null;
@@ -107,6 +110,10 @@ public class Main{
     public int minCov = 0;
     public String tests_input_file_path = "";
     public String missingCombinationsFilePath = "";
+    public static int mode = 1;
+    
+    public static final int MODE_CLASSIC = 1;
+    public static final int MODE_REALTIME = 2;
     
     public static int tway_max = 0;
 	
@@ -149,6 +156,10 @@ public class Main{
 			}
 
 			switch (param){
+			case "--mode":
+			case "-M":
+				mode = Integer.valueOf(argument);
+				break;
 			case "--inputfile":
 			case "-I":
 				m.tests_input_file_path = argument;
@@ -264,42 +275,93 @@ public class Main{
 		 * End of command line arguments parsing
 		 */
 		
-		
-		
-		m.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		m.lblStepChart.setSize(500,500);
-		m.lblColumnChart.setSize(500,500);
-		m.lblPointChart.setSize(500,300);
-		m.pointChartPanel.add(m.lblPointChart);
-		m.frame.add(m.lblStepChart, BorderLayout.WEST);
-		m.frame.add(m.lblColumnChart, BorderLayout.EAST);
-		m.frame.pack();
-		if(m.data.isActsFilePresent()){
-			m.readTestCaseConfigurationFile(m.ACTSpath);
-		}
-		if(m.tests_input_file_path != ""){
-			if (!m.readTestCaseInputFile(m.tests_input_file_path)) {
-				return;
-			}else{
-				
-				if(m.readConstraintsFile(constraints_path)){
+		if(m.mode == MODE_CLASSIC){
+			//Classic mode based off of the GUI version
+			m.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			m.lblStepChart.setSize(500,500);
+			m.lblColumnChart.setSize(500,500);
+			m.lblPointChart.setSize(500,300);
+			m.pointChartPanel.add(m.lblPointChart);
+			m.frame.add(m.lblStepChart, BorderLayout.WEST);
+			m.frame.add(m.lblColumnChart, BorderLayout.EAST);
+			m.frame.pack();
+			
+			//Check and make sure the tests input file is present...
+			if(m.tests_input_file_path != ""){
+				if (!m.readTestCaseInputFile(m.tests_input_file_path)) {
+					return;
+				}else{
+					//Parameters and values have been auto-detected via the test cases in input file
+					
 					/*
-					System.out.println("\n\nConstraints: \n\n");
-					for(meConstraint c : m.data.get_constraints()){
-						System.out.println(c.get_cons());
+					 * Now we check the ACTS input file to identify equivalence classes and range values,
+					 * as well as identify any possible inputs that weren't specified in auto-detect test cases.
+					 * 
+					 * Also, check the ACTS file for constraints.
+					 */
+					
+					if(m.data.isActsFilePresent()){
+						//check ACTS file
+						m.readTestCaseConfigurationFile(m.ACTSpath);
+						
+						//After processing the ACTS file
+						if(constraints_path != "" && !m.data.get_constraints().isEmpty()){
+							System.out.println("\nConstraints specified in ACTS file. Using ACTS instead "
+									+ "of constraints file.\n");
+						}else if(constraints_path != "" && m.data.get_constraints().isEmpty()){
+							//Constraints weren't specified in the ACTS file but are specified in constraints file
+							m.readConstraintsFile(constraints_path);
+							System.out.println("\n\nConstraints: \n\n");
+							for(meConstraint c : m.data.get_constraints()){
+								System.out.println(c.get_cons());
+							}
+						}
+					}else{
+						//No ACTS file present therefore lets check for a constraints file.
+						if(constraints_path != ""){
+							m.readConstraintsFile(constraints_path);
+							
+							System.out.println("\n\nConstraints: \n\n");
+							for(meConstraint c : m.data.get_constraints()){
+								System.out.println(c.get_cons());
+							}
+							
+						}
 					}
-					*/
+					
+				}
+				
+			}else{
+				if(!m.data.isActsFilePresent()){
+					System.out.println("No test case input file nor ACTS file present.\nCan't generate tests "
+							+ "without some information on parameters and values.\n");
+					return;
+				}else{
+					//ACTS file is present and the input parameters have been defined.
+					if(!m.generateRandom){
+						//In classic mode but the user doesn't have a test case file 
+						//nor does the user want to generate random tests... something is wrong.
+						System.out.println("Incorrect input argumenets specified.");
+						return;
+					}else{
+						//Ok the user wants to generate random tests...
+						m.GetRandomTests();
+					}
 				}
 				
 			}
+			
+			//Generate T-way coverage maps
+			//The user wants to measure the random tests also...
+			for(int i = 0; i < tway_values.length; i++){
+				m.Tway(tway_values[i]);
+			}
+			
+			m.frame.pack();
+			
 		}
-
-		if(m.generateRandom)
-			m.GetRandomTests();
-		for(int i = 0; i < tway_values.length; i++){
-			m.Tway(tway_values[i]);
-		}
-		m.frame.pack();
+		
+		
 		
 		return;
 	}
@@ -313,9 +375,10 @@ public class Main{
 	 */
 	public boolean readTestCaseConfigurationFile(String path) {
 		try{
+
 			List<String> params = new ArrayList<String>();
 			List<String> constraints = new ArrayList<String>();
-			List<String[]> values_array = new ArrayList<String[]>();
+			//List<String[]> values_array = new ArrayList<String[]>();
 			List<Integer> types = new ArrayList<Integer>();
 			FileInputStream fstream = new FileInputStream(path);
 			DataInputStream in = new DataInputStream(fstream);
@@ -325,6 +388,7 @@ public class Main{
 			boolean in_constraint_section = false;
 			boolean in_param_section = false;
 			while((line = br.readLine()) != null){
+
 				line = line.trim();
 				Matcher m = p.matcher(line);
 				if(m.find()){
@@ -341,6 +405,7 @@ public class Main{
 					}
 					continue;
 				}
+
 				//Checks to see if the line is a comment
 				if(line.startsWith("--"))
 					continue;
@@ -350,31 +415,205 @@ public class Main{
 					//add the line to the constraints...
 					constraints.add(line);
 					continue;
-				}else if(in_param_section){
+				}else if(in_param_section && line != ""){
 					//do this later...
-					String parameter_name = line.substring(0, line.indexOf("("));
-					String type = line.substring(line.indexOf("(") + 1, line.lastIndexOf(")"));
-					String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
-					values_array.add(value_line.split(","));
-					params.add(parameter_name);
-					switch(type){
-					case "enum":
-						types.add(1);
-						break;
-					case "boolean":
-						types.add(2);
-						break;
-					case "int":
-						types.add(0);
-						break;
-					default:
-							System.out.println("Incorrect data type : " + type);
-							return false;
+					
+					/*
+					 * Need to parse range and boundary values if present.
+					 * This section will vary depending on if in CLASSIC Mode 
+					 * or REAL TIME Mode.
+					 */
+
+					if(mode == MODE_CLASSIC){
+						String parameter_name = line.substring(0, line.indexOf("("));
+						String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
+						String[] vals = value_line.split(",");
+						
+						if (line.contains("*")) {
+							// Range value
+
+							//Figure out what index the parameter is
+							int parmIndex = 0;
+							for(Parameter tp : data.get_parameters()){
+								if(parameter_name != tp.getName())
+									parmIndex++;
+								else
+									break;
+							}
+							//gets all the boundary values...
+							String[] boundary_vals = line.substring(line.indexOf("*") + 1, line.length()).trim().replaceAll("\\s", "").split(",");
+
+							
+							rng[parmIndex] = true;
+							int n = value_line.split(",").length + 1;
+							//This just makes sure that at least one value was present in the equivalence class
+							if (n < 2) {
+								System.out.println("Must have at least 2 values when defining an equivalence class.\n");
+								return false;
+							}
+							Parameter parm = data.get_parameters().get(parmIndex);
+							data.get_parameters().remove(parm);
+							nbnds = (n - 1 > 0 ? n - 1 : 1);
+							nvals[parmIndex] = n;
+							if (bnd[parmIndex] == null)
+								bnd[parmIndex] = new double[nbnds];
+							boundariesSet = new Boolean[nbnds]; // new set of boundaries
+																// required since num of
+																// values changed
+							for (int j = 0; j < nbnds; j++)
+								boundariesSet[j] = false;
+							
+							//Here is where we process the boundary values..
+							for (int x = 0; x < boundary_vals.length; x++) {
+
+								try {
+									bnd[parmIndex][x] = Double.parseDouble(boundary_vals[x].toString());
+									parm.addBound(new java.lang.Double(bnd[parmIndex][x]));
+								} catch (Exception ex) {
+									System.out.println("Invalid input for boundary value.");
+									return false;
+								}
+								boundariesSet[x] = true; // indicate this bound has been set
+								parm.setBoundary(true);
+							}
+							
+							// update in parameters
+							parm.setValuesO(parm.getValues());
+							parm.removeAllValues();
+
+							for (int b = 0; b <= parm.getBounds().size(); b++) {
+								parm.addValue(Integer.toString(b));
+							}
+
+							data.get_parameters().add(parmIndex, parm);
+							setupFile();
+
+
+						}else if(line.contains("{")){
+							
+
+							//Its a group
+							//Figure out what index the parameter is
+							int parmIndex = 0;
+							for(Parameter tp : data.get_parameters()){
+								if(!parameter_name.trim().equals(tp.getName().trim())){
+									parmIndex++;
+								}
+								else{
+									grp[parmIndex] = true;
+									break;
+								}
+							}
+							//grp[parmIndex] = true;
+
+
+							/*
+							 * get all the groups from the ACTS file line...
+							 */
+							//
+							//Get the information
+							List<String> groupDeclarations = new ArrayList<String>();
+							String buffer = line.substring(line.indexOf("{"), line.length());
+							boolean in_group = false;
+							String temp_str = "";
+							
+							for(char c : buffer.replaceAll("\\s","").trim().toCharArray()){
+								if(c == '{'){
+									in_group = true;
+									continue;
+								
+								}else if(c == '}'){
+									groupDeclarations.add(temp_str);
+									temp_str = "";
+									in_group = false;
+								}else
+									temp_str += c;
+							}
+							
+							
+							
+							//
+							//Pattern regexRule = Pattern.compile("[\\{(.*?)\\}]");
+							//System.out.println(line);
+							//Matcher match = regexRule.matcher(line);
+							//List<String> groupDeclarations = new ArrayList<String>();
+							//System.out.println("HERE WE GO: ");
+							//System.out.println(match.group(1));
+					        //while(match.find()) {
+					           // groupDeclarations.add(match.group(1));
+					       // }
+
+					        List<String[]> all_groups = new ArrayList<String[]>();
+					        for(String st : groupDeclarations){
+					        	all_groups.add(st.split(","));
+					        }
+
+							Parameter tp = data.get_parameters().get(parmIndex);
+							nvals[parmIndex] = groupDeclarations.size();
+							grp[parmIndex] = true;
+							group[parmIndex] = new Object[groupDeclarations.size()];
+
+							tp.setGroup(true);
+							tp.setValuesO(tp.getValues());
+							tp.removeAllValues();
+							for (int index = 0; index < groupDeclarations.size(); index++) {
+								group[parmIndex][index] = groupDeclarations.get(index).toString().trim().replaceAll("\\s","");
+								tp.addValue(Integer.toString(index));
+								tp.addGroup(groupDeclarations.get(index).toString().trim().replaceAll("\\s",""));
+							}
+
+							
+						
+						}else{
+							//Looking for values defined in ACTS file that weren't present in the test case file
+
+							for(Parameter par : data.get_parameters()){
+								if(par.getName() != parameter_name)
+									continue;
+								else{
+									for(int i = 0; i < vals.length; i++){
+										if(!par.getValues().contains(vals[i])){
+											//found a new value for this parameter
+											par.addValue(vals[i]);
+										}
+									}
+								}
+							}
+								
+						}
+						
+					}else if(mode == MODE_REALTIME){
+						String parameter_name = line.substring(0, line.indexOf("("));
+						String type = line.substring(line.indexOf("(") + 1, line.lastIndexOf(")"));
+						String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
+						params.add(parameter_name);
+						//values_array.add(value_line.split(","));
+						
+						switch(type){
+						case "enum":
+							types.add(1);
+							break;
+						case "boolean":
+							types.add(2);
+							break;
+						case "int":
+							types.add(0);
+							break;
+						default:
+								System.out.println("Incorrect data type : " + type);
+								return false;
+						}
 					}
+					
+				
 				}else
 					continue;
 			}
+			setupFile();
 			
+			/*
+			 * This will all be used later in Real time mode
+			 * 
 			//Format the parameter names to match the function CreateParameters format
 			String tempLine = "";
 			for(String str : params){
@@ -394,11 +633,33 @@ public class Main{
 			for(Parameter tempParam : data.get_parameters()){
 				tempParam.setType(types.get(0));
 				for(int z = 0; z < values_array.get(i).length; z++){
-					tempParam.addValue(values_array.get(i)[z]);
+					//This is where we need to identify and evaluate boundary and group values...
+					if(!values_array.get(i)[0].contains("*"))
+						tempParam.addValue(values_array.get(i)[z]);
+					else{
+						//Either a range or group value
+						if(values_array.get(i)[0].contains("[")){
+							//Group value
+							grp[i] = true;
+						}else{
+							//Range value
+							rng[i] = true;
+							int n = values_array.get(i).length + 1;
+							Parameter parm = data.get_parameters().get(i);
+							data.get_parameters().remove(parm);
+							int nbnds = (n - 1 > 0 ? n - 1 : 1);
+							nvals[i] = n;
+							if(n < 2){
+								System.out.println("Must have at least 2 values when defining an equivalence class.\n");
+								
+							}
+							
+						}
+					}
 				}
 				i++;
 			}
-			
+			*/
 			
 			//End of processing
 			
@@ -474,19 +735,20 @@ public class Main{
 			String line = "";
 			// Read File Line By Line
 			while ((line = br.readLine()) != null) {
+				System.out.println(line);
 				line.trim();
 				values = line.split(",");
 				int columns = values.length;
-				if (data.hasParamNames() && ncols == 0 && !data.isActsFilePresent()){
+				if (data.hasParamNames() && ncols == 0){
 					//Essentially auto detection mode for parameter values
 					CreateParameters(columns, line);
 					ncols = columns;
 					continue;
-				}else if(!data.hasParamNames() && ncols == 0 && !data.isActsFilePresent()){
+				}else if(!data.hasParamNames() && ncols == 0){
 					CreateParameters(columns, "");
 					ncols = columns;
 					continue;
-				}else if(data.hasParamNames() && ncols == 0 && data.isActsFilePresent()){
+				}else if(data.hasParamNames() && ncols == 0){
 					ncols = data.get_parameters().size();
 					continue;
 				}
@@ -507,7 +769,6 @@ public class Main{
 
 			nrows = i;
 			br.close();
-			
 			data.set_columns(ncols);
 			data.set_rows(nrows);
 			values = new String[ncols];
@@ -541,8 +802,8 @@ public class Main{
 				}else if (line.contains(",")) {
 					values = line.split(",");
 					infile[i] = line;
-					if(!data.isActsFilePresent())
-						AddValuesToParameters(values);
+					//if(!data.isActsFilePresent())
+					AddValuesToParameters(values);
 				}
 				i++;
 			}
@@ -816,7 +1077,6 @@ public class Main{
 						// find value in map array and store its index as value for coverage calculation
                      Boolean fnd = false; int locn = 0;
                      for (j = 0; j < nmapMax && !fnd && map[m][j] != null; j++) {
-                    	 //ZACH THE BUG IS HERE IN THE FOR LOOP ABOVE
                          if (map[m][j].equals(values[m])) { fnd = true; locn = j; }
                      }
                      if (data.get_parameters().get(m).getValues().size() > nmapMax) {
@@ -831,9 +1091,7 @@ public class Main{
                      }
                  } else { 	
               	   
-                	/*
-                	 * 
-                	 * Finish this when we add range values and equivalence classes...
+             
               	   
               	   if (rng[m])
               	   {
@@ -845,7 +1103,9 @@ public class Main{
 							} catch(Exception ex) { System.out.println("Invalid value for parameter " + m + ".  Value = " + values[m].toString()); return ERR; }
 	                       try {
 	                       Boolean fnd = false;
-	                       for (int k = 0; k < nvals[m]-1 && k<Nbnd && !fnd; k++) 
+	                       
+	                       //nbnds = 4;
+	                       for (int k = 0; k < nvals[m]-1 && k<nbnds && !fnd; k++) 
 								{ if (v1 < bnd[m][k]) { test[i][m] = k; fnd = true; } }
 	                       if (!fnd) test[i][m] = nvals[m]-1;    // value > last boundary
 	                       } catch(Exception ex) {System.out.println("Problem with file or parameter/value specs in setupfile."); return ERR; }
@@ -853,11 +1113,12 @@ public class Main{
               	   
               	   if (grp[m])
               	   {
+              		   //BUG IS HERE.. 
               		   Object v1;
               		   try
               		   {
               			   
-              			   v1 = values[m]; //Double.parseDouble(values[m]);
+              			   v1 = values[m]; 
               		   }
               		   catch(Exception ex){
               			   System.out.println( "Invalid value for parameter " + m + ". Value = " + values[m].toString());
@@ -871,6 +1132,7 @@ public class Main{
               				  String[] vals=  group[m][k].toString().split(",");
               				  for (int q=0;q<vals.length;q++)
               				  {
+
               					  if (vals[q].equals(v1))
               					  {
               						  test[i][m]=k; fnd=true;
@@ -886,7 +1148,7 @@ public class Main{
               		   }
               		   
               	   }
-              	   */
+              	   
                      
                 }
             }

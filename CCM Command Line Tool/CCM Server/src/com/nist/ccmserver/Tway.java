@@ -257,6 +257,9 @@ public class Tway extends RecursiveTask {
 					pars[0][0] = _parameters.get(i).getName();
 					pars[1][0] = _parameters.get(j).getName();
 
+
+
+					
 					pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]).toString();
 					pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]).toString();
 
@@ -2486,6 +2489,7 @@ public class Tway extends RecursiveTask {
 						for (int b = 0; b < _ncols; b++) {
 							// parameter has boundaries specified
 							if (_bnd[b] != null) {
+								System.out.println("HEEEYYY SUCKER");
 								for (int r = 0; r <= _bnd[b].length; r++) {
 									if (ntmp == r) {
 										if (r == 0) {
