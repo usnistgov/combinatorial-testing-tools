@@ -292,64 +292,30 @@ public class Main{
 			if(m.data.isActsFilePresent()){
 				//check ACTS file
 				m.readTestCaseConfigurationFile(m.ACTSpath);
-				//m.readTestCaseConfigurationFile(m.ACTSpath);
-				
-				//After processing the ACTS file
-				//if(m.constraints_path != "" && !m.data.get_constraints().isEmpty()){
-					//System.out.println("\nConstraints specified in ACTS file. Using ACTS instead "
-							//+ "of constraints file.\n");
-				//}else if(m.constraints_path != "" && m.data.get_constraints().isEmpty()){
-					//Constraints weren't specified in the ACTS file but are specified in constraints file
-					//m.readConstraintsFile(m.constraints_path);
-					//System.out.println("\n\nConstraints: \n\n");
-					//for(meConstraint c : m.data.get_constraints()){
-						//System.out.println(c.get_cons());
-					//}
-				//}
+				if(m.generateRandom){
+					m.GetRandomTests();
+				}
 			}else{
-				if(!m.tests_input_file_path.equals("")){
-					if(!m.readTestCaseInputFile(m.tests_input_file_path)){
+				if (!m.tests_input_file_path.equals("")) {
+					if (!m.readTestCaseInputFile(m.tests_input_file_path)) {
+						System.out.println("Error: Something went wrong reading the test case .csv file.\n");
 						return;
-					}else{
-						//Test Case input file has been processed and everything is fine.
+					} else {
+						// Test Case input file has been processed and
+						// everything is fine.
+						if (!m.generateRandom) {
+							// In classic mode but the user doesn't have a test
+							// case file
+							// nor does the user want to generate random
+							// tests... something is wrong.
+
+						} else {
+							// Ok the user wants to generate random tests...
+							m.GetRandomTests();
+						}
 					}
 				}
 			}
-			//if(m.tests_input_file_path != ""){
-				//if (!m.readTestCaseInputFile(m.tests_input_file_path)) {
-					//return;
-				//}else{
-					//Parameters and values have been auto-detected via the test cases in input file
-					
-					/*
-					 * Now we check the ACTS input file to identify equivalence classes and range values,
-					 * as well as identify any possible inputs that weren't specified in auto-detect test cases.
-					 * 
-					 * Also, check the ACTS file for constraints.
-					 */
-					
-				//}
-				
-			//}else{
-				//if(!m.data.isActsFilePresent()){
-					//System.out.println("No test case input file nor ACTS file present.\nCan't generate tests "
-						//	+ "without some information on parameters and values.\n");
-					//return;
-				//}else{
-					//ACTS file is present and the input parameters have been defined.
-					//if(!m.generateRandom){
-						//In classic mode but the user doesn't have a test case file 
-						//nor does the user want to generate random tests... something is wrong.
-						//System.out.println("Incorrect input argumenets specified.");
-						//return;
-					//}else{
-						//Ok the user wants to generate random tests...
-						//m.GetRandomTests();
-					//}
-				//}
-				
-			//}
-			
 			//Generate T-way coverage maps
 			//The user wants to measure the random tests also...
 			for(int i = 0; i < tway_values.length; i++){
@@ -511,31 +477,23 @@ public class Main{
 						if (line.contains("*")) {
 							// Range value
 
-							//Figure out what index the parameter is
-							int parmIndex = 0;
-							for(Parameter tp : data.get_parameters()){
-								if(parameter_name != tp.getName())
-									parmIndex++;
-								else
-									break;
-							}
 							//gets all the boundary values...
 							String[] boundary_vals = line.substring(line.indexOf("*") + 1, line.length()).trim().replaceAll("\\s", "").split(",");
 
 							
-							rng[parmIndex] = true;
+							rng[paramIndex] = true;
 							int n = value_line.split(",").length + 1;
 							//This just makes sure that at least one value was present in the equivalence class
 							if (n < 2) {
 								System.out.println("Must have at least 2 values when defining an equivalence class.\n");
 								return false;
 							}
-							Parameter parm = data.get_parameters().get(parmIndex);
+							Parameter parm = data.get_parameters().get(paramIndex);
 							data.get_parameters().remove(parm);
 							nbnds = (n - 1 > 0 ? n - 1 : 1);
-							nvals[parmIndex] = n;
-							if (bnd[parmIndex] == null)
-								bnd[parmIndex] = new double[nbnds];
+							nvals[paramIndex] = n;
+							if (bnd[paramIndex] == null)
+								bnd[paramIndex] = new double[nbnds];
 							boundariesSet = new Boolean[nbnds]; // new set of boundaries
 																// required since num of
 																// values changed
@@ -546,8 +504,8 @@ public class Main{
 							for (int x = 0; x < boundary_vals.length; x++) {
 
 								try {
-									bnd[parmIndex][x] = Double.parseDouble(boundary_vals[x].toString());
-									parm.addBound(new java.lang.Double(bnd[parmIndex][x]));
+									bnd[paramIndex][x] = Double.parseDouble(boundary_vals[x].toString());
+									parm.addBound(new java.lang.Double(bnd[paramIndex][x]));
 								} catch (Exception ex) {
 									System.out.println("Invalid input for boundary value.");
 									return false;
@@ -564,8 +522,8 @@ public class Main{
 								parm.addValue(Integer.toString(b));
 							}
 
-							data.get_parameters().add(parmIndex, parm);
-							setupFile();
+							data.get_parameters().add(paramIndex, parm);
+							//setupFile();
 							paramIndex++;
 
 						}else if(line.contains("{")){
@@ -626,7 +584,6 @@ public class Main{
 							paramIndex++;
 						
 						}else{
-							System.out.println("DEEBUG: " + line);
 							//Normal input definition with no groups or boundary values.
 							String type = line.substring(line.indexOf("(") + 1, line.lastIndexOf(")"));
 							//values_array.add(value_line.replaceAll("\\s", "").trim().split(","));
@@ -652,7 +609,6 @@ public class Main{
 							nvals[paramIndex] = vals.length;
 
 							for(int i = 0; i < vals.length; i++){
-								System.out.println("Adding value " + vals[i] + " to parameter " + data.get_parameters().get(paramIndex).getName());
 								data.get_parameters().get(paramIndex).addValue(vals[i]);
 							}
 							paramIndex++;
@@ -686,14 +642,7 @@ public class Main{
 				readTestCaseInputFile(tests_input_file_path);
 			}
 			
-			//DEBUG - Everything seems ok here...
-			System.out.println("PARAMETERS");
-			for(Parameter pe : data.get_parameters()){
-				System.out.println("NAME: " + pe.getName());
-				for(int i = 0; i < pe.getValues().size(); i++){
-					System.out.println(pe.getValues().get(i));
-				}
-			}
+
 			
 			return true;
 		}catch(Exception ex){
@@ -765,6 +714,7 @@ public class Main{
 				BufferedReader br = new BufferedReader(new InputStreamReader(in));
 				String line = "";
 				// Read File Line By Line
+				System.out.println("TEST CASE FILE\n");
 				while ((line = br.readLine()) != null) {
 					System.out.println(line);
 					line.trim();
@@ -848,6 +798,8 @@ public class Main{
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = "";
 			// Read File Line By Line
+			System.out.println("TEST CASE FILE\n");
+
 			while ((line = br.readLine()) != null) {
 				System.out.println(line);
 				line.trim();
@@ -861,6 +813,7 @@ public class Main{
 				}else if(!data.hasParamNames() && ncols == 0){
 					CreateParameters(columns, "");
 					ncols = columns;
+					nrows++;
 					continue;
 				}else if(data.hasParamNames() && ncols == 0){
 					ncols = data.get_parameters().size();
@@ -877,11 +830,12 @@ public class Main{
 					} else 
 						lastlen = ncols;
 					i++;
+					nrows++;
 				}
 
 			}
-
-			nrows = i;
+			
+			//nrows = i;
 			br.close();
 			data.set_columns(ncols);
 			data.set_rows(nrows);
@@ -900,6 +854,7 @@ public class Main{
 			 * Read through the file again to process tests.
 			 */
 		try{
+
 		    FileInputStream fstream = new FileInputStream(path);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -911,6 +866,7 @@ public class Main{
 				values = line.split(",");
 				int columns = values.length;
 				if (data.hasParamNames() && i == 0 && !read_params){
+					System.out.println("WHY AM I HERE");
 					read_params = true;
 					continue;
 				}else if (line.contains(",")) {
@@ -920,7 +876,7 @@ public class Main{
 				}
 				i++;
 			}
-			
+
 			br.close();
 			if(setupFile() != 0)
 				return false;
@@ -1297,7 +1253,6 @@ public class Main{
               		   {
               			   
               			   v1 = values[m]; 
-              			   System.out.println("V1 = " + v1);
               		   }
               		   catch(Exception ex){
               			   System.out.println( "Invalid value for parameter " + m + ". Value = " + values[m].toString());
@@ -1425,11 +1380,6 @@ public class Main{
 					Long timeway1 = System.currentTimeMillis();
 					
 					
-					//DEBUG
-					System.out.println("NVALS DEBUGGING: ");
-					for(int i = 0; i < nvals.length; i++){
-						System.out.println(nvals[i]);
-					}
 					Tway way = new Tway(t_way, 0,temp_max, test, nvals, data.get_rows(),data.get_columns(),
 							data.get_parameters(), data.get_constraints(), map);
 
@@ -1486,7 +1436,7 @@ public class Main{
 					/*
 					 * Print invalid combinations
 					 */
-					System.out.println(t_way + " invalid combinations: ");
+					System.out.println("\n" + t_way + " invalid combinations: ");
 					for(String[][] str : aInvalidComb){
 						for(int i = 0; i < str.length; i++){
 							System.out.print(str[i][0] + " = " + str[i][1] + " ; ");

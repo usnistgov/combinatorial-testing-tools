@@ -274,10 +274,12 @@ public class Tway extends RecursiveTask {
 																		// in
 																		// set
 																		// test
-					} else
+					} else{
 						comcount[_test[m][i]][_test[m][j]] += 1; // flag var-val
-																	// config in
-																	// set test
+						// config in
+						// set test
+					}
+
 
 					// coumcount i,j == 1 iff some tests contains tuple i,j
 				}
@@ -2483,7 +2485,6 @@ public class Tway extends RecursiveTask {
 						for (int b = 0; b < _ncols; b++) {
 							// parameter has boundaries specified
 							if (_bnd[b] != null) {
-								System.out.println("HEEEYYY SUCKER");
 								for (int r = 0; r <= _bnd[b].length; r++) {
 									if (ntmp == r) {
 										if (r == 0) {
