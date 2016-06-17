@@ -107,9 +107,9 @@ public class Main{
     public boolean generateRandom = false;
     public int numberOfRandom = 0;
     public String ACTSpath = "";
-    public int minCov = 0;
+    public int minCov = 100;
     public String tests_input_file_path = "";
-    public String missingCombinationsFilePath = "";
+    public String missingCombinationsFilePath = "missing_combinations.txt";
 	public String constraints_path = "";
 
     public static int mode = 1;
@@ -132,6 +132,34 @@ public class Main{
 		int arg_count = 0;
 		boolean skip = false;
 		for(String s : args){
+			if(s.equals("--help")){
+				//Bring up the menu to display possible input parameters.
+				System.out.println("CCM Command Line Arguments\n\n");
+				System.out.println("USAGE: java -jar ccmcl.jar [param1] [param2] ...\n");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -I input.csv -T 2,3 -P");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -I input.csv -T 2,3 -A actsfile.txt -G -m 50 -o missing.txt -B -H -S");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -r -n 1000 -f random.txt -S -T 2\n\n");
+
+				System.out.println("--inputfile (-I) : [path to .csv or .txt input file containing test cases\n");
+				System.out.println("--ACTSfile (-A): [path to .txt ACTS file holding parameter / value configurations\n");
+				System.out.println("--mode (-M): [CLASSIC or REALTIME] *defaults to CLASSIC*\n");
+				System.out.println("--constraints (-C): [path to .txt file containing constraints]\n");
+				System.out.println("--tway (-T): [2,3,4,5,6] any order and any combination of these values*\n");
+				System.out.println("--generate-missing (-G): *generates missing combinations not in test file.*\n");
+				System.out.println("--minimum-coverage (-m): *Minimum coverage to acheive when generating missing combinations.*\n");
+				System.out.println("--output-missing (-o): *output path for the missing combinations.*\n");
+				System.out.println("--append-tests (-a): *appends original test cases to the missing combinations file.*\n");
+				System.out.println("--parameter-names (-P): *Set this if parameter names are at the top of the test case file.*\n");
+				System.out.println("--parallel (-p): *Puts the program in parallel processing mode.*\n");
+				System.out.println("--generate-random (-r): *Sets the program to generate a random set of inputs.*\n");
+				System.out.println("--number-random (-n): *Amount of random inputs to generate.*\n");
+				System.out.println("--output-random (-f): *Path to output the random test cases to.*\n");
+				System.out.println("--stepchart (-S): *Generates a step chart displaying t-way coverage.*\n");
+				System.out.println("--barchart (-B): *Generates a bar chart displaying t-way coverage.*\n");
+				System.out.println("--heatmap (-H): *Generates a 2-way coverage heatmap.*\n");
+				return;
+
+			}
 			
 			String param = "";
 			if(skip){
@@ -140,20 +168,19 @@ public class Main{
 				continue;
 			}
 			String argument = "";
-			if(s.charAt(0) == '-' && s.charAt(1) == '-' && s.contains("=")){
-				//extended command line name
-				argument = s.substring(s.indexOf('=') + 1, s.length());
-				param = s.substring(0, s.indexOf("="));
-				arg_count++;
-			}else if(s.length() == 2 && s.charAt(0) == '-'){
-				//shortened command line name
+			if(s.equals("-I") || s.equals("-M") || s.equals("-o") || s.equals("-m") || s.equals("-C") || 
+					s.equals("-T") || s.equals("-n") || s.equals("-f") || s.equals("-A") || s.equals("--inputfile")
+					|| s.equals("--ACTSfile") || s.equals("--mode") || s.equals("--constraints") || s.equals("--tway")
+					|| s.equals("--output-missing") || s.equals("--output-random") || s.equals("--minimum-coverage")){
+				//Command Line parameter with an argument...
 				arg_count++;
 				argument = args[arg_count];
 				param = s;
 				skip = true;
+				
 			}else{
-				System.out.println("ERROR: Command line arguments not recognized: " + s + "\n\n");
-				return;
+				arg_count++;
+				param = s;
 			}
 
 			switch (param){
@@ -169,9 +196,9 @@ public class Main{
 			case "-C":
 				m.constraints_path = argument;
 				break;
-			case "--param_names":
+			case "--parameter-names":
 			case "-P":
-				m.data.set_paramNames(Boolean.parseBoolean(argument));
+				m.data.set_paramNames(true);
 				break;
 			case "--ACTSfile":
 			case "-A":
@@ -180,36 +207,37 @@ public class Main{
 				break;
 			case "--parallel":
 			case "-p":
-				m.parallel = Boolean.parseBoolean(argument);
+				m.parallel = true;
 				break;
 			case "--stepchart":
 			case "-S":
-				m.stepchart = Boolean.parseBoolean(argument);
+				m.stepchart = true;
 				break;
 			case "--barchart":
 			case "-B":
-				m.barchart = Boolean.parseBoolean(argument);
+				m.barchart = true;
 				break;
 			case "--heatmap":
 			case "-H":
-				m.heatmap = Boolean.parseBoolean(argument);
+				m.heatmap = true;
 				break;
 			case "--generate-missing":
 			case "-G":
-				m.generateMissing = Boolean.parseBoolean(argument);
+				m.generateMissing = true;
 				break;
 			case "--append-tests":
 			case "-a":
-				m.appendTests = Boolean.parseBoolean(argument);
+				m.appendTests = true;
 				break;
-			case "--output-file":
+			case "--output-missing":
 			case "-o":
 				m.missingCombinationsFilePath = argument;
 				break;
 			case "--generate-random":
 			case "-r":
-				m.generateRandom = Boolean.parseBoolean(argument);
+				m.generateRandom = true;
 				break;
+			case "--number-random":
 			case "-n":
 				m.numberOfRandom = Integer.parseInt(argument);
 				break;
@@ -291,7 +319,9 @@ public class Main{
 			
 			if(m.data.isActsFilePresent()){
 				//check ACTS file
-				m.readTestCaseConfigurationFile(m.ACTSpath);
+				if(!m.readTestCaseConfigurationFile(m.ACTSpath)){
+					return;
+				}
 				if(m.generateRandom){
 					m.GetRandomTests();
 				}
@@ -304,12 +334,18 @@ public class Main{
 						// Test Case input file has been processed and
 						// everything is fine.
 						if (!m.generateRandom) {
+
 							// In classic mode but the user doesn't have a test
 							// case file
 							// nor does the user want to generate random
 							// tests... something is wrong.
 
 						} else {
+							if(m.fwRandomFile == null || m.numberOfRandom == 0){
+								System.out.println("Can't generate random test cases without an output file "
+										+ "and number of test cases wanted specified.\n");
+								return;
+							}
 							// Ok the user wants to generate random tests...
 							m.GetRandomTests();
 						}
@@ -633,13 +669,17 @@ public class Main{
 					AddConstraint(str.trim());
 			else{
 				if(!constraints_path.equals("")){
-					readConstraintsFile(constraints_path);
+					if(!readConstraintsFile(constraints_path)){
+						return false;
+					}
 				}
 			}
 			
 			if(!tests_input_file_path.equals("")){
 				//Test case file is present...
-				readTestCaseInputFile(tests_input_file_path);
+				if(!readTestCaseInputFile(tests_input_file_path)){
+					return false;
+				}
 			}
 			
 
@@ -681,7 +721,7 @@ public class Main{
 				AddConstraint(str.trim());
 			return true;
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
+			System.out.println("ERROR: Something went wrong in the constraints .txt file you provided. " + e.getMessage());
 			return false;
 		}
 	}
@@ -727,6 +767,16 @@ public class Main{
 					if (data.hasParamNames() && ncols == 0){
 						//Essentially auto detection mode for parameter values
 						//CreateParameters(columns, line);
+						int temp = 0;
+						for(Parameter pre : data.get_parameters()){;
+							if(!values[temp].trim().replaceAll("\\s", "").equals(pre.getName().trim().replaceAll("\\s", ""))){
+								//The parameter names aren't in the same order as the ACTS file.
+								System.out.println("Error: Make sure the test case file parameter names are in the same order as"
+										+ "the parameter names in the ACTS configuration file.\n");
+								return false;
+							}
+							temp++;
+						}
 						ncols = columns;
 						continue;
 					}
@@ -779,8 +829,9 @@ public class Main{
 				return true;
 			}catch(Exception ex){
 				System.out.println("Error: Something went wrong reading the input.csv file.\n" + ex.getMessage());	
+				return false;
 			}
-			return false;
+			
 		}
 
 		try {
@@ -882,6 +933,7 @@ public class Main{
 				return false;
 		}catch(Exception ex){
 			System.out.println("Error: Something went wrong reading the input.csv file.\n" + ex.getMessage());	
+			return false;
 		}
 		return true;
 		
