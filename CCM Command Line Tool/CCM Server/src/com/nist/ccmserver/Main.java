@@ -137,19 +137,19 @@ public class Main{
 				System.out.println("CCM Command Line Arguments\n\n");
 				System.out.println("USAGE: java -jar ccmcl.jar [param1] [param2] ...\n");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -I input.csv -T 2,3 -P");
-				System.out.println("EXAMPLE: java -jar ccmcl.jar -I input.csv -T 2,3 -A actsfile.txt -G -m 50 -o missing.txt -B -H -S");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -I i.csv -T 2,3 -A a.txt -G -m 50 -o m.txt -B -H");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -r -n 1000 -f random.txt -S -T 2\n\n");
 
-				System.out.println("--inputfile (-I) : [path to .csv or .txt input file containing test cases\n");
-				System.out.println("--ACTSfile (-A): [path to .txt ACTS file holding parameter / value configurations\n");
+				System.out.println("--inputfile (-I) : [path to test case file]\n");
+				System.out.println("--ACTSfile (-A): [path to .txt ACTS file\n");
 				System.out.println("--mode (-M): [CLASSIC or REALTIME] *defaults to CLASSIC*\n");
 				System.out.println("--constraints (-C): [path to .txt file containing constraints]\n");
 				System.out.println("--tway (-T): [2,3,4,5,6] any order and any combination of these values*\n");
 				System.out.println("--generate-missing (-G): *generates missing combinations not in test file.*\n");
-				System.out.println("--minimum-coverage (-m): *Minimum coverage to acheive when generating missing combinations.*\n");
+				System.out.println("--minimum-coverage (-m): *Minimum coverage for generating missing combinations*\n");
 				System.out.println("--output-missing (-o): *output path for the missing combinations.*\n");
-				System.out.println("--append-tests (-a): *appends original test cases to the missing combinations file.*\n");
-				System.out.println("--parameter-names (-P): *Set this if parameter names are at the top of the test case file.*\n");
+				System.out.println("--append-tests (-a): *appends original tests to missing combinations file.*\n");
+				System.out.println("--parameter-names (-P): *if parameter names are first line of test case file*\n");
 				System.out.println("--parallel (-p): *Puts the program in parallel processing mode.*\n");
 				System.out.println("--generate-random (-r): *Sets the program to generate a random set of inputs.*\n");
 				System.out.println("--number-random (-n): *Amount of random inputs to generate.*\n");
@@ -354,10 +354,14 @@ public class Main{
 			}
 			//Generate T-way coverage maps
 			//The user wants to measure the random tests also...
+			boolean measured = false;
 			for(int i = 0; i < tway_values.length; i++){
-				m.Tway(tway_values[i]);
+				if(tway_values[i] != null){
+					m.Tway(tway_values[i]);
+				}
 			}
-			
+			if(!measured)
+				System.out.println("\nNo t-way parameter specified. Use -T [1,2,3,4,5,6] to measure t-way coverage.\n");
 			m.frame.pack();
 			
 		}
@@ -398,16 +402,23 @@ public class Main{
 					case "Constraint":
 						in_constraint_section = true;
 						in_param_section = false;
-						break;
+						//break;
+						continue;
 					case "Parameter":
 						in_param_section = true;
 						in_constraint_section = false;
-						break;
+						//break;
+						continue;
 					default:
+						if(line.contains(",")){
+							//Range Value section... Interval notation
+							break;
+						}
 						in_constraint_section = false;
 						in_param_section = false;
+						//break;
+						continue;
 					}
-					continue;
 				}
 				if(line.equals(""))
 					continue;
@@ -475,16 +486,24 @@ public class Main{
 					case "Constraint":
 						in_constraint_section = true;
 						in_param_section = false;
-						break;
+						//break;
+						continue;
 					case "Parameter":
 						in_param_section = true;
 						in_constraint_section = false;
-						break;
+						//break;
+						continue;
 					default:
+						if(line.contains(",")){
+							//Range Value section... Interval notation
+							break;
+						}
 						in_constraint_section = false;
 						in_param_section = false;
+						//break;
+						continue;
 					}
-					continue;
+					
 				}
 
 				//Checks to see if the line is a comment
@@ -510,15 +529,87 @@ public class Main{
 						String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
 						//String[] vals = value_line.split(",");
 						
-						if (line.contains("*")) {
-							// Range value
+						if (value_line.contains("[") || value_line.contains("]") || value_line.contains("(") || value_line.contains(")")) {
+							// Range value in Interval notation
 
 							//gets all the boundary values...
-							String[] boundary_vals = line.substring(line.indexOf("*") + 1, line.length()).trim().replaceAll("\\s", "").split(",");
-
+							//String[] boundary_vals = line.substring(line.indexOf("*") + 1, line.length()).trim().replaceAll("\\s", "").split(",");
+							
+							/*
+							 * Get all the boundary values from the interval notation...
+							 */
+							List<String> boundary_vals = new ArrayList<String>();
+							int interval_side = 1;
+							boolean include = false;
+							String current_number = "";
+							for(char c : value_line.trim().replaceAll("\\s", "").toCharArray()){
+								boolean isDigit = (c >= '0' && c <= '9') ? true : false;
+								if(!isDigit){
+									switch(c){
+									case '*':
+										break;
+									case ',':
+										if(current_number.equals(""))
+											break;
+										if(interval_side == 1){
+											if(include && !boundary_vals.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+												boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
+											else if(!include && !boundary_vals.contains(current_number))
+												boundary_vals.add(current_number);
+										}
+										else if(interval_side == 2){
+											if(include && !boundary_vals.contains(current_number))
+												boundary_vals.add(current_number);
+											else if(!include && !boundary_vals.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+												boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
+										}else if(current_number.equals("")){
+											//Between Range Intervals...
+											continue;
+										}
+										current_number = "";
+										break;
+									case '[':
+										interval_side = 1;
+										include = true;
+										break;
+									case ']':
+										interval_side = 2;
+										include = true;
+										break;
+									case '(':
+										interval_side = 1;
+										include = false;
+										break;
+									case ')':
+										interval_side = 2;
+										include  = false;
+										break;
+									case '-':
+										if(current_number.equals(""))
+											current_number+= '-';
+										break;
+									case ' ':
+										//its a whitespace character.
+										break;
+									default:
+										System.out.println("Incorrect Range Value defintion in ACTS input file.\n");
+										return false;
+									}
+								}else{
+									current_number += c;
+								}
+							}
+							if(!current_number.equals("") && !current_number.equals("*")){
+								//Add the last value in interval to boundary values...
+								if(include && !boundary_vals.contains(current_number))
+									boundary_vals.add(current_number);
+								else if(!include && !boundary_vals.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+									boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
+							}
 							
 							rng[paramIndex] = true;
-							int n = value_line.split(",").length + 1;
+							int n = boundary_vals.size() + 1;
+
 							//This just makes sure that at least one value was present in the equivalence class
 							if (n < 2) {
 								System.out.println("Must have at least 2 values when defining an equivalence class.\n");
@@ -537,13 +628,13 @@ public class Main{
 								boundariesSet[j] = false;
 							
 							//Here is where we process the boundary values..
-							for (int x = 0; x < boundary_vals.length; x++) {
+							for (int x = 0; x < boundary_vals.size(); x++) {
 
 								try {
-									bnd[paramIndex][x] = Double.parseDouble(boundary_vals[x].toString());
+									bnd[paramIndex][x] = Double.parseDouble(boundary_vals.get(x).toString());
 									parm.addBound(new java.lang.Double(bnd[paramIndex][x]));
 								} catch (Exception ex) {
-									System.out.println("Invalid input for boundary value.");
+									System.out.println("Invalid input for boundary value." + boundary_vals.get(x));
 									return false;
 								}
 								boundariesSet[x] = true; // indicate this bound has been set
@@ -553,7 +644,8 @@ public class Main{
 							// update in parameters
 							parm.setValuesO(parm.getValues());
 							parm.removeAllValues();
-
+							
+							
 							for (int b = 0; b <= parm.getBounds().size(); b++) {
 								parm.addValue(Integer.toString(b));
 							}
@@ -578,7 +670,7 @@ public class Main{
 							String buffer = line.substring(line.indexOf("{"), line.length());
 							boolean in_group = false;
 							String temp_str = "";
-							
+					
 							for(char c : buffer.replaceAll("\\s","").trim().toCharArray()){
 								if(c == '{'){
 									in_group = true;
