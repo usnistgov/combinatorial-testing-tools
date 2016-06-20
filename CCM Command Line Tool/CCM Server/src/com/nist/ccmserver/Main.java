@@ -358,6 +358,7 @@ public class Main{
 			for(int i = 0; i < tway_values.length; i++){
 				if(tway_values[i] != null){
 					m.Tway(tway_values[i]);
+					measured = true;
 				}
 			}
 			if(!measured)
@@ -641,16 +642,17 @@ public class Main{
 								parm.setBoundary(true);
 							}
 							
-							// update in parameters
-							parm.setValuesO(parm.getValues());
+							//for(int q = 0; q < boundary_vals.size(); q++)
+								//parm.addValue(String.valueOf(q));
+							//parm.setValuesO(parm.getValues());
 							parm.removeAllValues();
-							
-							
+
 							for (int b = 0; b <= parm.getBounds().size(); b++) {
 								parm.addValue(Integer.toString(b));
 							}
 
 							data.get_parameters().add(paramIndex, parm);
+
 							//setupFile();
 							paramIndex++;
 
@@ -762,6 +764,7 @@ public class Main{
 			else{
 				if(!constraints_path.equals("")){
 					if(!readConstraintsFile(constraints_path)){
+						System.out.println("Something went wrong reading the constraints file: " + constraints_path);
 						return false;
 					}
 				}
@@ -794,9 +797,9 @@ public class Main{
 	 * 
 	 */
 	public boolean readConstraintsFile(String path){
-		if(data.isActsFilePresent()){
-			return false;
-		}
+		//if(data.isActsFilePresent()){
+			//return false;
+		//}
 		FileInputStream fstream;
 		try {
 			List<String> constraints = new ArrayList<String>();

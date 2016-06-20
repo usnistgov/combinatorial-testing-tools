@@ -126,8 +126,9 @@ public class CSolver {
              // add in the single arrayList, values, all the values from each parameter
              if (p.getType() == Parameter.PARAM_TYPE_INT)// for  int type is the same value
              {
-            	 if (!parm[1].equals(""))
-                     values.add(Integer.parseInt(parm[1]));
+            	 if (!parm[1].equals("")){
+                    values.add(Integer.parseInt(parm[1]));
+            	 }
             	 else 
             	 {
 		                for (String v : p.getValues())
@@ -741,8 +742,8 @@ public class CSolver {
     	  for (meConstraint c:lc)
     	  {
     		  m = new CPModel();
-    		  
     		  listparams.clear();
+
               for (String[] o : Parm_Value)
               {
                   listparams.add(o);
@@ -754,7 +755,8 @@ public class CSolver {
             	  
             	  for (String[] a : listparams)
             	  {
-            		  if (a[0].equals(name))
+
+            		  if (a[0].trim().equals(name.trim()))
             		  {
             		  		fnd=true; break;
             		  }
