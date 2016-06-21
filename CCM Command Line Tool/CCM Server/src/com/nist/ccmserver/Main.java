@@ -384,6 +384,7 @@ public class Main{
 		 * First read through the ACTS file and create all the parameters...
 		 */
 		List<String> constraints = new ArrayList<String>();
+		
 
 		try{
 			List<String> params = new ArrayList<String>();
@@ -466,6 +467,7 @@ public class Main{
 		
 		
 		try{
+
 			//Now we need to get all of the values and put them in the correct parameter.
 			int paramIndex = 0;
 			List<String> params = new ArrayList<String>();
@@ -479,7 +481,9 @@ public class Main{
 			boolean in_constraint_section = false;
 			boolean in_param_section = false;
 			while((line = br.readLine()) != null){
-
+				if(line.trim().length() == 0)
+					continue;
+				System.out.println(line);
 				line = line.trim();
 				Matcher m = p.matcher(line);
 				if(m.find()){
@@ -749,7 +753,6 @@ public class Main{
 
 			}
 			
-			
 			//setupFile();
 			
 			/*
@@ -1012,7 +1015,6 @@ public class Main{
 				values = line.split(",");
 				int columns = values.length;
 				if (data.hasParamNames() && i == 0 && !read_params){
-					System.out.println("WHY AM I HERE");
 					read_params = true;
 					continue;
 				}else if (line.contains(",")) {
