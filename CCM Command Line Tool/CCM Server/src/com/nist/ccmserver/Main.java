@@ -9,6 +9,7 @@ import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.Console;
 import java.io.DataInputStream;
 import java.io.File;
@@ -23,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Queue;
+import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +40,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
@@ -57,6 +63,11 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.util.ShapeUtilities;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class Main{
 	
@@ -111,7 +122,7 @@ public class Main{
     public String tests_input_file_path = "";
     public String missingCombinationsFilePath = "missing_combinations.txt";
 	public String constraints_path = "";
-
+	public String ext;
     public static int mode = 1;
     
     public static final int MODE_CLASSIC = 1;
@@ -122,7 +133,7 @@ public class Main{
 	//can change this or user define it as cmd parameter
 	public int nmapMax = 50;
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
 		Main m = new Main();
 		String tway_values[] = new String[5];
 		m.data = new TestData();
@@ -136,22 +147,25 @@ public class Main{
 				//Bring up the menu to display possible input parameters.
 				System.out.println("CCM Command Line Arguments\n\n");
 				System.out.println("USAGE: java -jar ccmcl.jar [param1] [param2] ...\n");
-				System.out.println("EXAMPLE: java -jar ccmcl.jar -I input.csv -T 2,3 -P");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -M 1 -I input.csv -T 2,3 -P");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -I i.csv -T 2,3 -A a.txt -G -m 50 -o m.txt -B -H");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -r -n 1000 -f random.txt -S -T 2\n\n");
 
 				System.out.println("--inputfile (-I) : [path to test case file]\n");
 				System.out.println("--ACTSfile (-A): [path to .txt ACTS file\n");
-				System.out.println("--mode (-M): [CLASSIC or REALTIME] *defaults to CLASSIC*\n");
+				System.out.println("--mode (-M): [1] or [2] *1 = Classic Mode | 2 = Real Time Mode*\n"
+						         + "                                 *Defaults to Classic Mode (1)*\n");
 				System.out.println("--constraints (-C): [path to .txt file containing constraints]\n");
 				System.out.println("--tway (-T): [2,3,4,5,6] any order and any combination of these values*\n");
-				System.out.println("--generate-missing (-G): *generates missing combinations not in test file.*\n");
+				System.out.println("--generate-missing (-G): *generates missing combinations not in test file.*\n"
+						         + "                         *Must include  \"-m\"  and  \"-o\"  with this option.*\n");
 				System.out.println("--minimum-coverage (-m): *Minimum coverage for generating missing combinations*\n");
 				System.out.println("--output-missing (-o): *output path for the missing combinations.*\n");
 				System.out.println("--append-tests (-a): *appends original tests to missing combinations file.*\n");
 				System.out.println("--parameter-names (-P): *if parameter names are first line of test case file*\n");
 				System.out.println("--parallel (-p): *Puts the program in parallel processing mode.*\n");
-				System.out.println("--generate-random (-r): *Sets the program to generate a random set of inputs.*\n");
+				System.out.println("--generate-random (-r): *Sets the program to generate a random set of inputs.*\n"
+						         + "                            *Must include  \"-n\"  and  \"-f\"  with this option.*\n");
 				System.out.println("--number-random (-n): *Amount of random inputs to generate.*\n");
 				System.out.println("--output-random (-f): *Path to output the random test cases to.*\n");
 				System.out.println("--stepchart (-S): *Generates a step chart displaying t-way coverage.*\n");
@@ -320,6 +334,7 @@ public class Main{
 			if(m.data.isActsFilePresent()){
 				//check ACTS file
 				if(!m.readTestCaseConfigurationFile(m.ACTSpath)){
+					System.exit(0);
 					return;
 				}
 				if(m.generateRandom){
@@ -344,6 +359,7 @@ public class Main{
 							if(m.fwRandomFile == null || m.numberOfRandom == 0){
 								System.out.println("Can't generate random test cases without an output file "
 										+ "and number of test cases wanted specified.\n");
+								System.exit(0);
 								return;
 							}
 							// Ok the user wants to generate random tests...
@@ -354,6 +370,7 @@ public class Main{
 			}
 			//Generate T-way coverage maps
 			//The user wants to measure the random tests also...
+			System.out.println("\n\nCALCULATING T-WAY COVERAGE OF TEST CASES...\n");
 			boolean measured = false;
 			for(int i = 0; i < tway_values.length; i++){
 				if(tway_values[i] != null){
@@ -365,6 +382,72 @@ public class Main{
 				System.out.println("\nNo t-way parameter specified. Use -T [1,2,3,4,5,6] to measure t-way coverage.\n");
 			m.frame.pack();
 			
+		}else if(m.mode == MODE_REALTIME){
+			//Real time mode.
+			if(m.data.isActsFilePresent()){
+				//check ACTS file
+				if(!m.readTestCaseConfigurationFile(m.ACTSpath)){
+					System.exit(0);
+					return;
+				}else{
+					//ACTS file checks out.
+					//If constraints are present, they've already been processed.
+					//If a previous test case file is present, it too has already been processed.
+					
+					/*
+					 * Time to set up real time monitoring. 
+					 */
+					m.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					m.lblStepChart.setSize(500,500);
+					//m.lblColumnChart.setSize(500,500);
+					//m.lblPointChart.setSize(500,300);
+					//m.pointChartPanel.add(m.lblPointChart);
+					m.frame.add(m.lblStepChart, BorderLayout.WEST);
+					//m.frame.add(m.lblColumnChart, BorderLayout.EAST);
+					m.frame.pack();
+					
+					
+					//This thread reads in input...
+					Thread readStdIn = new Thread(new Runnable(){
+						Scanner readStdInput = new Scanner(System.in);
+						String inputLine = "";
+						@Override
+						public void run() {
+							while(true){
+								inputLine = readStdInput.nextLine();
+								System.out.println(inputLine);
+							}
+							
+						}
+						
+					});
+					readStdIn.start();
+					boolean measured = false;
+					for(int i = 0; i < tway_values.length; i++){
+						if(tway_values[i] != null){
+							m.Tway(tway_values[i]);
+							measured = true;
+						}
+					}
+					if(!measured)
+						System.out.println("\nNo t-way parameter specified. Use -T [1,2,3,4,5,6] to measure t-way coverage.\n");
+					m.frame.pack();
+					
+					
+					/*
+					 * Process  new tests right here
+					 */
+					String[] new_tests = new String[1];
+					String mtest = "4,1,1,9";
+					new_tests[0] = mtest;
+					
+					
+				}
+			}else{
+				System.out.println("Must specify an ACTS configuration file.\n");
+				System.exit(0);
+				return;
+			}
 		}
 		
 		
@@ -379,196 +462,197 @@ public class Main{
 	 * format as the ACTS input files specified in the ACTS User manual.
 	 * 
 	 */
-	public boolean readTestCaseConfigurationFile(String path) {
+	public boolean readTestCaseConfigurationFile(String path) throws ParserConfigurationException, SAXException, IOException {
 		/*
 		 * First read through the ACTS file and create all the parameters...
 		 */
 		List<String> constraints = new ArrayList<String>();
-		
-
-		try{
-			List<String> params = new ArrayList<String>();
-			FileInputStream fstream = new FileInputStream(path);
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String line = "";
-			Pattern p = Pattern.compile("\\[(.*?)\\]");
-			Matcher m;
-			boolean in_param_section = false;
-			boolean in_constraint_section = false;
-			while((line = br.readLine()) != null){
-				line = line.trim().replaceAll("\\s", "");
-				m = p.matcher(line);
-				if(m.find()){
-					switch(m.group(1)){
-					case "Constraint":
-						in_constraint_section = true;
-						in_param_section = false;
-						//break;
-						continue;
-					case "Parameter":
-						in_param_section = true;
-						in_constraint_section = false;
-						//break;
-						continue;
-					default:
-						if(line.contains(",")){
-							//Range Value section... Interval notation
-							break;
-						}
-						in_constraint_section = false;
-						in_param_section = false;
-						//break;
-						continue;
-					}
-				}
-				if(line.equals(""))
-					continue;
-				else if(line.startsWith("--")){
-					//comment section so continue
-					continue;
-				}
-				else if(in_constraint_section && !line.equals("")){
-					constraints.add(line);
-					continue;
-				}else if(in_param_section && !line.equals("")){
-					String parameter_name = line.substring(0, line.indexOf("("));
-					params.add(parameter_name);
-				}else{
-					//not in any of the right sections...
-					continue;
-				}
-			}
-			
-			//Create the initial parameters...
-			String param_arg = "";
-			for(String name : params){
-				param_arg += name;
-				param_arg += ",";
-			}
-			param_arg.trim().replaceAll("\\s","");
-			param_arg = param_arg.substring(0, param_arg.length() - 1);
-			CreateParameters(param_arg.split(",").length, param_arg);
-			
-			//Set the number of parameters and columns that should be present in the input file...
-					
-			br.close();
-			data.set_columns(param_arg.split(",").length);
-			values = new String[data.get_columns()];
-			HashMapParameters();
-			setupParams(true);
-			values = new String[data.get_columns()];
-			
-			
-		}catch(Exception ex){
-			System.out.println("Something went wrong reading the ACTS file.\n" + ex.getMessage());
+		ext = ACTSpath.substring(ACTSpath.lastIndexOf("."), ACTSpath.length());
+		if(!ext.equals(".txt") && !ext.equals(".xml")){
+			System.out.println("ACTS file must either be a .txt or .xml file.\n");
 			return false;
 		}
 		
-		
-		try{
-
-			//Now we need to get all of the values and put them in the correct parameter.
-			int paramIndex = 0;
-			List<String> params = new ArrayList<String>();
-			List<String[]> values_array = new ArrayList<String[]>();
-			List<Integer> types = new ArrayList<Integer>();
-			FileInputStream fstream = new FileInputStream(path);
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String line = "";
-			Pattern p = Pattern.compile("\\[(.*?)\\]");
-			boolean in_constraint_section = false;
-			boolean in_param_section = false;
-			while((line = br.readLine()) != null){
-				if(line.trim().length() == 0)
-					continue;
-				System.out.println(line);
-				line = line.trim();
-				Matcher m = p.matcher(line);
-				if(m.find()){
-					switch(m.group(1)){
-					case "Constraint":
-						in_constraint_section = true;
-						in_param_section = false;
-						//break;
-						continue;
-					case "Parameter":
-						in_param_section = true;
-						in_constraint_section = false;
-						//break;
-						continue;
-					default:
-						if(line.contains(",")){
-							//Range Value section... Interval notation
-							break;
+		//File is a .txt file
+		if (ext.equals(".txt")) {
+			try {
+				List<String> params = new ArrayList<String>();
+				FileInputStream fstream = new FileInputStream(path);
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(new InputStreamReader(in));
+				String line = "";
+				Pattern p = Pattern.compile("\\[(.*?)\\]");
+				Matcher m;
+				boolean in_param_section = false;
+				boolean in_constraint_section = false;
+				while ((line = br.readLine()) != null) {
+					line = line.trim().replaceAll("\\s", "");
+					m = p.matcher(line);
+					if (m.find()) {
+						switch (m.group(1)) {
+						case "Constraint":
+							in_constraint_section = true;
+							in_param_section = false;
+							// break;
+							continue;
+						case "Parameter":
+							in_param_section = true;
+							in_constraint_section = false;
+							// break;
+							continue;
+						default:
+							if (line.contains(",")) {
+								// Range Value section... Interval notation
+								break;
+							}
+							in_constraint_section = false;
+							in_param_section = false;
+							// break;
+							continue;
 						}
-						in_constraint_section = false;
-						in_param_section = false;
-						//break;
+					}
+					if (line.equals(""))
+						continue;
+					else if (line.startsWith("--")) {
+						// comment section so continue
+						continue;
+					} else if (in_constraint_section && !line.equals("")) {
+						constraints.add(line);
+						continue;
+					} else if (in_param_section && !line.equals("")) {
+						String parameter_name = line.substring(0, line.indexOf("("));
+						params.add(parameter_name);
+					} else {
+						// not in any of the right sections...
 						continue;
 					}
-					
 				}
 
-				//Checks to see if the line is a comment
-				if(line.startsWith("--"))
-					continue;
-				
-				if(in_constraint_section){
-					//Constraints file isn't present
-					//add the line to the constraints...
-					//constraints.add(line);
-					continue;
-				}else if(in_param_section && line != ""){
-					//do this later...
-					
-					/*
-					 * Need to parse range and boundary values if present.
-					 * This section will vary depending on if in CLASSIC Mode 
-					 * or REAL TIME Mode.
-					 */
+				// Create the initial parameters...
+				String param_arg = "";
+				for (String name : params) {
+					param_arg += name;
+					param_arg += ",";
+				}
+				param_arg.trim().replaceAll("\\s", "");
+				param_arg = param_arg.substring(0, param_arg.length() - 1);
+				CreateParameters(param_arg.split(",").length, param_arg);
 
-					if(mode == MODE_CLASSIC){
-						String parameter_name = line.substring(0, line.indexOf("("));
+				// Set the number of parameters and columns that should be
+				// present in the input file...
+
+				br.close();
+				data.set_columns(param_arg.split(",").length);
+				values = new String[data.get_columns()];
+				HashMapParameters();
+				setupParams(true);
+
+			} catch (Exception ex) {
+				System.out.println("Something went wrong reading the ACTS file.\n" + ex.getMessage());
+				return false;
+			}
+
+			try {
+
+				// Now we need to get all of the values and put them in the
+				// correct parameter.
+				int paramIndex = 0;
+				List<String[]> values_array = new ArrayList<String[]>();
+				List<Integer> types = new ArrayList<Integer>();
+				FileInputStream fstream = new FileInputStream(path);
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(new InputStreamReader(in));
+				String line = "";
+				Pattern p = Pattern.compile("\\[(.*?)\\]");
+				boolean in_constraint_section = false;
+				boolean in_param_section = false;
+				while ((line = br.readLine()) != null) {
+					if (line.trim().length() == 0)
+						continue;
+					line = line.trim();
+					Matcher m = p.matcher(line);
+					if (m.find()) {
+						switch (m.group(1)) {
+						case "Constraint":
+							in_constraint_section = true;
+							in_param_section = false;
+							// break;
+							continue;
+						case "Parameter":
+							in_param_section = true;
+							in_constraint_section = false;
+							// break;
+							continue;
+						default:
+							if (line.contains(",")) {
+								// Range Value section... Interval notation
+								break;
+							}
+							in_constraint_section = false;
+							in_param_section = false;
+							// break;
+							continue;
+						}
+
+					}
+
+					// Checks to see if the line is a comment
+					if (line.startsWith("--"))
+						continue;
+
+					if (in_constraint_section) {
+						// Constraints file isn't present
+						// add the line to the constraints...
+						// constraints.add(line);
+						continue;
+					} else if (in_param_section && line != "") {
+						// do this later...
+
+						/*
+						 * Need to parse range and boundary values if present.
+						 * 
+						 */
+
 						String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
-						//String[] vals = value_line.split(",");
-						
-						if (value_line.contains("[") || value_line.contains("]") || value_line.contains("(") || value_line.contains(")")) {
-							// Range value in Interval notation
+						// String[] vals = value_line.split(",");
 
-							//gets all the boundary values...
-							//String[] boundary_vals = line.substring(line.indexOf("*") + 1, line.length()).trim().replaceAll("\\s", "").split(",");
-							
+						if (value_line.contains("[") || value_line.contains("]") || value_line.contains("(")
+								|| value_line.contains(")")) {
+							// Range value in Interval notation
+							//Type = 3 for RANGES
+							types.add(3);
+
 							/*
-							 * Get all the boundary values from the interval notation...
+							 * Get all the boundary values from the interval
+							 * notation...
 							 */
 							List<String> boundary_vals = new ArrayList<String>();
 							int interval_side = 1;
 							boolean include = false;
 							String current_number = "";
-							for(char c : value_line.trim().replaceAll("\\s", "").toCharArray()){
+							for (char c : value_line.trim().replaceAll("\\s", "").toCharArray()) {
 								boolean isDigit = (c >= '0' && c <= '9') ? true : false;
-								if(!isDigit){
-									switch(c){
+								if (!isDigit) {
+									switch (c) {
 									case '*':
 										break;
 									case ',':
-										if(current_number.equals(""))
+										if (current_number.equals(""))
 											break;
-										if(interval_side == 1){
-											if(include && !boundary_vals.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+										if (interval_side == 1) {
+											if (include && !boundary_vals
+													.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
 												boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
-											else if(!include && !boundary_vals.contains(current_number))
+											else if (!include && !boundary_vals.contains(current_number))
 												boundary_vals.add(current_number);
-										}
-										else if(interval_side == 2){
-											if(include && !boundary_vals.contains(current_number))
+										} else if (interval_side == 2) {
+											if (include && !boundary_vals.contains(current_number))
 												boundary_vals.add(current_number);
-											else if(!include && !boundary_vals.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+											else if (!include && !boundary_vals
+													.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
 												boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
-										}else if(current_number.equals("")){
-											//Between Range Intervals...
+										} else if (current_number.equals("")) {
+											// Between Range Intervals...
 											continue;
 										}
 										current_number = "";
@@ -587,35 +671,39 @@ public class Main{
 										break;
 									case ')':
 										interval_side = 2;
-										include  = false;
+										include = false;
 										break;
 									case '-':
-										if(current_number.equals(""))
-											current_number+= '-';
+										if (current_number.equals(""))
+											current_number += '-';
 										break;
 									case ' ':
-										//its a whitespace character.
+										// its a whitespace character.
 										break;
 									default:
 										System.out.println("Incorrect Range Value defintion in ACTS input file.\n");
 										return false;
 									}
-								}else{
+								} else {
 									current_number += c;
 								}
 							}
-							if(!current_number.equals("") && !current_number.equals("*")){
-								//Add the last value in interval to boundary values...
-								if(include && !boundary_vals.contains(current_number))
+
+							if (!current_number.equals("") && !current_number.equals("*")) {
+								// Add the last value in interval to boundary
+								// values...
+								if (include && !boundary_vals.contains(current_number))
 									boundary_vals.add(current_number);
-								else if(!include && !boundary_vals.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+								else if (!include && !boundary_vals
+										.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
 									boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
 							}
-							
+
 							rng[paramIndex] = true;
 							int n = boundary_vals.size() + 1;
 
-							//This just makes sure that at least one value was present in the equivalence class
+							// This just makes sure that at least one value was
+							// present in the equivalence class
 							if (n < 2) {
 								System.out.println("Must have at least 2 values when defining an equivalence class.\n");
 								return false;
@@ -626,13 +714,16 @@ public class Main{
 							nvals[paramIndex] = n;
 							if (bnd[paramIndex] == null)
 								bnd[paramIndex] = new double[nbnds];
-							boundariesSet = new Boolean[nbnds]; // new set of boundaries
-																// required since num of
-																// values changed
+							boundariesSet = new Boolean[nbnds]; // new set of
+																// boundaries
+																// required
+																// since num of
+																// values
+																// changed
 							for (int j = 0; j < nbnds; j++)
 								boundariesSet[j] = false;
-							
-							//Here is where we process the boundary values..
+
+							// Here is where we process the boundary values..
 							for (int x = 0; x < boundary_vals.size(); x++) {
 
 								try {
@@ -642,89 +733,103 @@ public class Main{
 									System.out.println("Invalid input for boundary value." + boundary_vals.get(x));
 									return false;
 								}
-								boundariesSet[x] = true; // indicate this bound has been set
+								boundariesSet[x] = true; // indicate this bound
+															// has been set
 								parm.setBoundary(true);
 							}
-							
-							//for(int q = 0; q < boundary_vals.size(); q++)
-								//parm.addValue(String.valueOf(q));
-							//parm.setValuesO(parm.getValues());
-							parm.removeAllValues();
 
+							// for(int q = 0; q < boundary_vals.size(); q++)
+							// parm.addValue(String.valueOf(q));
+							// parm.setValuesO(parm.getValues());
+							parm.removeAllValues();
+							
+							String[] tempory = new String[parm.getBounds().size() + 1];
 							for (int b = 0; b <= parm.getBounds().size(); b++) {
 								parm.addValue(Integer.toString(b));
+								tempory[b] = String.valueOf(b);
 							}
+
+							values_array.add(tempory);
 
 							data.get_parameters().add(paramIndex, parm);
 
-							//setupFile();
+							// setupFile();
 							paramIndex++;
 
-						}else if(line.contains("{")){
+						} else if (line.contains("{")) {
+
+							// Its a group
+							//type = 4 for group
+							types.add(4);
 							
-
-							//Its a group
 							grp[paramIndex] = true;
-
 
 							/*
 							 * get all the groups from the ACTS file line...
 							 */
 							//
-							//Get the information
+							// Get the information
 							List<String> groupDeclarations = new ArrayList<String>();
 							String buffer = line.substring(line.indexOf("{"), line.length());
 							boolean in_group = false;
 							String temp_str = "";
-					
-							for(char c : buffer.replaceAll("\\s","").trim().toCharArray()){
-								if(c == '{'){
+
+							for (char c : buffer.replaceAll("\\s", "").trim().toCharArray()) {
+								if (c == '{') {
 									in_group = true;
 									continue;
-								
-								}else if(c == '}'){
+
+								} else if (c == '}') {
 									groupDeclarations.add(temp_str);
 									temp_str = "";
 									in_group = false;
-								}else
+								} else
 									temp_str += c;
 							}
 
-					        List<String[]> all_groups = new ArrayList<String[]>();
-					        for(String st : groupDeclarations){
-					        	all_groups.add(st.split(","));
-					        }
-					        
-					        //go ahead and add all the values to the parameter
-					        for(int r = 0; r < all_groups.size(); r++){
-					        	for(int g = 0; g < all_groups.get(r).length; g++){
-					        		data.get_parameters().get(paramIndex).addValue(all_groups.get(r)[g]);
-					        	}
-					        }
+							List<String[]> all_groups = new ArrayList<String[]>();
+							for (String st : groupDeclarations) {
+								all_groups.add(st.split(","));
+							}
+
+							// go ahead and add all the values to the parameter
+							for (int r = 0; r < all_groups.size(); r++) {
+								for (int g = 0; g < all_groups.get(r).length; g++) {
+									data.get_parameters().get(paramIndex).addValue(all_groups.get(r)[g]);
+								}
+							}
 
 							Parameter tp = data.get_parameters().get(paramIndex);
-							nvals[paramIndex] = groupDeclarations.size();;
+							nvals[paramIndex] = groupDeclarations.size();
+							;
 							group[paramIndex] = new Object[groupDeclarations.size()];
 
 							tp.setGroup(true);
 							tp.setValuesO(tp.getValues());
 							tp.removeAllValues();
+							String[] temp_vals = new String[groupDeclarations.size()];
 							for (int index = 0; index < groupDeclarations.size(); index++) {
-								group[paramIndex][index] = groupDeclarations.get(index).toString().trim().replaceAll("\\s","");
+								group[paramIndex][index] = groupDeclarations.get(index).toString().trim()
+										.replaceAll("\\s", "");
 								tp.addValue(Integer.toString(index));
-								tp.addGroup(groupDeclarations.get(index).toString().trim().replaceAll("\\s",""));
+								tp.addGroup(groupDeclarations.get(index).toString().trim().replaceAll("\\s", ""));
+								temp_vals[index] = String.valueOf(index);
 							}
-
+							values_array.add(temp_vals);
+							
 							paramIndex++;
-						
-						}else{
-							//Normal input definition with no groups or boundary values.
+
+						} else {
+							// Normal input definition with no groups or
+							// boundary values.
 							String type = line.substring(line.indexOf("(") + 1, line.lastIndexOf(")"));
-							//values_array.add(value_line.replaceAll("\\s", "").trim().split(","));
+							// values_array.add(value_line.replaceAll("\\s",
+							// "").trim().split(","));
 							/*
-							 * Need to add functionality that ensures the right data type is processed...
+							 * Need to add functionality that ensures the right
+							 * data type is processed...
 							 */
-							switch(type){
+							switch (type) {
 							case "enum":
 								types.add(1);
 								break;
@@ -738,53 +843,173 @@ public class Main{
 								System.out.println("Incorrect data type : " + type);
 								return false;
 							}
-							
-							String[] vals = value_line.replaceAll("\\s", "").trim().split(",");
+							String[] vals = value_line.trim().split(",");
 							nvals[paramIndex] = vals.length;
-
-							for(int i = 0; i < vals.length; i++){
-								data.get_parameters().get(paramIndex).addValue(vals[i]);
-							}
+							values_array.add(vals);
 							paramIndex++;
 						}
-					}
-				}else
-					continue;
+					} else
+						continue;
+				}
+				
 
-			}
-			
-			//setupFile();
-			
-			/*
-			 * Ok now the ACTS File has processed all the parameters. 
-			 * Now let's check if constraints need to be processed from a separate file.
-			 */
-			
-			//Finally add all of the constraints...
-			if(!constraints.isEmpty())
-				for(String str : constraints)
-					AddConstraint(str.trim());
-			else{
-				if(!constraints_path.equals("")){
-					if(!readConstraintsFile(constraints_path)){
-						System.out.println("Something went wrong reading the constraints file: " + constraints_path);
+				/*
+				 * ADD THE VALUES TO THE PARAMETER
+				 */
+				
+				if (values_array.size() != data.get_parameters().size()){
+					System.out.println("Something went wrong reading the ACTS file.\n");
+					return false;
+				}
+				for(int z = 0; z < values_array.size(); z++){
+					String[] temp_values = values_array.get(z);
+					Parameter tp = data.get_parameters().get(z);
+					try {
+						for (int x = 0; x < temp_values.length; x++) {
+							if (!temp_values[x].trim().equals("")) {
+								if (types.get(z) == 0) {
+									tp.setType(Parameter.PARAM_TYPE_INT);
+								} else {
+									if (types.get(z) == 2){
+										tp.setType(Parameter.PARAM_TYPE_BOOL);
+									} else if(types.get(z) == 1){
+										tp.setType(Parameter.PARAM_TYPE_ENUM);
+									}else
+										break;
+								}
+								tp.addValue(temp_values[x].trim());
+							}
+						}
+					} catch (Exception e) {
+						System.out.println("\nError: " + e.getMessage());
+					}
+				}
+
+				
+				/*
+				 * END OF ADDING VALUES TO THE PARAMETER
+				 */
+
+				/*
+				 * Ok now the ACTS File has processed all the parameters. Now
+				 * let's check if constraints need to be processed from a
+				 * separate file.
+				 */
+				
+				// Finally add all of the constraints...
+				if (!constraints.isEmpty()){
+					System.out.println("PROCESSING CONSTRAINTS...\n");
+					for (String str : constraints){
+						System.out.println(str);
+						if(!AddConstraint(str.trim())){
+							System.out.println("\nBAD CONSTRAINT... EXITING...\n"); return false;
+						}
+					}
+
+				}
+
+				else {
+					if (!constraints_path.equals("")) {
+						if (!readConstraintsFile(constraints_path)) {
+							return false;
+						}
+					}
+				}
+
+				if (!tests_input_file_path.equals("")) {
+					// Test case file is present...
+					if (!readTestCaseInputFile(tests_input_file_path)) {
 						return false;
 					}
 				}
+
+				return true;
+			} catch (Exception ex) {
+				System.out.println(ex.getMessage());
 			}
+		}else{
+			//File is an .xml file and we need to parse it differently...
 			
-			if(!tests_input_file_path.equals("")){
-				//Test case file is present...
-				if(!readTestCaseInputFile(tests_input_file_path)){
-					return false;
+			/*
+			 * ==========================================================
+			 * PARSING THE .XML FILE
+			 * ==========================================================
+			 */
+			
+			List<String> params = new ArrayList<String>();
+			List<String[]> values_array = new ArrayList<String[]>();
+			DocumentBuilderFactory factory =  DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			Document xml_doc = builder.parse(ACTSpath);
+			NodeList topLevelNodes = xml_doc.getChildNodes().item(0).getChildNodes();
+			NodeList paramList = null;
+			NodeList constraintList = null;
+			//Get all the parameters
+			for(int i = 0; i < topLevelNodes.getLength(); i++){
+				String nodename = topLevelNodes.item(i).getNodeName();
+				switch(nodename){
+				case "Parameters":
+					paramList = topLevelNodes.item(i).getChildNodes();
+					break;
+				case "Constraints":
+					constraintList = topLevelNodes.item(i).getChildNodes();
+					break;
+				default:
+					continue;
 				}
 			}
 			
-
+			int value_index = 0;
+			//Create all the parameters first...
+			for(int i = 0; i < paramList.getLength(); i++){
+				Node tempNode = paramList.item(i);
+				if(!tempNode.getParentNode().getNodeName().equals("Parameters"))
+					continue;
+				if(tempNode.hasAttributes()){
+					if(tempNode.getNodeType() == Node.ELEMENT_NODE){
+						Element e = (Element) tempNode;
+						String name = e.getAttribute("name");
+						params.add(name);
+						NodeList values = e.getElementsByTagName("values").item(0).getChildNodes();
+						if(values.getLength() <= 0){
+							System.out.println("Something wrong with .xml file. Can't have 0 values for a parameter.\n");
+							return false;
+						}
+						String[] temp_vals = new String[values.getLength()];
+						for(int z = 0; z < values.getLength(); z++){
+							//System.out.println(values.item(z).getTextContent());
+							temp_vals[z] = values.item(z).getTextContent();
+						}
+						values_array.add(temp_vals);
+						value_index++;
+					}
+				}
+			}
 			
-			return true;
-		}catch(Exception ex){
-			System.out.println(ex.getMessage());
+			// Create the initial parameters...
+			String param_arg = "";
+			for (String name : params) {
+				param_arg += name;
+				param_arg += ",";
+			}
+			param_arg.trim().replaceAll("\\s", "");
+			param_arg = param_arg.substring(0, param_arg.length() - 1);
+			CreateParameters(param_arg.split(",").length, param_arg);
+			
+			value_index = 0;
+			//Create the constraints...
+			for(int i = 0; i < constraintList.getLength(); i++){
+				Node tempNode = constraintList.item(i);
+				if(!tempNode.getParentNode().getNodeName().equals("Constraints")){
+					continue;
+				}
+			}
+			
+			/*
+			 * ==========================================================
+			 * END OF PARSING THE .XML FILE
+			 * ==========================================================
+			 */
 		}
 		return false;
 	}
@@ -815,8 +1040,14 @@ public class Main{
 				continue;
 			}
 			br.close();
-			for(String str : constraints)
-				AddConstraint(str.trim());
+			System.out.println("PROCESSING CONSTRAINTS...\n");
+			for (String str : constraints){
+				System.out.println(str);
+				if(!AddConstraint(str.trim())){
+					System.out.println("\nBAD CONSTRAINT... EXITING...\n"); 
+					return false;
+				}
+			}
 			return true;
 		} catch (IOException e) {
 			System.out.println("ERROR: Something went wrong in the constraints .txt file you provided. " + e.getMessage());
@@ -852,9 +1083,7 @@ public class Main{
 				BufferedReader br = new BufferedReader(new InputStreamReader(in));
 				String line = "";
 				// Read File Line By Line
-				System.out.println("TEST CASE FILE\n");
 				while ((line = br.readLine()) != null) {
-					System.out.println(line);
 					line.trim();
 					values = line.split(",");
 					int columns = values.length;
@@ -870,7 +1099,7 @@ public class Main{
 							if(!values[temp].trim().replaceAll("\\s", "").equals(pre.getName().trim().replaceAll("\\s", ""))){
 								//The parameter names aren't in the same order as the ACTS file.
 								System.out.println("Error: Make sure the test case file parameter names are in the same order as"
-										+ "the parameter names in the ACTS configuration file.\n");
+										+ " the parameter names in the ACTS configuration file.\n");
 								return false;
 							}
 							temp++;
@@ -1052,13 +1281,14 @@ public class Main{
 					if (Tools.isNumeric(values[x])) {
 						p.setType(Parameter.PARAM_TYPE_INT);
 					} else {
-						if (values[x].toString().toUpperCase().equals("TRUE") || values[x].toString().toUpperCase().equals("FALSE")){
+						if (values[x].toString().trim().toUpperCase().equals("TRUE") || values[x].toString().trim().toUpperCase().equals("FALSE")){
 							p.setType(Parameter.PARAM_TYPE_BOOL);
+							System.out.println("ADDING VALUE BOOLEAN NOW...");
 						} else {
 							p.setType(Parameter.PARAM_TYPE_ENUM);
 						}
 					}
-					p.addValue(values[x]);
+					p.addValue(values[x].trim());
 				}
 			}
 		} catch (Exception e) {
@@ -1093,7 +1323,15 @@ public class Main{
 	public boolean AddConstraint(String str){
 
 		try {
+			
 			String[] x = ConstraintManager.JustParameterValues(str);
+			/*
+			 * Need to modify constraint if it has a boolean operator in front of parameter name
+			 * (This is mainly to support parsing of ACTS .xml files)
+			 */
+			
+			for(int i = 0; i < x.length; i++)
+				System.out.println(x[i]);
 			if (Checker(x) && !ConstraintExists(str)) {
 				//create parser object
 				ConstraintParser cp = new ConstraintParser(str, pars);
@@ -1104,7 +1342,7 @@ public class Main{
 				data.get_constraints().add(new meConstraint(str, usedParams)); 
 				usedParams = null;
 				return true;
-			} else
+			} 
 				return false;
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
@@ -1154,7 +1392,7 @@ public class Main{
 					Parameter p = lp.get(key.trim());
 
 					if (!ConstraintManager.isValidParameterValue(str[i].trim(), p)) {
-						System.out.println("Invalid Value!");
+						System.out.println("Invalid Value: " + p.getName() + " = " + str[i].trim());
 						return false;
 					}
 
@@ -1164,7 +1402,7 @@ public class Main{
 						if (!used_parameters.contains(str[i].trim()))
 							used_parameters.add(str[i].trim());
 					} else {
-						System.out.println("Invalid Parameter/Value!");
+						System.out.println("Invalid Parameter/Value!: " + str[i].trim());
 						return false;
 					}
 				}
@@ -1351,9 +1589,12 @@ public class Main{
                 	 
 						// find value in map array and store its index as value for coverage calculation
                      Boolean fnd = false; int locn = 0;
-                     for (j = 0; j < nmapMax && !fnd && map[m][j] != null; j++) {
-                         if (map[m][j].equals(values[m])) { fnd = true; locn = j; }
-                     }
+					for (j = 0; j < nmapMax && !fnd && map[m][j] != null; j++) {
+						if (map[m][j].equals(values[m])) {
+							fnd = true;
+							locn = j;
+						}
+					}
                      if (data.get_parameters().get(m).getValues().size() > nmapMax) {
                   	   System.out.println("Maximum parameter values exceeded for parameter " + data.get_parameters().get(m).getName() + "=" + data.get_parameters().get(m).getValues().size() + " values." + "\n");
                          
@@ -1437,6 +1678,7 @@ public class Main{
             }
              i++;
          }
+         
          
          if(!data.isActsFilePresent()){
              int j;

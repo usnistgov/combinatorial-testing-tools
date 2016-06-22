@@ -12,12 +12,13 @@ public class ConstraintManager {
          {
              text = text.replace(s, "?");
          }
+         for (String s : Tools.RelationalOperators){
+             text = text.replace(s, "?");
+         }
            for (String s : Tools.BooleanOperators){
                text = text.replace(s, "?");
-         }
-           for (String s : Tools.RelationalOperators){
-               text = text.replace(s, "?");
-         }
+           }
+
            for (String s : Tools.GroupOperators)
            {
                text = text.replace(s, "?");

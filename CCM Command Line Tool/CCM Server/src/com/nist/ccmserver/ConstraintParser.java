@@ -435,7 +435,7 @@ public class ConstraintParser implements ConstraintParserConstants {
             rvalTI = (TypeInfo)rval;
 
             if(rvalTI.getType() != tempTI.getType()) {
-                    {if (true) throw new ParseException ("Type mismatch: "
+                    {if (true) throw new ParseException ("Type mismatch: " + tempTI.getType()
                         + rvalTI.getText() + " " + t.image + " " + tempTI.getText());}
             } else  {
                 TypeInfo ti = new TypeInfo();
@@ -802,6 +802,8 @@ public class ConstraintParser implements ConstraintParserConstants {
                      );
             }
       break;
+   
+    	
     case OPENPAR:
       t = jj_consume_token(OPENPAR);
       rval = LogicalExpression(parse_only);

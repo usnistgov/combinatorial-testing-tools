@@ -58,6 +58,7 @@ public interface ConstraintParserConstants {
   /** RegularExpression Id. */
   int CLOSEPAR = 28;
 
+
   /** Lexical state. */
   int DEFAULT = 0;
 

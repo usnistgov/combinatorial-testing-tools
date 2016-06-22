@@ -11,6 +11,7 @@ public class TestData {
 	private boolean constraints_file_present;
 	private List<Parameter> parameters;
 	private List<meConstraint> constraints;
+	public static volatile String[][]tests;
 	
 	
 	public TestData(){

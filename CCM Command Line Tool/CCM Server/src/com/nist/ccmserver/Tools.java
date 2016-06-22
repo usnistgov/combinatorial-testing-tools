@@ -10,7 +10,7 @@ public class Tools {
 	//operator for constraints
 	 public static String[] ArithmeticsOperators = { "+", "-", "*", "%", "/" };
      public static String[] RelationalOperators = { "!=", ">=", "<=" ,">", "<", "=" };
-     public static String[] BooleanOperators = { "&&", "||", "=>" };
+     public static String[] BooleanOperators = { "&&", "||", "=>", "!"};
      public static String[] GroupOperators = { "(", ")" };
 	
 	

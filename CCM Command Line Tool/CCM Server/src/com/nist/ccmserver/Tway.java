@@ -228,6 +228,11 @@ public class Tway extends RecursiveTask {
 
 		int varvaltotal = 0;
 
+		/*
+		 * -Calculates the number of t-way combinations between parameters
+		 * 
+		 * -Calculates the total variable value configurations
+		 */
 		for (i = _start; i < _end; i++) {
 			for (j = i + 1; j < _ncols; j++) {
 				nComs++;
@@ -2532,5 +2537,165 @@ public class Tway extends RecursiveTask {
 
 		}
 	}
+	
+	
+	private void updateTwoWay(String[] new_tests) {
 
+		long n_tot_tway_cov = _n_tot_tway_cov;
+		int i, j, ni, nj, m, ti;
+		//long[] varvalStats2 = new long[NBINS + 1];
+		long n_varvalconfigs2;
+		long nComs = _nComs; // number of combinations = C(ncols, t)
+		long tot_varvalconfigs2 = 0;
+
+		// prepare to create a new batch of generated tests to cover missing
+		// tests
+
+		//for (i = 0; i < NBINS + 1; i++)
+			//varvalStats2[i] = 0;
+
+		// solver for invalid combinations
+		CSolver validcomb = new CSolver();
+		validcomb.SetConstraints(_constraints);
+		validcomb.SetParameter(_parameters);
+
+		_aInvalidComb = new ArrayList<String[][]>();
+		_aInvalidNotIn = new ArrayList<String[][]>();
+
+		int varvaltotal = 0;
+
+		/*
+		 * -Calculates the number of t-way combinations between parameters
+		 * 
+		 * -Calculates the total variable value configurations
+		 */
+		for (i = _start; i < _end; i++) {
+			for (j = i + 1; j < _ncols; j++) {
+				nComs++;
+				varvaltotal += (_nvals[i] * _nvals[j]);
+			}
+		}
+
+		double div = (double) varvaltotal / (double) nComs;
+		double sumcov = 0;
+		// Process the tests
+		for (i = _start; i < _end; i++) {
+			for (j = i + 1; j < _ncols; j++) {
+				// nComs++; //number of combinations
+				int[][] comcount = new int[_nvals[i]][];
+				for (ti = 0; ti < _nvals[i]; ti++) {
+					comcount[ti] = new int[_nvals[j]];
+				}
+				// forall t-way combinations of input variable values:
+				// comcount i,j == 0
+				// for the combination designated by i,j increment counts
+				for (m = 0; m < _nrows; m++) {
+
+					String[][] pars = new String[2][];
+					pars[0] = new String[2];
+					pars[1] = new String[2];
+
+					pars[0][0] = _parameters.get(i).getName();
+					pars[1][0] = _parameters.get(j).getName();
+
+					pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]).toString();
+					pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]).toString();
+
+					if (_constraints.size() > 0) {
+						if (validcomb.EvaluateCombination(pars))
+							comcount[_test[m][i]][_test[m][j]] += 1; // flag
+																		// valid
+																		// var-val
+																		// config
+																		// in
+																		// set
+																		// test
+						else
+							comcount[_test[m][i]][_test[m][j]] -= 1; // flag
+																		// invalid
+																		// var-val
+																		// config
+																		// in
+																		// set
+																		// test
+					} else {
+						comcount[_test[m][i]][_test[m][j]] += 1; // flag var-val
+						// config in
+						// set test
+					}
+
+					// coumcount i,j == 1 iff some tests contains tuple i,j
+				}
+
+				int varval_cnt = 0;
+				int invalidcomb = 0;
+				int invalidcombNotCovered = 0;
+
+				for (ni = 0; ni < _nvals[i]; ni++) {
+					for (nj = 0; nj < _nvals[j]; nj++) {
+						// count how many value var-val configs are contained in
+						// a test
+						if (comcount[ni][nj] > 0) {
+							varval_cnt++;
+							n_tot_tway_cov++;
+						} else {
+
+							String[][] pars = new String[2][];
+							pars[0] = new String[2];
+							pars[1] = new String[2];
+
+							pars[0][0] = _parameters.get(i).getName();
+							pars[1][0] = _parameters.get(j).getName();
+
+							pars[0][1] = _parameters.get(i).getValues().get(ni);
+							pars[1][1] = _parameters.get(j).getValues().get(nj);
+
+							// count how many invalid configs are contained in
+							// the test
+							if (comcount[ni][nj] <= -1) {
+								invalidcomb += 1;
+								_aInvalidComb.add(pars);
+							}
+							if (comcount[ni][nj] == 0 && _constraints.size() > 0) {
+
+								if (!validcomb.EvaluateCombination(pars)) {
+									// count how many invalid configs are not
+									// contained in the test
+									invalidcombNotCovered += 1;
+									comcount[ni][nj] = -2;
+									_aInvalidNotIn.add(pars);
+								}
+
+							}
+
+						}
+
+					}
+				}
+
+				n_varvalconfigs2 = _nvals[i] * _nvals[j];
+				n_varvalconfigs2 -= (invalidcomb + invalidcombNotCovered);
+				tot_varvalconfigs2 += n_varvalconfigs2;
+
+				double varval_cov = (double) varval_cnt / (double) n_varvalconfigs2;
+
+				double varval = (double) varval_cnt / (double) varvaltotal;
+
+				sumcov += varval;
+
+				//for (int b = 0; b <= NBINS; b++)
+					//if (varval_cov >= (double) b / (double) NBINS)
+						//varvalStats2[b]++;
+
+			}
+
+		}
+
+		_n_tot_tway_cov = n_tot_tway_cov;
+		_nComs = nComs;
+		_tot_varvalconfig = tot_varvalconfigs2;
+		//_varvalStatN = varvalStats2;
+
+	}
+	
 }
