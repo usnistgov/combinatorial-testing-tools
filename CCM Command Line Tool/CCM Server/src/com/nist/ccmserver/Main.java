@@ -485,20 +485,29 @@ public class Main{
 				Matcher m;
 				boolean in_param_section = false;
 				boolean in_constraint_section = false;
+				boolean in_tests_section = false;
+				int num_rows = 0;
 				while ((line = br.readLine()) != null) {
-					line = line.trim().replaceAll("\\s", "");
+					line = line.trim();
 					m = p.matcher(line);
 					if (m.find()) {
 						switch (m.group(1)) {
 						case "Constraint":
 							in_constraint_section = true;
 							in_param_section = false;
+							in_tests_section = false;
 							// break;
 							continue;
 						case "Parameter":
 							in_param_section = true;
 							in_constraint_section = false;
+							in_tests_section = false;
 							// break;
+							continue;
+						case "Test Set":
+							in_tests_section = true;
+							in_param_section = false;
+							in_constraint_section = false;
 							continue;
 						default:
 							if (line.contains(",")) {
@@ -507,6 +516,7 @@ public class Main{
 							}
 							in_constraint_section = false;
 							in_param_section = false;
+							in_tests_section = false;
 							// break;
 							continue;
 						}
@@ -516,13 +526,16 @@ public class Main{
 					else if (line.startsWith("--")) {
 						// comment section so continue
 						continue;
-					} else if (in_constraint_section && !line.equals("")) {
+					} else if (in_constraint_section && !line.replaceAll("\\s","").equals("")) {
 						constraints.add(line);
 						continue;
-					} else if (in_param_section && !line.equals("")) {
+					} else if (in_param_section && !line.replaceAll("\\s","").equals("")) {
 						String parameter_name = line.substring(0, line.indexOf("("));
 						params.add(parameter_name);
-					} else {
+					} else if (in_tests_section && !line.replaceAll("\\s","").equals("")){
+						//In tests section and tests are present... ignore input file if present.
+						num_rows++;
+					}else {
 						// not in any of the right sections...
 						continue;
 					}
@@ -546,6 +559,11 @@ public class Main{
 				values = new String[data.get_columns()];
 				HashMapParameters();
 				setupParams(true);
+				if(num_rows > 0){
+					data.set_rows(num_rows);
+					infile = new String[data.get_rows()];
+					setupParams(false);
+				}
 
 			} catch (Exception ex) {
 				System.out.println("Something went wrong reading the ACTS file.\n" + ex.getMessage());
@@ -556,6 +574,7 @@ public class Main{
 
 				// Now we need to get all of the values and put them in the
 				// correct parameter.
+				int test_index = 0;
 				int paramIndex = 0;
 				List<String[]> values_array = new ArrayList<String[]>();
 				List<Integer> types = new ArrayList<Integer>();
@@ -566,6 +585,7 @@ public class Main{
 				Pattern p = Pattern.compile("\\[(.*?)\\]");
 				boolean in_constraint_section = false;
 				boolean in_param_section = false;
+				boolean in_tests_section = false;
 				while ((line = br.readLine()) != null) {
 					if (line.trim().length() == 0)
 						continue;
@@ -576,12 +596,19 @@ public class Main{
 						case "Constraint":
 							in_constraint_section = true;
 							in_param_section = false;
+							in_tests_section = false;
 							// break;
 							continue;
 						case "Parameter":
 							in_param_section = true;
 							in_constraint_section = false;
+							in_tests_section = false;
 							// break;
+							continue;
+						case "Test Set":
+							in_tests_section = true;
+							in_param_section = false;
+							in_constraint_section = false;
 							continue;
 						default:
 							if (line.contains(",")) {
@@ -590,6 +617,7 @@ public class Main{
 							}
 							in_constraint_section = false;
 							in_param_section = false;
+							in_tests_section = false;
 							// break;
 							continue;
 						}
@@ -605,7 +633,7 @@ public class Main{
 						// add the line to the constraints...
 						// constraints.add(line);
 						continue;
-					} else if (in_param_section && line != "") {
+					} else if (in_param_section && !line.replaceAll("\\s", "").equals("")) {
 						// do this later...
 
 						/*
@@ -738,9 +766,6 @@ public class Main{
 								parm.setBoundary(true);
 							}
 
-							// for(int q = 0; q < boundary_vals.size(); q++)
-							// parm.addValue(String.valueOf(q));
-							// parm.setValuesO(parm.getValues());
 							parm.removeAllValues();
 							
 							String[] tempory = new String[parm.getBounds().size() + 1];
@@ -753,7 +778,6 @@ public class Main{
 
 							data.get_parameters().add(paramIndex, parm);
 
-							// setupFile();
 							paramIndex++;
 
 						} else if (line.contains("{")) {
@@ -836,6 +860,9 @@ public class Main{
 							case "boolean":
 								types.add(2);
 								break;
+							case "bool":
+								types.add(2);
+								break;
 							case "int":
 								types.add(0);
 								break;
@@ -848,9 +875,21 @@ public class Main{
 							values_array.add(vals);
 							paramIndex++;
 						}
-					} else
+					} else if(in_tests_section && !line.replaceAll("\\s", "").equals("")){
+						//Process the tests...
+						if(line.split(",").length != data.get_columns()){
+							System.out.println("Test Set section of ACTS files has different number of parameters than specified in "
+									+ "Parameter section.\nExiting...");
+							return false;
+						}
+						
+						infile[test_index] = line.trim();
+						test_index++;
+						
+					}else
 						continue;
 				}
+				br.close();
 				
 
 				/*
@@ -898,13 +937,16 @@ public class Main{
 				
 				// Finally add all of the constraints...
 				if (!constraints.isEmpty()){
-					System.out.println("PROCESSING CONSTRAINTS...\n");
+					if(!constraints_path.equals(""))
+						System.out.println("Constraints defined in ACTS file. Using those instead of constraints text file.\n");
+					System.out.println("PROCESSING CONSTRAINTS...");
 					for (String str : constraints){
 						System.out.println(str);
 						if(!AddConstraint(str.trim())){
-							System.out.println("\nBAD CONSTRAINT... EXITING...\n"); return false;
+							System.out.println("\nBad constraint... EXITING\n"); return false;
 						}
 					}
+					System.out.println("\n");
 
 				}
 
@@ -915,19 +957,26 @@ public class Main{
 						}
 					}
 				}
-
-				if (!tests_input_file_path.equals("")) {
-					// Test case file is present...
-					if (!readTestCaseInputFile(tests_input_file_path)) {
-						return false;
+				if(infile[0].equals("")){
+					if (!tests_input_file_path.equals("")) {
+						// Test case file is present...
+						if (!readTestCaseInputFile(tests_input_file_path)) {
+							return false;
+						}
 					}
+				}else{
+					if(!tests_input_file_path.equals(""))
+						System.out.println("\nMESSAGE: Test cases defined in ACTS file. Using those instead.\n");
+					if(setupFile() != 0)
+						return false;
 				}
+
 
 				return true;
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
 			}
-		}else{
+		}else if(ext.equals(".xml")){
 			//File is an .xml file and we need to parse it differently...
 			
 			/*
@@ -937,6 +986,7 @@ public class Main{
 			 */
 			
 			List<String> params = new ArrayList<String>();
+			List<Integer> types = new ArrayList<Integer>();
 			List<String[]> values_array = new ArrayList<String[]>();
 			DocumentBuilderFactory factory =  DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -959,7 +1009,7 @@ public class Main{
 				}
 			}
 			
-			int value_index = 0;
+
 			//Create all the parameters first...
 			for(int i = 0; i < paramList.getLength(); i++){
 				Node tempNode = paramList.item(i);
@@ -970,6 +1020,7 @@ public class Main{
 						Element e = (Element) tempNode;
 						String name = e.getAttribute("name");
 						params.add(name);
+						types.add(Integer.parseInt(e.getAttribute("type")));
 						NodeList values = e.getElementsByTagName("values").item(0).getChildNodes();
 						if(values.getLength() <= 0){
 							System.out.println("Something wrong with .xml file. Can't have 0 values for a parameter.\n");
@@ -977,11 +1028,10 @@ public class Main{
 						}
 						String[] temp_vals = new String[values.getLength()];
 						for(int z = 0; z < values.getLength(); z++){
-							//System.out.println(values.item(z).getTextContent());
 							temp_vals[z] = values.item(z).getTextContent();
 						}
 						values_array.add(temp_vals);
-						value_index++;
+						
 					}
 				}
 			}
@@ -995,21 +1045,97 @@ public class Main{
 			param_arg.trim().replaceAll("\\s", "");
 			param_arg = param_arg.substring(0, param_arg.length() - 1);
 			CreateParameters(param_arg.split(",").length, param_arg);
+			data.set_columns(param_arg.split(",").length);
+			values = new String[data.get_columns()];
+			HashMapParameters();
+			setupParams(true);
+
+			if (values_array.size() != data.get_parameters().size()){
+				System.out.println("Something went wrong reading the ACTS file.\n");
+				return false;
+			}
 			
-			value_index = 0;
+			
+			for(int z = 0; z < values_array.size(); z++){
+				String[] temp_values = values_array.get(z);
+				Parameter tp = data.get_parameters().get(z);
+				try {
+					for (int x = 0; x < temp_values.length; x++) {
+						if (!temp_values[x].trim().equals("")) {
+							if (types.get(z) == 0) {
+								tp.setType(Parameter.PARAM_TYPE_INT);
+							} else {
+								if (types.get(z) == 2){
+									tp.setType(Parameter.PARAM_TYPE_BOOL);
+								} else if(types.get(z) == 1){
+									tp.setType(Parameter.PARAM_TYPE_ENUM);
+								}else
+									break;
+							}
+							nvals[z]++;
+							tp.addValue(temp_values[x].trim());
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("\nError: " + e.getMessage());
+				}
+			}
+			
+			
+			List<String> all_constraints = new ArrayList<String>();
+
 			//Create the constraints...
 			for(int i = 0; i < constraintList.getLength(); i++){
 				Node tempNode = constraintList.item(i);
 				if(!tempNode.getParentNode().getNodeName().equals("Constraints")){
 					continue;
 				}
+				if(tempNode.hasAttributes()){
+					if(tempNode.getNodeType() == Node.ELEMENT_NODE){
+						Element e = (Element) tempNode;
+						String constraint = e.getAttribute("text");
+						all_constraints.add(constraint.trim());
+					}
+				}
 			}
+			
+			if (!all_constraints.isEmpty()){
+				System.out.println("PROCESSING CONSTRAINTS...\n");
+				for (String str : all_constraints){
+					System.out.println(str);
+					if(!AddConstraint(str.trim())){
+						System.out.println("\nBAD CONSTRAINT... EXITING...\n");
+						return false;
+					}
+				}
+
+			}
+
+			else {
+				if (!constraints_path.equals("")) {
+					if (!readConstraintsFile(constraints_path)) {
+						return false;
+					}
+				}
+			}
+			
 			
 			/*
 			 * ==========================================================
 			 * END OF PARSING THE .XML FILE
 			 * ==========================================================
 			 */
+			
+			if (!tests_input_file_path.equals("")) {
+				// Test case file is present...
+				if (!readTestCaseInputFile(tests_input_file_path)) {
+					return false;
+				}
+			}
+
+			return true;
+		}else{
+			System.out.println("File type not supported. Must use .xml or .txt file extension.");
 		}
 		return false;
 	}
@@ -1084,7 +1210,6 @@ public class Main{
 				String line = "";
 				// Read File Line By Line
 				while ((line = br.readLine()) != null) {
-					line.trim();
 					values = line.split(",");
 					int columns = values.length;
 					if(columns != data.get_columns()){
@@ -1167,6 +1292,7 @@ public class Main{
 			 * Read through the file the first time to determine file size and allocate memory.
 			 * This is for auto-detect mode
 			 */
+
 			int i = 0;
 			int ncols = 0;
 			int nrows = 0;
@@ -1307,12 +1433,12 @@ public class Main{
 		for (int i = 0; i < number; i++) {
 			// if names are not in file, by default parameters will be named P1, P2, p3...
 			if(data.isActsFilePresent()){
-				p = new Parameter(names[i]);
+				p = new Parameter(names[i].trim());
 			}
 			if (!data.hasParamNames() && !data.isActsFilePresent())
 				p = new Parameter("P" + (i + 1));
 			else
-				p = new Parameter(names[i]);
+				p = new Parameter(names[i].trim());
 			data.get_parameters().add(p);
 		}
 	}
@@ -1324,16 +1450,15 @@ public class Main{
 
 		try {
 			
-			String[] x = ConstraintManager.JustParameterValues(str);
+			String[] x = ConstraintManager.JustParameterValues(str.trim());
 			/*
 			 * Need to modify constraint if it has a boolean operator in front of parameter name
 			 * (This is mainly to support parsing of ACTS .xml files)
 			 */
 			
-			for(int i = 0; i < x.length; i++)
-				System.out.println(x[i]);
 			if (Checker(x) && !ConstraintExists(str)) {
 				//create parser object
+
 				ConstraintParser cp = new ConstraintParser(str, pars);
 				//parse constraint to format choco constraint
 				cp.parse();
@@ -1342,7 +1467,9 @@ public class Main{
 				data.get_constraints().add(new meConstraint(str, usedParams)); 
 				usedParams = null;
 				return true;
-			} 
+			} if(ConstraintExists(str))
+				return true;
+			else
 				return false;
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
@@ -1383,6 +1510,7 @@ public class Main{
 		int ant = 0;
 		for (int i = 0; i < str.length; i++) {
 			if (!str[i].trim().equals("")) {
+
 				//Check if its a variable value
 				if (ConstraintManager.isVariableValue(str[i].trim())) { 
 					if (i > 0)
@@ -1390,13 +1518,14 @@ public class Main{
 					String key = str[ant];
 
 					Parameter p = lp.get(key.trim());
-
+					
 					if (!ConstraintManager.isValidParameterValue(str[i].trim(), p)) {
 						System.out.println("Invalid Value: " + p.getName() + " = " + str[i].trim());
 						return false;
 					}
-
+					
 				} else {
+
 					//Its a parameter
 					if (ConstraintManager.isParameter(str[i].trim(), lp)) {
 						if (!used_parameters.contains(str[i].trim()))
@@ -1406,20 +1535,24 @@ public class Main{
 						return false;
 					}
 				}
+
 			}
+
 		}
 
 		usedParams = used_parameters;
 		if (usedParams.size() > 0)
 			r = true;
+
 		return r;
 	}
 	
 	//Check to make sure constraints are not repeated
 	public Boolean ConstraintExists(String str)
     {
+
 		  for (int c=0; c<data.get_constraints().size();c++){
-			 
+
 			  if (data.get_constraints().get(c).get_cons().equalsIgnoreCase(str))
 			  {
 				  System.out.println("The constriant already exists!!");
@@ -1429,6 +1562,7 @@ public class Main{
 		  }
 	
         return false;
+
     }
 	
 	
@@ -1832,7 +1966,7 @@ public class Main{
 						for(int i = 0; i < str.length; i++){
 							System.out.print(str[i][0] + " = " + str[i][1] + " ; ");
 						}
-						System.out.print("\n");
+						System.out.println();
 					}
 					
 

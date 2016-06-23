@@ -29,7 +29,9 @@ public class ConstraintManager {
      }
 
      public static Boolean isParameter(String text, HashMap parameters) { 
-            if (parameters.containsKey(text.trim())) return true;
+            if (parameters.containsKey(text)){
+            	return true;
+            }
          return false;
      }
 
