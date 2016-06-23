@@ -882,7 +882,18 @@ public class Main{
 									+ "Parameter section.\nExiting...");
 							return false;
 						}
-						
+						//Check here to make sure that each value matches up with the appropriate data type.
+						String[] testcase_vals = line.trim().split(",");
+						for(int i = 0; i < testcase_vals.length; i++){
+								if(!Arrays.asList(values_array.get(i)).contains(testcase_vals[i])){
+									System.out.println("Undefined value in the test set\n(" + data.get_parameters().get(i).getName() +
+											") = " + testcase_vals[i] + " @ Test Set Line: " + (test_index + 1));
+									
+									return false;
+								}
+							
+
+						}
 						infile[test_index] = line.trim();
 						test_index++;
 						
@@ -957,18 +968,19 @@ public class Main{
 						}
 					}
 				}
-				if(infile[0].equals("")){
+				if(test_index > 0){
 					if (!tests_input_file_path.equals("")) {
-						// Test case file is present...
+						System.out.println("\nMESSAGE: Test cases defined in ACTS file. Using those instead.\n");
+					}
+					if(setupFile() != 0)
+						return false;
+				}else{
+					if(!tests_input_file_path.equals("")){
 						if (!readTestCaseInputFile(tests_input_file_path)) {
 							return false;
 						}
 					}
-				}else{
-					if(!tests_input_file_path.equals(""))
-						System.out.println("\nMESSAGE: Test cases defined in ACTS file. Using those instead.\n");
-					if(setupFile() != 0)
-						return false;
+
 				}
 
 
@@ -1026,12 +1038,19 @@ public class Main{
 							System.out.println("Something wrong with .xml file. Can't have 0 values for a parameter.\n");
 							return false;
 						}
-						String[] temp_vals = new String[values.getLength()];
+						List<String> temp_vals = new ArrayList<String>();
 						for(int z = 0; z < values.getLength(); z++){
-							temp_vals[z] = values.item(z).getTextContent();
+							if(!values.item(z).getTextContent().trim().equals("")){
+								temp_vals.add(values.item(z).getTextContent());
+							}
 						}
-						values_array.add(temp_vals);
-						
+						int m = 0;
+						String[] t = new String[temp_vals.size()];
+						for(String str : temp_vals){
+							t[m] = temp_vals.get(m);
+							m++;
+						}
+						values_array.add(t);
 					}
 				}
 			}
@@ -1044,8 +1063,8 @@ public class Main{
 			}
 			param_arg.trim().replaceAll("\\s", "");
 			param_arg = param_arg.substring(0, param_arg.length() - 1);
-			CreateParameters(param_arg.split(",").length, param_arg);
 			data.set_columns(param_arg.split(",").length);
+			CreateParameters(param_arg.split(",").length, param_arg);
 			values = new String[data.get_columns()];
 			HashMapParameters();
 			setupParams(true);
@@ -1055,26 +1074,237 @@ public class Main{
 				return false;
 			}
 			
-			
-			for(int z = 0; z < values_array.size(); z++){
+			for (int z = 0; z < values_array.size(); z++) {
 				String[] temp_values = values_array.get(z);
 				Parameter tp = data.get_parameters().get(z);
+
 				try {
 					for (int x = 0; x < temp_values.length; x++) {
+
 						if (!temp_values[x].trim().equals("")) {
+
 							if (types.get(z) == 0) {
 								tp.setType(Parameter.PARAM_TYPE_INT);
+							} else if (types.get(z) == 2) {
+								tp.setType(Parameter.PARAM_TYPE_BOOL);
+							} else if (types.get(z) == 1) {
+								tp.setType(Parameter.PARAM_TYPE_ENUM);
+							} else if (types.get(z) == 3) {
+								// Range value
+								tp.setType(Parameter.PARAM_TYPE_INT);
+								
+								if (values_array.get(z).length > 1) {
+									System.out.println("Incorrectly defined group value in XML file: \n"
+											+ temp_values[x] + "\n" + temp_values[x + 1] + "\n...\n"
+											+ "\nUse \"<value>{1,2,3},{4,5,6}</value>\" format for groups (type = 4).\nOR\n"
+											+ "Use \"<value>(*,6],[7,*)</value>\" format for ranges (type = 3).\n" + "\nExiting");
+									return false;
+								}
+
+								/*
+								 * Get all the boundary values from the interval
+								 * notation...
+								 */
+								List<String> boundary_vals = new ArrayList<String>();
+								int interval_side = 1;
+								boolean include = false;
+								String current_number = "";
+								for (char c : temp_values[x].trim().replaceAll("\\s", "").toCharArray()) {
+									boolean isDigit = (c >= '0' && c <= '9') ? true : false;
+									if (!isDigit) {
+										switch (c) {
+										case '*':
+											break;
+										case ',':
+											if (current_number.equals(""))
+												break;
+											if (interval_side == 1) {
+												if (include && !boundary_vals
+														.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+													boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
+												else if (!include && !boundary_vals.contains(current_number))
+													boundary_vals.add(current_number);
+											} else if (interval_side == 2) {
+												if (include && !boundary_vals.contains(current_number))
+													boundary_vals.add(current_number);
+												else if (!include && !boundary_vals
+														.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+													boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
+											} else if (current_number.equals("")) {
+												// Between Range Intervals...
+												continue;
+											}
+											current_number = "";
+											break;
+										case '[':
+											interval_side = 1;
+											include = true;
+											break;
+										case ']':
+											interval_side = 2;
+											include = true;
+											break;
+										case '(':
+											interval_side = 1;
+											include = false;
+											break;
+										case ')':
+											interval_side = 2;
+											include = false;
+											break;
+										case '-':
+											if (current_number.equals(""))
+												current_number += '-';
+											break;
+										case ' ':
+											// its a whitespace character.
+											break;
+										default:
+											System.out.println("Incorrect Range Value defintion in ACTS input file.\n");
+											return false;
+										}
+									} else {
+										current_number += c;
+									}
+								}
+
+								if (!current_number.equals("") && !current_number.equals("*")) {
+									// Add the last value in interval to boundary
+									// values...
+									if (include && !boundary_vals.contains(current_number))
+										boundary_vals.add(current_number);
+									else if (!include && !boundary_vals
+											.contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+										boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
+								}
+
+								rng[z] = true;
+								int n = boundary_vals.size() + 1;
+
+								// This just makes sure that at least one value was
+								// present in the equivalence class
+								if (n < 2) {
+									System.out.println("Must have at least 2 values when defining an equivalence class.\n");
+									return false;
+								}
+								
+								data.get_parameters().remove(z);
+								nbnds = (n - 1 > 0 ? n - 1 : 1);
+								nvals[z] = n;
+								if (bnd[z] == null)
+									bnd[z] = new double[nbnds];
+								boundariesSet = new Boolean[nbnds]; // new set of
+																	// boundaries
+																	// required
+																	// since num of
+																	// values
+																	// changed
+								for (int j = 0; j < nbnds; j++)
+									boundariesSet[j] = false;
+
+								// Here is where we process the boundary values..
+								for (int y = 0; y < boundary_vals.size(); y++) {
+
+									try {
+										bnd[z][y] = Double.parseDouble(boundary_vals.get(y).toString());
+										tp.addBound(new java.lang.Double(bnd[z][y]));
+									} catch (Exception ex) {
+										System.out.println("Invalid input for boundary value." + boundary_vals.get(y));
+										return false;
+									}
+									boundariesSet[y] = true; // indicate this bound
+																// has been set
+									tp.setBoundary(true);
+								}
+
+								tp.removeAllValues();
+								
+								for (int b = 0; b <= tp.getBounds().size(); b++) {
+									tp.addValue(Integer.toString(b));
+								}
+
+								data.get_parameters().add(z, tp);
+
+								continue;
+							} else if (types.get(z) == 4) {
+								// group value
+								tp.setType(Parameter.PARAM_TYPE_INT);
+								if (values_array.get(z).length > 1) {
+									System.out.println("Incorrectly defined group value (type = 4) in XML file: "
+											+ temp_values[x] + "\n" + temp_values[x + 1] + "\n...\n"
+											+ "\nUse \"<value>{1,2,3},{4,5,6}</value>\" format." + "\nExiting");
+									return false;
+								}
+								if (temp_values[x].contains("{")) {
+
+									// Its a group
+
+									grp[z] = true;
+									// Get the information
+									List<String> groupDeclarations = new ArrayList<String>();
+									String buffer = temp_values[x]
+											.substring(temp_values[x].indexOf("{"), temp_values[x].length())
+											.replaceAll("\\s", "");
+									boolean in_group = false;
+									String temp_str = "";
+
+									for (char c : buffer.toCharArray()) {
+										if (c == '{') {
+											in_group = true;
+											continue;
+
+										} else if (c == '}') {
+											groupDeclarations.add(temp_str);
+											temp_str = "";
+											in_group = false;
+										} else
+											temp_str += c;
+									}
+
+									List<String[]> all_groups = new ArrayList<String[]>();
+									for (String st : groupDeclarations) {
+										all_groups.add(st.replaceAll("\\s", "").split(","));
+									}
+
+									// go ahead and add all the values to the
+									// parameter
+									for (int r = 0; r < all_groups.size(); r++) {
+										for (int g = 0; g < all_groups.get(r).length; g++) {
+											if(!all_groups.get(r)[g].trim().equals("")){
+												data.get_parameters().get(z).addValue(all_groups.get(r)[g].trim());
+											}
+
+										}
+									}
+
+									nvals[z] = groupDeclarations.size();
+
+									group[z] = new Object[groupDeclarations.size()];
+
+									tp.setGroup(true);
+									tp.setValuesO(tp.getValues());
+									tp.removeAllValues();
+									for (int index = 0; index < groupDeclarations.size(); index++) {
+										group[z][index] = groupDeclarations.get(index).toString().trim()
+												.replaceAll("\\s", "");
+										tp.addValue(Integer.toString(index));
+										tp.addGroup(groupDeclarations.get(index).toString().trim().replaceAll("\\s", ""));
+									}
+									continue;
+
+								} else {
+									System.out.println("Not a valid group value in .xml file: ("
+											+ data.get_parameters().get(z).getName() + ") value = " + temp_values[x]);
+									return false;
+								}
 							} else {
-								if (types.get(z) == 2){
-									tp.setType(Parameter.PARAM_TYPE_BOOL);
-								} else if(types.get(z) == 1){
-									tp.setType(Parameter.PARAM_TYPE_ENUM);
-								}else
-									break;
+								System.out.println("Value type not supported in .xml file: ("
+										+ data.get_parameters().get(z).getName() + ") type = " + types.get(z));
+								return false;
 							}
-							nvals[z]++;
-							tp.addValue(temp_values[x].trim());
 						}
+						nvals[z]++;
+						tp.addValue(temp_values[x].trim());
 					}
 				} catch (Exception e) {
 					System.out.println("\nError: " + e.getMessage());
@@ -1204,9 +1434,11 @@ public class Main{
 				int i = 0;
 				int ncols = 0;
 				int nrows = 0;
+
 				FileInputStream fstream = new FileInputStream(path);
 				DataInputStream in = new DataInputStream(fstream);
 				BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
 				String line = "";
 				// Read File Line By Line
 				while ((line = br.readLine()) != null) {
@@ -1250,7 +1482,7 @@ public class Main{
 				infile = new String[data.get_rows()];
 				setupParams(false);
 			}catch(Exception ex){
-				System.out.println(ex.getMessage());
+				
 			}
 			
 			//Now set up the test cases.
@@ -1269,8 +1501,28 @@ public class Main{
 						read_params = true;
 						continue;
 					}else if (line.contains(",")) {
-						values = line.split(",");
+						values = line.trim().split(",");
 						infile[i] = line;
+
+						for(int t = 0; t < values.length; t++){
+							if(data.get_parameters().get(t).getGroup()){
+								//Add error checking here to ensure only values defined in groups are here
+								if(!data.get_parameters().get(t).getValuesO().contains(values[t])){
+									System.out.println("Undefined value in the test set\n(" + data.get_parameters().get(t).getName() +
+											") = " + values[t] + " @ Test Set Line: " + (i + 1));
+									return false;
+								}
+								continue;
+							}else if(data.get_parameters().get(t).getBoundary()){
+								continue;
+							}
+							if(!data.get_parameters().get(t).getValues().contains(values[t])){
+								System.out.println("Undefined value in the test set\n(" + data.get_parameters().get(t).getName() +
+										") = " + values[t] + " @ Test Set Line: " + (i + 1));
+								
+								return false;
+							}
+						}
 					}
 					i++;
 				}
