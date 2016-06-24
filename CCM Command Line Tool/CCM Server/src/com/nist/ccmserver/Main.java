@@ -133,6 +133,9 @@ public class Main{
 	//can change this or user define it as cmd parameter
 	public int nmapMax = 50;
 	
+	
+	public String[] report = new String[5];
+	
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
 		Main m = new Main();
 		String tway_values[] = new String[5];
@@ -348,6 +351,12 @@ public class Main{
 					} else {
 						// Test Case input file has been processed and
 						// everything is fine.
+						if(!m.constraints_path.equals("")){
+							if(!m.readConstraintsFile(m.constraints_path)){
+								System.exit(0);
+								return;
+							}
+						}
 						if (!m.generateRandom) {
 
 							// In classic mode but the user doesn't have a test
@@ -381,6 +390,8 @@ public class Main{
 			if(!measured)
 				System.out.println("\nNo t-way parameter specified. Use -T [1,2,3,4,5,6] to measure t-way coverage.\n");
 			m.frame.pack();
+			
+
 			
 		}else if(m.mode == MODE_REALTIME){
 			//Real time mode.
@@ -825,7 +836,7 @@ public class Main{
 
 							Parameter tp = data.get_parameters().get(paramIndex);
 							nvals[paramIndex] = groupDeclarations.size();
-							;
+							
 							group[paramIndex] = new Object[groupDeclarations.size()];
 
 							tp.setGroup(true);
@@ -885,13 +896,33 @@ public class Main{
 						//Check here to make sure that each value matches up with the appropriate data type.
 						String[] testcase_vals = line.trim().split(",");
 						for(int i = 0; i < testcase_vals.length; i++){
+							if(!data.get_parameters().get(i).getBoundary() && !data.get_parameters().get(i).getGroup()){
 								if(!Arrays.asList(values_array.get(i)).contains(testcase_vals[i])){
 									System.out.println("Undefined value in the test set\n(" + data.get_parameters().get(i).getName() +
 											") = " + testcase_vals[i] + " @ Test Set Line: " + (test_index + 1));
 									
 									return false;
 								}
-							
+							}else{
+								if(data.get_parameters().get(i).getBoundary()){
+									if(!Tools.isNumeric(testcase_vals[i])){
+										System.out.println("Undefined value in the test set\n(" + data.get_parameters().get(i).getName() +
+												") = " + testcase_vals[i] + " @ Test Set Line: " + (test_index + 1));
+										return false;
+									}
+								}else if(data.get_parameters().get(i).getGroup()){
+									if(!data.get_parameters().get(i).getValuesO().contains(testcase_vals[i])){
+										System.out.println("Undefined value in the test set\n(" + data.get_parameters().get(i).getName() +
+												") = " + testcase_vals[i] + " @ Test Set Line: " + (test_index + 1));
+										
+										return false;
+									}
+								}else{
+									System.out.println("Something went wrong processing the ACTS input .txt file, while processing the test cases"
+											+ " at test case " + test_index);
+									return false;
+								}
+							}
 
 						}
 						infile[test_index] = line.trim();
@@ -1006,6 +1037,7 @@ public class Main{
 			NodeList topLevelNodes = xml_doc.getChildNodes().item(0).getChildNodes();
 			NodeList paramList = null;
 			NodeList constraintList = null;
+			NodeList testList = null;
 			//Get all the parameters
 			for(int i = 0; i < topLevelNodes.getLength(); i++){
 				String nodename = topLevelNodes.item(i).getNodeName();
@@ -1016,6 +1048,8 @@ public class Main{
 				case "Constraints":
 					constraintList = topLevelNodes.item(i).getChildNodes();
 					break;
+				case "Testset":
+					testList = topLevelNodes.item(i).getChildNodes();
 				default:
 					continue;
 				}
@@ -1055,6 +1089,8 @@ public class Main{
 				}
 			}
 			
+
+			
 			// Create the initial parameters...
 			String param_arg = "";
 			for (String name : params) {
@@ -1068,6 +1104,41 @@ public class Main{
 			values = new String[data.get_columns()];
 			HashMapParameters();
 			setupParams(true);
+			
+			int num_pars = 0;
+			int num_rows = 0;
+			if(!(testList == null)){
+				for(int i = 0; i < testList.getLength(); i++){
+					Node tempNode = testList.item(i);
+					if(!tempNode.getParentNode().getNodeName().equals("Testset")){
+						continue;
+					}
+					if(tempNode.hasAttributes()){
+						String test_line = "";
+						if(tempNode.getNodeType() == Node.ELEMENT_NODE){
+							Element e = (Element) tempNode;
+							NodeList values = e.getChildNodes();
+							for(int z = 0; z < values.getLength(); z++){
+								if(!values.item(z).getTextContent().replaceAll("\\s","").equals(""))
+									num_pars++;
+							}
+							if(num_pars != data.get_parameters().size()){
+								System.out.println("Error: Test cases don't have the same number of parameters as the defined parameters in configuration"
+										+ " file.\nCheck Testset " + (num_rows + 1)  + "\n");
+								return false;
+							}
+							num_rows++;
+							num_pars = 0;
+						}
+					}
+				}
+			}
+			
+			if(num_rows > 0){
+				data.set_rows(num_rows);
+				infile = new String[data.get_rows()];
+				setupParams(false);
+			}
 
 			if (values_array.size() != data.get_parameters().size()){
 				System.out.println("Something went wrong reading the ACTS file.\n");
@@ -1228,7 +1299,8 @@ public class Main{
 								continue;
 							} else if (types.get(z) == 4) {
 								// group value
-								tp.setType(Parameter.PARAM_TYPE_INT);
+								//Make all group values ENUM type
+								tp.setType(Parameter.PARAM_TYPE_ENUM);
 								if (values_array.get(z).length > 1) {
 									System.out.println("Incorrectly defined group value (type = 4) in XML file: "
 											+ temp_values[x] + "\n" + temp_values[x + 1] + "\n...\n"
@@ -1315,19 +1387,22 @@ public class Main{
 			List<String> all_constraints = new ArrayList<String>();
 
 			//Create the constraints...
-			for(int i = 0; i < constraintList.getLength(); i++){
-				Node tempNode = constraintList.item(i);
-				if(!tempNode.getParentNode().getNodeName().equals("Constraints")){
-					continue;
-				}
-				if(tempNode.hasAttributes()){
-					if(tempNode.getNodeType() == Node.ELEMENT_NODE){
-						Element e = (Element) tempNode;
-						String constraint = e.getAttribute("text");
-						all_constraints.add(constraint.trim());
+			if(!(constraintList == null)){
+				for(int i = 0; i < constraintList.getLength(); i++){
+					Node tempNode = constraintList.item(i);
+					if(!tempNode.getParentNode().getNodeName().equals("Constraints")){
+						continue;
+					}
+					if(tempNode.hasAttributes()){
+						if(tempNode.getNodeType() == Node.ELEMENT_NODE){
+							Element e = (Element) tempNode;
+							String constraint = e.getAttribute("text");
+							all_constraints.add(constraint.trim());
+						}
 					}
 				}
 			}
+			
 			
 			if (!all_constraints.isEmpty()){
 				System.out.println("PROCESSING CONSTRAINTS...\n");
@@ -1349,6 +1424,66 @@ public class Main{
 				}
 			}
 			
+			//Parse the Test Cases
+			int current = 0;
+			if(!(testList == null)){
+				for(int i = 0; i < data.get_rows();){
+					Node tempNode = testList.item(current);
+					if(!tempNode.getParentNode().getNodeName().equals("Testset")){
+						continue;
+					}
+					if(tempNode.hasAttributes()){
+						String test_line = "";
+						if(tempNode.getNodeType() == Node.ELEMENT_NODE){
+							Element e = (Element) tempNode;
+							NodeList values = e.getChildNodes();
+							int param = 0;
+							for(int z = 0; z < values.getLength(); z++){
+								if(!values.item(z).getTextContent().replaceAll("\\s","").equals("")){
+									test_line += (values.item(z).getTextContent().trim() + ",");
+									Parameter mp = data.get_parameters().get(param);
+									param++;
+									if(!mp.getGroup() && !mp.getBoundary()){
+											if(!mp.getValues().contains(values.item(z).getTextContent().trim())){
+												System.out.println("\nNot a valid value in test case: " + (i + 1) + "\n(value) = " + 
+														values.item(z).getTextContent() + " [TEST SET LINE: " + 
+														test_line.split(",").length + "]\nEXITING");
+												return false;
+											}
+									}else if(mp.getGroup() || mp.getBoundary()){
+										if(mp.getGroup()){
+											if(!mp.getValuesO().contains(values.item(z).getTextContent().trim())){
+												System.out.println("\nNot a valid value in test case: " + (i + 1) + "\n(value) = " + 
+														values.item(z).getTextContent() + " [TEST SET LINE: " + 
+														test_line.split(",").length + "]\nEXITING");
+												return false;
+											}
+										}else{
+											if(!Tools.isNumeric(values.item(z).getTextContent().trim())){
+												System.out.println("\nNot a valid value in test case: " + (i + 1) + "\n(value) = " + 
+														values.item(z).getTextContent() + " [TEST SET LINE: " + 
+														test_line.split(",").length + "]\nEXITING");
+												return false;
+											}
+										}
+									}else{
+										System.out.println("\nSomething went wrong processing the parameter value: " + 
+												values.item(z).getTextContent() + "\n");
+										return false;
+									}
+								}
+							}
+							infile[i] = test_line.substring(0, test_line.length() - 1).trim();
+							i++;
+						}
+					}
+					current++;
+				}
+			}
+			if(!(infile == null))
+				if(setupFile() != 0){
+					return false;
+				}
 			
 			/*
 			 * ==========================================================
@@ -1358,7 +1493,9 @@ public class Main{
 			
 			if (!tests_input_file_path.equals("")) {
 				// Test case file is present...
-				if (!readTestCaseInputFile(tests_input_file_path)) {
+				if(!(infile == null))
+					System.out.println("\nTest cases defined in .xml configuration file... Using those instead.\n");
+				else if (!readTestCaseInputFile(tests_input_file_path)) {
 					return false;
 				}
 			}
@@ -1445,7 +1582,7 @@ public class Main{
 					values = line.split(",");
 					int columns = values.length;
 					if(columns != data.get_columns()){
-						System.out.println("Test case input file doesn't match up with ACTS file.\n");
+						System.out.println("\nTest case input file doesn't match up with ACTS file.\nExiting\n");
 						return false;
 					}
 					if (data.hasParamNames() && ncols == 0){
@@ -1456,7 +1593,8 @@ public class Main{
 							if(!values[temp].trim().replaceAll("\\s", "").equals(pre.getName().trim().replaceAll("\\s", ""))){
 								//The parameter names aren't in the same order as the ACTS file.
 								System.out.println("Error: Make sure the test case file parameter names are in the same order as"
-										+ " the parameter names in the ACTS configuration file.\n");
+										+ " the parameter names in the ACTS configuration file.\nIf the test case file has parameter "
+										+ "names in the first row, add a -P option to the command line arguments.\n");
 								return false;
 							}
 							temp++;
@@ -1514,6 +1652,11 @@ public class Main{
 								}
 								continue;
 							}else if(data.get_parameters().get(t).getBoundary()){
+								if(!Tools.isNumeric(values[t])){
+									System.out.println("Undefined value in the test set\n(" + data.get_parameters().get(t).getName() +
+											") = " + values[t] + " @ Test Set Line: " + (i + 1));
+									return false;
+								}
 								continue;
 							}
 							if(!data.get_parameters().get(t).getValues().contains(values[t])){
@@ -1554,10 +1697,8 @@ public class Main{
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = "";
 			// Read File Line By Line
-			System.out.println("TEST CASE FILE\n");
 
 			while ((line = br.readLine()) != null) {
-				System.out.println(line);
 				line.trim();
 				values = line.split(",");
 				int columns = values.length;
@@ -1661,7 +1802,6 @@ public class Main{
 					} else {
 						if (values[x].toString().trim().toUpperCase().equals("TRUE") || values[x].toString().trim().toUpperCase().equals("FALSE")){
 							p.setType(Parameter.PARAM_TYPE_BOOL);
-							System.out.println("ADDING VALUE BOOLEAN NOW...");
 						} else {
 							p.setType(Parameter.PARAM_TYPE_ENUM);
 						}
@@ -2377,52 +2517,21 @@ public class Main{
 					results += tmps;
 					series.add(tmpfx, tmpf);
 
-					results += "<br>";
+					results += "\n";
+				}
+				
+				report[0] = results;
+				
+				synchronized(report){
+					System.out.println("\n2-way Coverage Results:\n" + results);
 				}
 
-				//if (chart_data.getSeriesIndex(series.getKey()) > -1) {
-					//chart_data.removeSeries(chart_data.getSeriesIndex(series.getKey()));
-				//}
 
 				chart_data.setIntervalWidth(1.00);
-
-				//XYSeriesCollection s = (XYSeriesCollection) chart_data.clone();
-
-				//chart_data.removeAllSeries();
 
 				chart_data.addSeries(series);
 				if(stepchart)
 					StepChart(series);
-				
-				/*
-				if (s.getSeriesIndex("6way") > -1) {
-					XYSeries serie = s.getSeries(s.getSeriesIndex("6way"));
-					chart_data.addSeries(serie);
-					StepChart(serie);
-				}
-
-				if (s.getSeriesIndex("5way") > -1) {
-					XYSeries serie = s.getSeries(s.getSeriesIndex("5way"));
-					chart_data.addSeries(serie);
-					StepChart(serie);
-				}
-				if (s.getSeriesIndex("4way") > -1) {
-					XYSeries serie = s.getSeries(s.getSeriesIndex("4way"));
-					chart_data.addSeries(serie);
-					StepChart(serie);
-				}
-				if (s.getSeriesIndex("3way") > -1) {
-					XYSeries serie = s.getSeries(s.getSeriesIndex("3way"));
-					chart_data.addSeries(serie);
-					StepChart(serie);
-				}
-
-				if (s.getSeriesIndex("2way") > -1) {
-					XYSeries serie = s.getSeries(s.getSeriesIndex("2way"));
-					chart_data.addSeries(serie);
-					StepChart(serie);
-				}
-				*/
 
 				
 				// point chart
@@ -2584,7 +2693,13 @@ public class Main{
 					
 					series.add(tmpfx, tmpf);
 
-					results += "<br>";
+					results += "\n";
+				}
+
+				report[1] = results;
+				
+				synchronized(report){
+					System.out.println("\n3-way Coverage Results:\n" + results);
 				}
 
 
@@ -2684,7 +2799,12 @@ public class Main{
 
 					series.add(tmpfx, tmpf);
 
-					results += "<br>";
+					results += "\n";
+				}
+				report[2] = results;
+				
+				synchronized(report){
+					System.out.println("\n4-way Coverage Results:\n" + results);
 				}
 
 
@@ -2778,8 +2898,14 @@ public class Main{
 
 					series.add(tmpfx, tmpf);
 
-					results += "<br>";
+					results += "\n";
 				}
+				report[3] = results;
+				
+				synchronized(report){
+					System.out.println("\n5-way Coverage Results:\n" + results);
+				}
+
 
 				//if (chart_data.getSeriesIndex(series.getKey()) > -1) {
 
@@ -2873,7 +2999,12 @@ public class Main{
 
 					series.add(tmpfx, tmpf);
 
-					results += "<br>";
+					results += "\n";
+				}
+				report[4] = results;
+				
+				synchronized(report){
+					System.out.println("\n6-way Coverage Results:\n" + results);
 				}
 
 

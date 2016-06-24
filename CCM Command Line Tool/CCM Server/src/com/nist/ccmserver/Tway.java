@@ -486,6 +486,8 @@ public class Tway extends RecursiveTask {
 						pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
 						pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
 						pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
+						
+
 
 						if (_constraints.size() > 0) {
 							if (validcomb.EvaluateCombination(pars))
