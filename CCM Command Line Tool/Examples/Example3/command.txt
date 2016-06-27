@@ -1,0 +1,4 @@
+java -jar ccmcl.jar -A ACTSfile.txt -T 2,3,4,5 -p -S -H -B
+
+
+Notes: This example uses an ACTS input file in the .txt format.

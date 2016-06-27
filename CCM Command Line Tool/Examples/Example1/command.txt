@@ -1,0 +1,8 @@
+java -jar ccmcl.jar -A EXAMPLE1.txt -T 2,3,4,5,6 -p -S -H -B
+
+
+
+Notes:
+
+This example uses an ACTS .xml file input that includes the 
+test cases in the file.

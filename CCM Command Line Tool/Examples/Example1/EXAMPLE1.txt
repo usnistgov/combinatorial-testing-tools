@@ -1,0 +1,3362 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<System name="Desigo">
+  <Parameters>
+    <Parameter id="0" name="PC1isDistributed" type="2">
+      <values>
+        <value>true</value>
+        <value>false</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+    <Parameter id="1" name="PC2" type="1">
+      <values>
+        <value>distributed node 2</value>
+        <value>FEP</value>
+        <value>Web/ClickOnce</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+    <Parameter id="3" name="PC1_OS" type="1">
+      <values>
+        <value>Win7</value>
+        <value>Win10</value>
+        <value>Server2008R2</value>
+        <value>Server2012R2</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+    <Parameter id="4" name="PC2_OS" type="1">
+      <values>
+        <value>Win7</value>
+        <value>Win8.1</value>
+        <value>Win10</value>
+        <value>Server2008R2</value>
+        <value>Server2012R2</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+    <Parameter id="5" name="PC1EM" type="1">
+      <values>
+        <value>A</value>
+        <value>B</value>
+        <value>C</value>
+        <value>D</value>
+        <value>E</value>
+        <value>F</value>
+        <value>G</value>
+        <value>H</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+    <Parameter id="6" name="PC2EM" type="1">
+      <values>
+        <value>A</value>
+        <value>B</value>
+        <value>C</value>
+        <value>D</value>
+        <value>E</value>
+        <value>F</value>
+        <value>G</value>
+        <value>H</value>
+        <value>NONE</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+  </Parameters>
+  <OutputParameters />
+  <Relations />
+  <Constraints />
+  <Testset doi="3">
+    <Testcase TCNo="0">
+      <Value>1</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="1">
+      <Value>2</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="2">
+      <Value>3</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="3">
+      <Value>4</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="4">
+      <Value>5</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="5">
+      <Value>6</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="6">
+      <Value>7</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="7">
+      <Value>8</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="8">
+      <Value>9</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="9">
+      <Value>10</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="10">
+      <Value>11</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="11">
+      <Value>12</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="12">
+      <Value>13</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="13">
+      <Value>14</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="14">
+      <Value>15</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="15">
+      <Value>16</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="16">
+      <Value>17</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="17">
+      <Value>18</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="18">
+      <Value>19</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="19">
+      <Value>20</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="20">
+      <Value>21</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="21">
+      <Value>22</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="22">
+      <Value>23</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="23">
+      <Value>24</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="24">
+      <Value>25</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="25">
+      <Value>26</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="26">
+      <Value>27</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="27">
+      <Value>28</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="28">
+      <Value>29</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="29">
+      <Value>30</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="30">
+      <Value>31</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="31">
+      <Value>32</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="32">
+      <Value>33</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="33">
+      <Value>34</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="34">
+      <Value>35</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="35">
+      <Value>36</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="36">
+      <Value>37</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="37">
+      <Value>38</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="38">
+      <Value>39</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="39">
+      <Value>40</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>A</Value>
+    </Testcase>
+    <Testcase TCNo="40">
+      <Value>41</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="41">
+      <Value>42</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="42">
+      <Value>43</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="43">
+      <Value>44</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="44">
+      <Value>45</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="45">
+      <Value>46</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="46">
+      <Value>47</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="47">
+      <Value>48</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="48">
+      <Value>49</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="49">
+      <Value>50</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="50">
+      <Value>51</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="51">
+      <Value>52</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="52">
+      <Value>53</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="53">
+      <Value>54</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="54">
+      <Value>55</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="55">
+      <Value>56</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="56">
+      <Value>57</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="57">
+      <Value>58</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="58">
+      <Value>59</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="59">
+      <Value>60</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="60">
+      <Value>61</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="61">
+      <Value>62</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="62">
+      <Value>63</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="63">
+      <Value>64</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="64">
+      <Value>65</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="65">
+      <Value>66</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="66">
+      <Value>67</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="67">
+      <Value>68</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="68">
+      <Value>69</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="69">
+      <Value>70</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="70">
+      <Value>71</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="71">
+      <Value>72</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="72">
+      <Value>73</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="73">
+      <Value>74</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="74">
+      <Value>75</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="75">
+      <Value>76</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="76">
+      <Value>77</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="77">
+      <Value>78</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="78">
+      <Value>79</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="79">
+      <Value>80</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>B</Value>
+    </Testcase>
+    <Testcase TCNo="80">
+      <Value>81</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="81">
+      <Value>82</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="82">
+      <Value>83</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="83">
+      <Value>84</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="84">
+      <Value>85</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="85">
+      <Value>86</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="86">
+      <Value>87</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="87">
+      <Value>88</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="88">
+      <Value>89</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="89">
+      <Value>90</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="90">
+      <Value>91</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="91">
+      <Value>92</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="92">
+      <Value>93</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="93">
+      <Value>94</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="94">
+      <Value>95</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="95">
+      <Value>96</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="96">
+      <Value>97</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="97">
+      <Value>98</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="98">
+      <Value>99</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="99">
+      <Value>100</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="100">
+      <Value>101</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="101">
+      <Value>102</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="102">
+      <Value>103</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="103">
+      <Value>104</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="104">
+      <Value>105</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="105">
+      <Value>106</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="106">
+      <Value>107</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="107">
+      <Value>108</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="108">
+      <Value>109</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="109">
+      <Value>110</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="110">
+      <Value>111</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="111">
+      <Value>112</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="112">
+      <Value>113</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="113">
+      <Value>114</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="114">
+      <Value>115</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="115">
+      <Value>116</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="116">
+      <Value>117</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="117">
+      <Value>118</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="118">
+      <Value>119</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="119">
+      <Value>120</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>C</Value>
+    </Testcase>
+    <Testcase TCNo="120">
+      <Value>121</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="121">
+      <Value>122</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="122">
+      <Value>123</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="123">
+      <Value>124</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="124">
+      <Value>125</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="125">
+      <Value>126</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="126">
+      <Value>127</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="127">
+      <Value>128</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="128">
+      <Value>129</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="129">
+      <Value>130</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="130">
+      <Value>131</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="131">
+      <Value>132</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="132">
+      <Value>133</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="133">
+      <Value>134</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="134">
+      <Value>135</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="135">
+      <Value>136</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="136">
+      <Value>137</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="137">
+      <Value>138</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="138">
+      <Value>139</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="139">
+      <Value>140</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="140">
+      <Value>141</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="141">
+      <Value>142</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="142">
+      <Value>143</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="143">
+      <Value>144</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="144">
+      <Value>145</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="145">
+      <Value>146</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="146">
+      <Value>147</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="147">
+      <Value>148</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="148">
+      <Value>149</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="149">
+      <Value>150</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="150">
+      <Value>151</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="151">
+      <Value>152</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="152">
+      <Value>153</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="153">
+      <Value>154</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="154">
+      <Value>155</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="155">
+      <Value>156</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="156">
+      <Value>157</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="157">
+      <Value>158</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="158">
+      <Value>159</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="159">
+      <Value>160</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>D</Value>
+    </Testcase>
+    <Testcase TCNo="160">
+      <Value>161</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="161">
+      <Value>162</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="162">
+      <Value>163</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="163">
+      <Value>164</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="164">
+      <Value>165</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="165">
+      <Value>166</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="166">
+      <Value>167</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="167">
+      <Value>168</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="168">
+      <Value>169</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="169">
+      <Value>170</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="170">
+      <Value>171</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="171">
+      <Value>172</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="172">
+      <Value>173</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="173">
+      <Value>174</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="174">
+      <Value>175</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="175">
+      <Value>176</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="176">
+      <Value>177</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="177">
+      <Value>178</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="178">
+      <Value>179</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="179">
+      <Value>180</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="180">
+      <Value>181</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="181">
+      <Value>182</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="182">
+      <Value>183</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="183">
+      <Value>184</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="184">
+      <Value>185</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="185">
+      <Value>186</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="186">
+      <Value>187</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="187">
+      <Value>188</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="188">
+      <Value>189</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="189">
+      <Value>190</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="190">
+      <Value>191</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="191">
+      <Value>192</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="192">
+      <Value>193</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="193">
+      <Value>194</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="194">
+      <Value>195</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="195">
+      <Value>196</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="196">
+      <Value>197</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="197">
+      <Value>198</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="198">
+      <Value>199</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="199">
+      <Value>200</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="200">
+      <Value>201</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="201">
+      <Value>202</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="202">
+      <Value>203</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="203">
+      <Value>204</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="204">
+      <Value>205</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="205">
+      <Value>206</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="206">
+      <Value>207</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="207">
+      <Value>208</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="208">
+      <Value>209</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="209">
+      <Value>210</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="210">
+      <Value>211</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="211">
+      <Value>212</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="212">
+      <Value>213</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="213">
+      <Value>214</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="214">
+      <Value>215</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="215">
+      <Value>216</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="216">
+      <Value>217</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="217">
+      <Value>218</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="218">
+      <Value>219</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="219">
+      <Value>220</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="220">
+      <Value>221</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="221">
+      <Value>222</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="222">
+      <Value>223</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="223">
+      <Value>224</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="224">
+      <Value>225</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="225">
+      <Value>226</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="226">
+      <Value>227</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="227">
+      <Value>228</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="228">
+      <Value>229</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="229">
+      <Value>230</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="230">
+      <Value>231</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="231">
+      <Value>232</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="232">
+      <Value>233</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="233">
+      <Value>234</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="234">
+      <Value>235</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="235">
+      <Value>236</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="236">
+      <Value>237</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="237">
+      <Value>238</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="238">
+      <Value>239</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="239">
+      <Value>240</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>F</Value>
+    </Testcase>
+    <Testcase TCNo="240">
+      <Value>241</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="241">
+      <Value>242</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="242">
+      <Value>243</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="243">
+      <Value>244</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="244">
+      <Value>245</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="245">
+      <Value>246</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="246">
+      <Value>247</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="247">
+      <Value>248</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="248">
+      <Value>249</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="249">
+      <Value>250</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="250">
+      <Value>251</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="251">
+      <Value>252</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="252">
+      <Value>253</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="253">
+      <Value>254</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="254">
+      <Value>255</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="255">
+      <Value>256</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="256">
+      <Value>257</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="257">
+      <Value>258</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="258">
+      <Value>259</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="259">
+      <Value>260</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="260">
+      <Value>261</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="261">
+      <Value>262</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="262">
+      <Value>263</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="263">
+      <Value>264</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="264">
+      <Value>265</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="265">
+      <Value>266</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="266">
+      <Value>267</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="267">
+      <Value>268</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="268">
+      <Value>269</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="269">
+      <Value>270</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="270">
+      <Value>271</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="271">
+      <Value>272</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="272">
+      <Value>273</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="273">
+      <Value>274</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="274">
+      <Value>275</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="275">
+      <Value>276</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="276">
+      <Value>277</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="277">
+      <Value>278</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="278">
+      <Value>279</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="279">
+      <Value>280</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>G</Value>
+    </Testcase>
+    <Testcase TCNo="280">
+      <Value>281</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="281">
+      <Value>282</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="282">
+      <Value>283</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="283">
+      <Value>284</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="284">
+      <Value>285</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="285">
+      <Value>286</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="286">
+      <Value>287</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="287">
+      <Value>288</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="288">
+      <Value>289</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="289">
+      <Value>290</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="290">
+      <Value>291</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="291">
+      <Value>292</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="292">
+      <Value>293</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="293">
+      <Value>294</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="294">
+      <Value>295</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="295">
+      <Value>296</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="296">
+      <Value>297</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="297">
+      <Value>298</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="298">
+      <Value>299</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="299">
+      <Value>300</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="300">
+      <Value>301</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="301">
+      <Value>302</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="302">
+      <Value>303</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="303">
+      <Value>304</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="304">
+      <Value>305</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="305">
+      <Value>306</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="306">
+      <Value>307</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="307">
+      <Value>308</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="308">
+      <Value>309</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="309">
+      <Value>310</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="310">
+      <Value>311</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="311">
+      <Value>312</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="312">
+      <Value>313</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="313">
+      <Value>314</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="314">
+      <Value>315</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="315">
+      <Value>316</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="316">
+      <Value>317</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="317">
+      <Value>318</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="318">
+      <Value>319</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="319">
+      <Value>320</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="320">
+      <Value>321</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>A</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="321">
+      <Value>322</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>A</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="322">
+      <Value>323</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>A</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="323">
+      <Value>324</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>A</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="324">
+      <Value>325</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>A</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="325">
+      <Value>326</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win7</Value>
+      <Value>B</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="326">
+      <Value>327</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win8.1</Value>
+      <Value>B</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="327">
+      <Value>328</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win10</Value>
+      <Value>B</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="328">
+      <Value>329</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win7</Value>
+      <Value>Server2008R2</Value>
+      <Value>B</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="329">
+      <Value>330</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>B</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="330">
+      <Value>331</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win7</Value>
+      <Value>C</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="331">
+      <Value>332</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win8.1</Value>
+      <Value>C</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="332">
+      <Value>333</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="333">
+      <Value>334</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="334">
+      <Value>335</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>C</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="335">
+      <Value>336</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Win7</Value>
+      <Value>D</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="336">
+      <Value>337</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Win8.1</Value>
+      <Value>D</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="337">
+      <Value>338</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Win10</Value>
+      <Value>Win10</Value>
+      <Value>D</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="338">
+      <Value>339</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>D</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="339">
+      <Value>340</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>D</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="340">
+      <Value>341</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>E</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="341">
+      <Value>342</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>E</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="342">
+      <Value>343</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>E</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="343">
+      <Value>344</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>E</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="344">
+      <Value>345</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>E</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="345">
+      <Value>346</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>F</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="346">
+      <Value>347</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>F</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="347">
+      <Value>348</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>F</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="348">
+      <Value>349</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>F</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="349">
+      <Value>350</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Server2012R2</Value>
+      <Value>F</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="350">
+      <Value>351</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>G</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="351">
+      <Value>352</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="352">
+      <Value>353</Value>
+      <Value>false</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>G</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="353">
+      <Value>354</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>G</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="354">
+      <Value>355</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win7</Value>
+      <Value>Server2012R2</Value>
+      <Value>G</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="355">
+      <Value>356</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win7</Value>
+      <Value>Win7</Value>
+      <Value>H</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="356">
+      <Value>357</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>H</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="357">
+      <Value>358</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>H</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="358">
+      <Value>359</Value>
+      <Value>true</Value>
+      <Value>FEP</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>H</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="359">
+      <Value>360</Value>
+      <Value>false</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2012R2</Value>
+      <Value>Server2012R2</Value>
+      <Value>H</Value>
+      <Value>NONE</Value>
+    </Testcase>
+    <Testcase TCNo="360">
+      <Value>361</Value>
+      <Value>true</Value>
+      <Value>distributed node 2</Value>
+      <Value>Server2008R2</Value>
+      <Value>Server2008R2</Value>
+      <Value>C</Value>
+      <Value>H</Value>
+    </Testcase>
+    <Testcase TCNo="361">
+      <Value>362</Value>
+      <Value>true</Value>
+      <Value>Web/ClickOnce</Value>
+      <Value>Server2008R2</Value>
+      <Value>Win10</Value>
+      <Value>C</Value>
+      <Value>E</Value>
+    </Testcase>
+    <Testcase TCNo="362">
+      <Value>363</Value>
+      <Value>false</Value>
+      <Value>FEP</Value>
+      <Value>Win10</Value>
+      <Value>Win8.1</Value>
+      <Value>G</Value>
+      <Value>F</Value>
+    </Testcase>
+  </Testset>
+  <Header>
+    <Value />
+    <Value>PC1ISDISTRIBUTED</Value>
+    <Value>PC2</Value>
+    <Value>PC1_OS</Value>
+    <Value>PC2_OS</Value>
+    <Value>PC1EM</Value>
+    <Value>PC2EM</Value>
+  </Header>
+  <Stat-Data>
+    <ExecutionTime>0.057</ExecutionTime>
+    <MaxDomainSize>9</MaxDomainSize>
+    <MinDomainSize>2</MinDomainSize>
+    <TotalNoOfCombination>2369</TotalNoOfCombination>
+    <TotalNoOfTests>363</TotalNoOfTests>
+    <Algorithm>IPOG</Algorithm>
+  </Stat-Data>
+</System>
+

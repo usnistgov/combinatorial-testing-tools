@@ -1,0 +1,9 @@
+java -jar ccmcl.jar -I input_test.csv -P -T 2,3,4,5 -p -S -H -B -G -m 100 -o missingCombinations.txt -a
+
+
+Notes: This example uses auto-detect mode on the tool as no ACTS input file is supplied (only test cases
+       in .csv file). The "-P" option specifies that parameter names are at the top of the .csv file.
+       
+       This will take awhile to finish since we are generating missing combinations up to
+       100% coverage for all 2,3,4,5 way interactions. Generating the missing 5-way interactions will take
+       the longest. It is recommended to add the "-p" option to speed things up. 

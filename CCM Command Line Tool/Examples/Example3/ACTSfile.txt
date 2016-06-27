@@ -1,0 +1,15 @@
+[Parameter]
+Jake (int): (*,6]
+Luke (int): 0,1,2
+Sam (int): 0,1,2
+Zach (int): {1,55},{88,99}
+Chris (boolean): TRUE,FALSE
+
+[Constraint]
+!Chris
+
+[Test Set]
+1,1,1,1,TRUE
+2,2,0,55,FALSE
+3,0,1,88,TRUE
+6,0,0,99,FALSE

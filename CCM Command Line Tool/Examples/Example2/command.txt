@@ -1,0 +1,8 @@
+java -jar ccmcl.jar -A apache.xml -T 2,3,4,5,6 -p -S -B
+
+
+Notes: This file is very large and cpu intensive. The "-p"
+       option puts the program into parallel mode which 
+       significantly decreases the time to complete the 
+       combinatorial measurement. This program may take a few
+       minutes to run. 
