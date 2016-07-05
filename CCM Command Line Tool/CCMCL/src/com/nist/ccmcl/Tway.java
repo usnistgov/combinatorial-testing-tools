@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
@@ -34,8 +35,18 @@ public class Tway extends RecursiveTask {
 	private double[][] _bnd;
 	private Boolean[] _grp;
 	private Object[][] _group;
+	
+	public double div;
+	public int nComs;
+	public int varvaltotal;
+	public double sumcov = 0;
+	
+	private HashMap<String, Boolean> used2way = new HashMap<String, Boolean>();
+	private HashMap<String, int[][]> comcount_array = new HashMap<String, int[][]>();
 
 	private boolean wait = false;
+	
+	private boolean initialized = false;
 
 	private int _parmName = 0;
 
@@ -69,6 +80,7 @@ public class Tway extends RecursiveTask {
 	public long[] _varvalStatN;
 	public long _nComs;
 	public long _tot_varvalconfig;
+	public long _invalidcombNotCovered;
 	public List<String[][]> _aInvalidComb = null;
 	public List<String[][]> _aInvalidNotIn = null;
 	
@@ -199,40 +211,29 @@ public class Tway extends RecursiveTask {
 	}
 
 	private void TwoWay() {
-
-		long n_tot_tway_cov = 0;
+		//used to store the used 2way combinations.
+		//used2way = new HashMap();
+		
+		long n_tot_tway_cov;
+		long tot_varvalconfigs2;
 		int i, j, ni, nj, m, ti;
 		long[] varvalStats2 = new long[NBINS + 1];
 		long n_varvalconfigs2;
-		long nComs = 0; // number of combinations = C(ncols, t)
-		long tot_varvalconfigs2 = 0;
+
+		nComs = 0; // number of combinations = C(ncols, t)
+		varvaltotal = 0;
+		n_tot_tway_cov = 0;
+		tot_varvalconfigs2 = 0;
+		sumcov = 0;
 
 		hm_colors2 = new int[_ncols][];
 		for (i = 0; i < _ncols; i++) {
 			hm_colors2[i] = new int[_ncols];
 		}
 
-		// prepare to create a new batch of generated tests to cover missing
-		// tests
-
 		for (i = 0; i < NBINS + 1; i++)
 			varvalStats2[i] = 0;
 
-		// solver for invalid combinations
-		CSolver validcomb = new CSolver();
-		validcomb.SetConstraints(_constraints);
-		validcomb.SetParameter(_parameters);
-
-		_aInvalidComb = new ArrayList<String[][]>();
-		_aInvalidNotIn = new ArrayList<String[][]>();
-
-		int varvaltotal = 0;
-
-		/*
-		 * -Calculates the number of t-way combinations between parameters
-		 * 
-		 * -Calculates the total variable value configurations
-		 */
 		for (i = _start; i < _end; i++) {
 			for (j = i + 1; j < _ncols; j++) {
 				nComs++;
@@ -240,8 +241,25 @@ public class Tway extends RecursiveTask {
 			}
 		}
 
-		double div = (double) varvaltotal / (double) nComs;
-		double sumcov = 0;
+		div = (double) varvaltotal / (double) nComs;
+
+		_aInvalidComb = new ArrayList<String[][]>();
+		_aInvalidNotIn = new ArrayList<String[][]>();
+
+
+		// solver for invalid combinations
+		CSolver validcomb = new CSolver();
+		validcomb.SetConstraints(_constraints);
+		validcomb.SetParameter(_parameters);
+
+
+
+		/*
+		 * -Calculates the number of t-way combinations between parameters
+		 * 
+		 * -Calculates the total variable value configurations
+		 */
+
 		// Process the tests
 		for (i = _start; i < _end; i++) {
 			for (j = i + 1; j < _ncols; j++) {
@@ -250,6 +268,7 @@ public class Tway extends RecursiveTask {
 				for (ti = 0; ti < _nvals[i]; ti++) {
 					comcount[ti] = new int[_nvals[j]];
 				}
+				String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
 				// forall t-way combinations of input variable values:
 				// comcount i,j == 0
 				// for the combination designated by i,j increment counts
@@ -267,7 +286,7 @@ public class Tway extends RecursiveTask {
 					
 					if (_constraints.size() > 0) {
 						if (validcomb.EvaluateCombination(pars)){
-							comcount[_test[m][i]][_test[m][j]] += 1;
+							comcount[_test[m][i]][_test[m][j]] = 1;
 						}
 							 // flag
 																		// valid
@@ -277,7 +296,7 @@ public class Tway extends RecursiveTask {
 																		// set
 																		// test
 						else
-							comcount[_test[m][i]][_test[m][j]] -= 1; // flag
+							comcount[_test[m][i]][_test[m][j]] = -1; // flag
 																		// invalid
 																		// var-val
 																		// config
@@ -285,7 +304,7 @@ public class Tway extends RecursiveTask {
 																		// set
 																		// test
 					} else{
-						comcount[_test[m][i]][_test[m][j]] += 1; // flag var-val
+						comcount[_test[m][i]][_test[m][j]] = 1; // flag var-val
 						// config in
 						// set test
 					}
@@ -302,7 +321,7 @@ public class Tway extends RecursiveTask {
 					for (nj = 0; nj < _nvals[j]; nj++) {
 						// count how many value var-val configs are contained in
 						// a test
-						if (comcount[ni][nj] > 0) {
+						if (comcount[ni][nj] == 1) {
 							varval_cnt++;
 							n_tot_tway_cov++;
 						} else {
@@ -319,7 +338,7 @@ public class Tway extends RecursiveTask {
 
 							// count how many invalid configs are contained in
 							// the test
-							if (comcount[ni][nj] <= -1) {
+							if (comcount[ni][nj] == -1) {
 								invalidcomb += 1;
 								_aInvalidComb.add(pars);
 							}
@@ -329,7 +348,7 @@ public class Tway extends RecursiveTask {
 									// count how many invalid configs are not
 									// contained in the test
 									invalidcombNotCovered += 1;
-									comcount[ni][nj] = -2;
+									comcount[ni][nj] = -3;
 									_aInvalidNotIn.add(pars);
 								}
 
@@ -339,7 +358,9 @@ public class Tway extends RecursiveTask {
 
 					}
 				}
-
+				//Store this comcount array for real time measurement...
+				comcount_array.put(temp_key, comcount);
+				
 				n_varvalconfigs2 = _nvals[i] * _nvals[j];
 				n_varvalconfigs2 -= (invalidcomb + invalidcombNotCovered);
 				tot_varvalconfigs2 += n_varvalconfigs2;
@@ -425,6 +446,8 @@ public class Tway extends RecursiveTask {
 		_nComs = nComs;
 		_tot_varvalconfig = tot_varvalconfigs2;
 		_varvalStatN = varvalStats2;
+		
+		initialized = true;
 
 	}
 
@@ -2496,9 +2519,6 @@ public class Tway extends RecursiveTask {
 
 					// parameter doesn't have boundaries or groups specified
 					if (!_rng[jj] && !_grp[jj]){
-						if(_map[jj][ntmp] == null){
-							System.out.println("_map[" + jj + "][" + ntmp + "] == null");
-						}
 						outl += _map[jj][ntmp];
 					}
 
@@ -2507,7 +2527,6 @@ public class Tway extends RecursiveTask {
 						//for (int b = 0; b < _ncols; b++) {
 							// parameter has boundaries specified
 							if (_bnd[jj] != null) {
-								System.out.println("In a range: " + jj);
 								for (int r = 0; r <= _bnd[jj].length; r++) {
 									if (ntmp == r) {
 										if (r == 0) {
@@ -2528,7 +2547,6 @@ public class Tway extends RecursiveTask {
 							}
 							// parameter has groups specified
 							else if (_group[jj] != null) {
-								System.out.println("in a group: " + jj);
 								for (int r = 0; r <= _group[jj].length; r++) {
 									if (ntmp == r) {
 										outl += "Group [" + r + "] Values [" + _group[jj][r] + "]";
@@ -2555,58 +2573,48 @@ public class Tway extends RecursiveTask {
 	}
 	
 	
-	private void updateTwoWay(String[] new_tests) {
-
+	public void updateTwoWay(int st, int num_rows, int[][] test) {
+		
+		_test = test;
+		_nrows = num_rows;
+		
 		long n_tot_tway_cov = _n_tot_tway_cov;
-		int i, j, ni, nj, m, ti;
-		//long[] varvalStats2 = new long[NBINS + 1];
-		long n_varvalconfigs2;
-		long nComs = _nComs; // number of combinations = C(ncols, t)
-		long tot_varvalconfigs2 = 0;
+		long tot_varvalconfigs2 = _tot_varvalconfig;
+		int i, j, ni, nj, m, ti = 0;
+		long[] varvalStats2 = new long[NBINS + 1];
+		long n_varvalconfigs2 = 0;
 
-		// prepare to create a new batch of generated tests to cover missing
-		// tests
 
-		//for (i = 0; i < NBINS + 1; i++)
-			//varvalStats2[i] = 0;
+;
+		
 
 		// solver for invalid combinations
 		CSolver validcomb = new CSolver();
 		validcomb.SetConstraints(_constraints);
 		validcomb.SetParameter(_parameters);
 
-		_aInvalidComb = new ArrayList<String[][]>();
-		_aInvalidNotIn = new ArrayList<String[][]>();
 
-		int varvaltotal = 0;
 
 		/*
 		 * -Calculates the number of t-way combinations between parameters
 		 * 
 		 * -Calculates the total variable value configurations
 		 */
-		for (i = _start; i < _end; i++) {
-			for (j = i + 1; j < _ncols; j++) {
-				nComs++;
-				varvaltotal += (_nvals[i] * _nvals[j]);
-			}
-		}
 
-		double div = (double) varvaltotal / (double) nComs;
-		double sumcov = 0;
 		// Process the tests
 		for (i = _start; i < _end; i++) {
 			for (j = i + 1; j < _ncols; j++) {
 				// nComs++; //number of combinations
-				int[][] comcount = new int[_nvals[i]][];
-				for (ti = 0; ti < _nvals[i]; ti++) {
-					comcount[ti] = new int[_nvals[j]];
-				}
+				//int[][] comcount = new int[_nvals[i]][];
+				//for (ti = 0; ti < _nvals[i]; ti++) {
+					//comcount[ti] = new int[_nvals[j]];
+				//}
+				String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
+				int[][] comcount = comcount_array.get(temp_key);
 				// forall t-way combinations of input variable values:
 				// comcount i,j == 0
 				// for the combination designated by i,j increment counts
-				for (m = 0; m < _nrows; m++) {
-
+				for (m = st; m < _nrows; m++) {
 					String[][] pars = new String[2][];
 					pars[0] = new String[2];
 					pars[1] = new String[2];
@@ -2616,10 +2624,18 @@ public class Tway extends RecursiveTask {
 
 					pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]).toString();
 					pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]).toString();
-
+					
+					if(comcount[_test[m][i]][_test[m][j]] == 1 || comcount[_test[m][i]][_test[m][j]] == -1 || 
+							comcount[_test[m][i]][_test[m][j]] == -3){
+						//Combination is already in the set
+						continue;
+					}
+					
 					if (_constraints.size() > 0) {
-						if (validcomb.EvaluateCombination(pars))
-							comcount[_test[m][i]][_test[m][j]] += 1; // flag
+						if (validcomb.EvaluateCombination(pars)){
+							comcount[_test[m][i]][_test[m][j]] = 2;
+						}
+							 // flag
 																		// valid
 																		// var-val
 																		// config
@@ -2627,20 +2643,19 @@ public class Tway extends RecursiveTask {
 																		// set
 																		// test
 						else
-							comcount[_test[m][i]][_test[m][j]] -= 1; // flag
+							comcount[_test[m][i]][_test[m][j]] = -2; // flag
 																		// invalid
 																		// var-val
 																		// config
 																		// in
 																		// set
 																		// test
-					} else {
-						comcount[_test[m][i]][_test[m][j]] += 1; // flag var-val
+					} else{
+						comcount[_test[m][i]][_test[m][j]] = 2; // flag var-val
 						// config in
 						// set test
 					}
 
-					// coumcount i,j == 1 iff some tests contains tuple i,j
 				}
 
 				int varval_cnt = 0;
@@ -2651,11 +2666,13 @@ public class Tway extends RecursiveTask {
 					for (nj = 0; nj < _nvals[j]; nj++) {
 						// count how many value var-val configs are contained in
 						// a test
-						if (comcount[ni][nj] > 0) {
+						if(comcount[ni][nj] == 1)
+							varval_cnt++;
+						if (comcount[ni][nj] == 2) {
 							varval_cnt++;
 							n_tot_tway_cov++;
+							comcount[ni][nj] = 1;
 						} else {
-
 							String[][] pars = new String[2][];
 							pars[0] = new String[2];
 							pars[1] = new String[2];
@@ -2668,50 +2685,59 @@ public class Tway extends RecursiveTask {
 
 							// count how many invalid configs are contained in
 							// the test
-							if (comcount[ni][nj] <= -1) {
+							if(comcount[ni][nj] == -1){
+								invalidcomb++;
+							}
+							if (comcount[ni][nj] == -2) {
 								invalidcomb += 1;
 								_aInvalidComb.add(pars);
+								comcount[ni][nj] = -1;
+								_aInvalidNotIn.remove(pars);
 							}
-							if (comcount[ni][nj] == 0 && _constraints.size() > 0) {
-
-								if (!validcomb.EvaluateCombination(pars)) {
-									// count how many invalid configs are not
-									// contained in the test
-									invalidcombNotCovered += 1;
-									comcount[ni][nj] = -2;
-									_aInvalidNotIn.add(pars);
-								}
-
+							if(comcount[ni][nj] == -3){
+								invalidcombNotCovered += 1;
 							}
+							
 
 						}
 
 					}
 				}
-
+			
+				comcount_array.put(temp_key, comcount);
+				
 				n_varvalconfigs2 = _nvals[i] * _nvals[j];
 				n_varvalconfigs2 -= (invalidcomb + invalidcombNotCovered);
 				tot_varvalconfigs2 += n_varvalconfigs2;
-
+				 
 				double varval_cov = (double) varval_cnt / (double) n_varvalconfigs2;
 
 				double varval = (double) varval_cnt / (double) varvaltotal;
 
 				sumcov += varval;
 
-				//for (int b = 0; b <= NBINS; b++)
-					//if (varval_cov >= (double) b / (double) NBINS)
-						//varvalStats2[b]++;
+				for (int b = 0; b <= NBINS; b++)
+					if (varval_cov >= (double) b / (double) NBINS)
+						varvalStats2[b]++;
+
+				// now determine color for heat map display
+				if (varval_cov < 0.2)
+					hm_colors2[i][j] = 0;
+				else if (varval_cov < 0.4)
+					hm_colors2[i][j] = 1;
+				else if (varval_cov < 0.6)
+					hm_colors2[i][j] = 2;
+				else if (varval_cov < 0.8)
+					hm_colors2[i][j] = 3;
+				else
+					hm_colors2[i][j] = 4;
 
 			}
 
 		}
-
 		_n_tot_tway_cov = n_tot_tway_cov;
-		_nComs = nComs;
-		_tot_varvalconfig = tot_varvalconfigs2;
-		//_varvalStatN = varvalStats2;
-
+		_varvalStatN = varvalStats2;
+		
+		initialized = true;
 	}
-	
 }

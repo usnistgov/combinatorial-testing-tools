@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
@@ -58,6 +59,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYStepAreaRenderer;
 import org.jfree.chart.title.LegendTitle;
+import org.jfree.data.general.Series;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -74,9 +76,9 @@ public class Main{
 	public TestData data;
 	public List<String> usedParams;
 	public HashMap pars;
-	public static String[] infile;
+	public volatile static String[] infile;
 	public String[] values;
-	public int[][] test;
+	public volatile static int[][] test;
 	public int[][] hm_colors2;
 	public int[] nvals;
 	public Boolean[] valSet;
@@ -86,7 +88,7 @@ public class Main{
 	public Boolean[] grp;
 	public Object[][] group;
 	public String[][] map;
-	public String[][] SetTest;
+	//public String[][] SetTest;
 	public List<String[][]> aInvalidComb;
     public List<String[][]> aInvalidNotIn;
     public double TotCov2way;      // total coverage for 2-way combinations
@@ -124,16 +126,15 @@ public class Main{
     public String missingCombinationsFilePath = "";
 	public String constraints_path = "";
 	public String ext;
-    public static int mode = 1;
+	
+	public Tway tway_objects[] = new Tway[5];
     
-    public static final int MODE_CLASSIC = 1;
-    public static final int MODE_REALTIME = 2;
+    public static boolean mode_realtime = false;
     
     public static int tway_max = 0;
 	
 	//can change this or user define it as cmd parameter
 	public int nmapMax = 50;
-	
 	
 	public String[] report = new String[5];
 	
@@ -155,8 +156,8 @@ public class Main{
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -I i.csv -T 2 -A a.txt -G -m 50 -o m.txt -a -B -H");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -r -n 1000 -f random.txt -S -T 2\n\n");
 				
-				//System.out.println("--realtime (-R) : *Sets the tool in Real Time Measurement Mode*");
-				//System.out.println("                                     *Defaults to classic mode*\n");
+				System.out.println("--realtime (-R) : *Sets the tool in Real Time Measurement Mode*");
+				System.out.println("                                     *Defaults to classic mode*\n");
 				System.out.println("--inputfile (-I) : [path to test case file]\n");
 				System.out.println("--ACTSfile (-A): [path to .txt ACTS file\n");
 
@@ -203,6 +204,10 @@ public class Main{
 			}
 
 			switch (param){
+			case "--realtime":
+			case "-R":
+				mode_realtime = true;
+				break;
 			case "--inputfile":
 			case "-I":
 				m.tests_input_file_path = argument;
@@ -320,7 +325,6 @@ public class Main{
 		 * End of command line arguments parsing
 		 */
 		
-		if(m.mode == MODE_CLASSIC){
 			//Classic mode based off of the GUI version
 			m.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			m.lblStepChart.setSize(500,500);
@@ -389,6 +393,8 @@ public class Main{
 					measured = true;
 				}
 			}
+						
+
 			if(!measured){
 				System.out.println("\nNo t-way parameter specified. Use -T [1,2,3,4,5,6] to measure t-way coverage.\n");
 				System.exit(0);
@@ -396,15 +402,10 @@ public class Main{
 			}
 			m.frame.pack();
 
-			
-		}else if(m.mode == MODE_REALTIME){
+		if(mode_realtime){
 			//Real time mode.
 			if(m.data.isActsFilePresent()){
-				//check ACTS file
-				if(!m.readTestCaseConfigurationFile(m.ACTSpath)){
-					System.exit(0);
-					return;
-				}else{
+
 					//ACTS file checks out.
 					//If constraints are present, they've already been processed.
 					//If a previous test case file is present, it too has already been processed.
@@ -425,19 +426,54 @@ public class Main{
 					//This thread reads in input...
 					Thread readStdIn = new Thread(new Runnable(){
 						Scanner readStdInput = new Scanner(System.in);
-						String inputLine = "";
+						int position = m.data.get_rows();
+						Random r = new Random();
 						@Override
 						public void run() {
 							while(true){
-								inputLine = readStdInput.nextLine();
+								String inputLine = readStdInput.nextLine();
+								/*
+								 * Generate input line
+								 *
+								
+								String inputLine = "";
+								for(int i = 0; i < 5; i++){
+									int te = r.nextInt(3);
+									if(i != 4){
+										inputLine += (te + ",");
+									}else{
+										switch(String.valueOf(r.nextBoolean())){
+										case "true":
+											inputLine += "TRUE";
+											break;
+										case "false":
+											inputLine += "FALSE";
+											break;
+										}
+									}
+								}
+								*/
 								System.out.println(inputLine);
+								System.out.println("infile length = " + infile.length + ": " + m.data.get_rows());
+								if(infile.length <= m.data.get_rows()){
+									infile = Arrays.copyOf(infile, infile.length*2);
+									test = Arrays.copyOf(test, test.length*2);
+								}
+								infile[position] = inputLine;
+								test[position] = new int[m.data.get_columns()];
+								m.data.set_rows(position + 1);
+								m.setupFile(position);
+								position++;
+								m.Tway("2way");
+		
 							}
 							
 						}
 						
 					});
 					readStdIn.start();
-					boolean measured = false;
+					measured = false;
+					/*
 					for(int i = 0; i < tway_values.length; i++){
 						if(tway_values[i] != null){
 							m.Tway(tway_values[i]);
@@ -447,17 +483,9 @@ public class Main{
 					if(!measured)
 						System.out.println("\nNo t-way parameter specified. Use -T [1,2,3,4,5,6] to measure t-way coverage.\n");
 					m.frame.pack();
-					
-					
-					/*
-					 * Process  new tests right here
-					 */
-					String[] new_tests = new String[1];
-					String mtest = "4,1,1,9";
-					new_tests[0] = mtest;
-					
-					
-				}
+					*/
+				
+				
 			}else{
 				System.out.println("Must specify an ACTS configuration file.\n");
 				System.exit(0);
@@ -1013,7 +1041,7 @@ public class Main{
 					if (!tests_input_file_path.equals("")) {
 						System.out.println("\nMESSAGE: Test cases defined in ACTS file. Using those instead.\n");
 					}
-					if(setupFile() != 0)
+					if(setupFile(0) != 0)
 						return false;
 				}else{
 					if(!tests_input_file_path.equals("")){
@@ -1499,7 +1527,7 @@ public class Main{
 				}
 			}
 			if(!(infile == null))
-				if(setupFile() != 0){
+				if(setupFile(0) != 0){
 					return false;
 				}
 			
@@ -1690,7 +1718,7 @@ public class Main{
 				}
 				
 				br.close();
-				if(setupFile() != 0)
+				if(setupFile(0) != 0)
 					return false;
 				return true;
 			}catch(Exception ex){
@@ -1793,7 +1821,7 @@ public class Main{
 			}
 
 			br.close();
-			if(setupFile() != 0)
+			if(setupFile(0) != 0)
 				return false;
 		}catch(Exception ex){
 			System.out.println("Error: Something went wrong reading the input.csv file.\n" + ex.getMessage());	
@@ -2112,14 +2140,14 @@ public class Main{
 	 * Use this function as a means of allocating memory
 	 */
 	
-	 private int setupFile()
+	 private int setupFile(int start)
      {
 		 final int ERR = 5;
          if (infile == null) { System.out.println("Test file must be loaded."); return ERR;}
          if (rng == null)    { System.out.println("Set parameter values."); return ERR; }
         
          
-         int i = 0;
+         int i = start;
          while (i < data.get_rows() ) {
              values = infile[i].split(",");
             
@@ -2134,12 +2162,13 @@ public class Main{
                 	 
 						// find value in map array and store its index as value for coverage calculation
 
-                     Boolean fnd = false; int locn = 0;
+                    Boolean fnd = false; int locn = 0;
 					for (j = 0; j < nmapMax && !fnd && map[m][j] != null; j++) {
 						if (map[m][j].equals(values[m])) {
 							fnd = true;
 							locn = j;
 						}
+
 					}
                      if (data.get_parameters().get(m).getValues().size() > nmapMax) {
                   	   System.out.println("Maximum parameter values exceeded for parameter " + data.get_parameters().get(m).getName() + "=" + data.get_parameters().get(m).getValues().size() + " values." + "\n");
@@ -2244,7 +2273,7 @@ public class Main{
 
          try {
              
-
+/*
              SetTest = new String[data.get_rows()][];
 
              for (int st = 0; st < data.get_rows(); st++)
@@ -2265,6 +2294,7 @@ public class Main{
                      }
                  }
              }
+             */
 
          return 0;
          } catch(Exception ex) {System.out.println("Problem with file or parameter/value specs."); return ERR; }
@@ -2285,21 +2315,26 @@ public class Main{
 		public void Tway(final String t_way) {
 
 			int max = 0;
-
+			int tway_index = 0;
 			switch (t_way) {
 			case "2way":
+				tway_index = 0;
 				max = data.get_columns() - 1;
 				break;
 			case "3way":
+				tway_index = 1;
 				max = data.get_columns() - 2;
 				break;
 			case "4way":
+				tway_index = 2;
 				max = data.get_columns() - 3;
 				break;
 			case "5way":
+				tway_index = 3;
 				max = data.get_columns() - 4;
 				break;
 			case "6way":
+				tway_index = 4;
 				max = data.get_columns() - 5;
 				break;
 
@@ -2310,6 +2345,7 @@ public class Main{
 
 			
 			final int temp_max = max;
+			final int tIndex = tway_index;
 			Thread way = new Thread() {
 				@Override
 				public void run() {
@@ -2321,34 +2357,53 @@ public class Main{
 					Long timeway1 = System.currentTimeMillis();
 					
 					
-					Tway way = new Tway(t_way, 0,temp_max, test, nvals, data.get_rows(),data.get_columns(),
-							data.get_parameters(), data.get_constraints(), map);
+					
+					
 
 					
+					if(tway_objects[tIndex] == null){
+						tway_objects[tIndex] = new Tway(t_way, 0, temp_max, test, nvals, data.get_rows(), data.get_columns(),
+								data.get_parameters(), data.get_constraints(), map);
+					}else{
+						switch(t_way){
+						case "2way":
+							tway_objects[tIndex].updateTwoWay(data.get_rows() - 1,data.get_rows(), test);
+							break;
+						case "3way":
+							break;
+						case "4way":
+							break;
+						case "5way":
+							break;
+						case "6way":
+							break;
+						}
+					}
+
 					//address later with parallel processing
-					way.set_Parallel(parallel);
-					way.set_bnd(bnd);
-					way.set_Rng(rng);
-					way.set_group(group);
-					way.set_grp(grp);
+					tway_objects[tIndex].set_Parallel(parallel);
+					tway_objects[tIndex].set_bnd(bnd);
+					tway_objects[tIndex].set_Rng(rng);
+					tway_objects[tIndex].set_group(group);
+					tway_objects[tIndex].set_grp(grp);
 
 					/*
 					 * For generating missing tests... incorporate later...
 					 * 
 					 */
 					if (generateMissing) {
-						way.set_appendTests(appendTests);
-						way.set_GenTests(generateMissing);
-						way.set_FileNameMissing(missingCombinationsFilePath);
-						way.set_appendFile(tests_input_file_path);
-						way.set_rptMissingCom(false);
-						way.set_minCov(minCov);
-						way.set_NGenTests(10000);
-						way.set_map(map);
+						tway_objects[tIndex].set_appendTests(appendTests);
+						tway_objects[tIndex].set_GenTests(generateMissing);
+						tway_objects[tIndex].set_FileNameMissing(missingCombinationsFilePath);
+						tway_objects[tIndex].set_appendFile(tests_input_file_path);
+						tway_objects[tIndex].set_rptMissingCom(false);
+						tway_objects[tIndex].set_minCov(minCov);
+						tway_objects[tIndex].set_NGenTests(10000);
+						tway_objects[tIndex].set_map(map);
 						if(data.hasParamNames())
-							way.set_parmName(1);
+							tway_objects[tIndex].set_parmName(1);
 						else
-							way.set_parmName(0);
+							tway_objects[tIndex].set_parmName(0);
 
 						//if (rptMissingCom.isSelected())
 							//way.set_FileNameReport(fileReport.getPath());
@@ -2358,7 +2413,7 @@ public class Main{
 					//End of generating missing tests
 
 					ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
-					pool.invoke(way);
+					pool.invoke(tway_objects[tIndex]);
 
 					Long timeway2 = System.currentTimeMillis();
 					Long timewaytotal = timeway2 - timeway1;
@@ -2370,8 +2425,8 @@ public class Main{
 
 					String results = "";
 
-					aInvalidComb = way.get_InvalidComb();
-					aInvalidNotIn = way.get_InvalidNotin();
+					aInvalidComb = tway_objects[tIndex].get_InvalidComb();
+					aInvalidNotIn = tway_objects[tIndex].get_InvalidNotin();
 					
 					
 					/*
@@ -2386,14 +2441,14 @@ public class Main{
 					}
 					
 
-					//THIS IS THE GRAPHING SECTION WE COULD SAVE UNTIL LATER...
 					synchronized(results){
 						switch (t_way) {
 						case "2way":
 							
-							hm_colors2 = way.hm_colors2;
+							hm_colors2 = tway_objects[tIndex].hm_colors2;
 
-							results = graph2way(way._n_tot_tway_cov, way._varvalStatN, way._nComs, way._tot_varvalconfig,
+							results = graph2way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN, 
+									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
 
 							//FillInvalidDataTable(2);
@@ -2401,25 +2456,29 @@ public class Main{
 						case "3way":
 							//hm_colors3 = way.hm_colors3;
 
-							results = graph3way(way._n_tot_tway_cov, way._varvalStatN, way._nComs, way._tot_varvalconfig,
+							results = graph3way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
+									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
 							//FillInvalidDataTable(3);
 							break;
 						case "4way":
 
-							results = graph4way(way._n_tot_tway_cov, way._varvalStatN, way._nComs, way._tot_varvalconfig,
+							results = graph4way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN, 
+									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
 							//FillInvalidDataTable(4);
 							break;
 						case "5way":
 
-							results = graph5way(way._n_tot_tway_cov, way._varvalStatN, way._nComs, way._tot_varvalconfig,
+							results = graph5way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
+									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
 							//FillInvalidDataTable(5);
 							break;
 						case "6way":
 
-							results = graph6way(way._n_tot_tway_cov, way._varvalStatN, way._nComs, way._tot_varvalconfig,
+							results = graph6way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
+									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
 							//FillInvalidDataTable(6);
 							break;
@@ -2432,7 +2491,6 @@ public class Main{
 			};
 
 			way.start();
-
 		}
 
 		private boolean ValidateTway(String tway) {
@@ -2469,36 +2527,6 @@ public class Main{
 				}
 				break;
 			}
-			
-			/*
-
-			if (infile == null) {
-				JOptionPane.showMessageDialog(frame, "Load input file first.");
-				return false;
-			}
-			if (setupFile() == ERR)
-				return false;
-			if (!setupComplete) {
-				JOptionPane.showMessageDialog(frame, "Parameter setup did not complete");
-				return false;
-			}
-			if (test == null) {
-				JOptionPane.showMessageDialog(frame, "Load input file first.");
-				return false;
-			}
-			if (GenTests.isSelected() && txtMissingFile.getText().trim() == "") {
-				JOptionPane.showMessageDialog(frame, "File for missing tests is not specified!");
-				return false;
-			}
-			if (rptMissingCom.isSelected() && txtFileReport.getText().trim() == "") {
-				JOptionPane.showMessageDialog(frame, "File for report is not specified!");
-				return false;
-			}
-			if (GenTests.isSelected() && (int) MinCoverPct.getValue() == 0) {
-				JOptionPane.showMessageDialog(frame, "For missing combinations is needed specified the coverage!");
-				return false;
-			}
-			*/
 
 			return true;
 		}
@@ -2519,14 +2547,22 @@ public class Main{
 
 			TotCov2way = ((double) n_tot_tway_cov / (double) tot_varvalconfigs2);
 
-			
-			//Add column chart functionality later
+			/*
+			 * This is for real time combinatorial measurement updates.
+			 */
+			if(!chart_data.getSeries().isEmpty()){
+				for(int p = 0; p < chart_data.getSeriesCount(); p++){
+					if(chart_data.getSeriesKey(p).equals("2way"))
+						chart_data.removeSeries(p);	
+				}
+			}
 			
 			if(barchart)
 				ColumnChart("2-way", TotCov2way);
 			results = "";
 
 			try {
+
 				XYSeries series = new XYSeries("2way", false, true);
 
 				for (int b = NBINS; b >= 0; b--) // drk141007
@@ -2547,7 +2583,7 @@ public class Main{
 				report[0] = results;
 				
 				synchronized(report){
-					System.out.println("\n2-way Coverage Results:\n" + results);
+					System.out.println("\n2-way Coverage Results:\n" + "Total 2-way coverage: " + String.format("%.5f", TotCov2way) + "\n" + results);
 				}
 
 
@@ -2663,7 +2699,6 @@ public class Main{
 				}
 				
 			} catch (Exception ex) {
-
 				System.out.println(ex.getMessage());
 
 			}
@@ -2723,7 +2758,7 @@ public class Main{
 				report[1] = results;
 				
 				synchronized(report){
-					System.out.println("\n3-way Coverage Results:\n" + results);
+					System.out.println("\n3-way Coverage Results:\n" + "Total 3-way coverage: " + String.format("%.5f", TotCov3way) + "\n" + results);
 				}
 
 
@@ -2828,7 +2863,7 @@ public class Main{
 				report[2] = results;
 				
 				synchronized(report){
-					System.out.println("\n4-way Coverage Results:\n" + results);
+					System.out.println("\n4-way Coverage Results:\n" + "Total 4-way coverage: " + String.format("%.5f", TotCov4way) + "\n" + results);
 				}
 
 
@@ -2927,7 +2962,7 @@ public class Main{
 				report[3] = results;
 				
 				synchronized(report){
-					System.out.println("\n5-way Coverage Results:\n" + results);
+					System.out.println("\n5-way Coverage Results:\n" + "Total 5-way coverage: " + String.format("%.5f", TotCov5way) + "\n" + results);
 				}
 
 
@@ -3008,6 +3043,7 @@ public class Main{
 				ColumnChart("6-way", TotCov6way);
 
 			results = "";
+			
 
 			try {
 
@@ -3028,7 +3064,7 @@ public class Main{
 				report[4] = results;
 				
 				synchronized(report){
-					System.out.println("\n6-way Coverage Results:\n" + results);
+					System.out.println("\n6-way Coverage Results:\n" + "Total 6-way coverage: " + String.format("%.5f", TotCov6way) + "\n" + results);
 				}
 
 
@@ -3181,7 +3217,6 @@ public class Main{
 			
 			final ChartPanel chartPanel = new ChartPanel(chart);
 			chartPanel.setVisible(true);
-			
 			frame.pack();
 			frame.setVisible(true);
 		
@@ -3348,7 +3383,7 @@ public class Main{
 							//txtNumConstraints.setText(Integer.toString(constraints.size()));
 							data.set_rows(numberOfRandom);
 							setupParams(false);
-							setupFile();
+							setupFile(0);
 							//tcMain.setEnabledAt(0, true);
 							//tcMain.setEnabledAt(1, false);
 							//tcMain.setSelectedIndex(0);
