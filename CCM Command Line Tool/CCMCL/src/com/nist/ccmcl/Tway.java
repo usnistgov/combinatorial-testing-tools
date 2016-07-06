@@ -41,8 +41,15 @@ public class Tway extends RecursiveTask {
 	public int varvaltotal;
 	public double sumcov = 0;
 	
-	private HashMap<String, Boolean> used2way = new HashMap<String, Boolean>();
-	private HashMap<String, int[][]> comcount_array = new HashMap<String, int[][]>();
+	
+	/*
+	 * Multi-deminisional arrays to hold used combinations...
+	 */
+	private HashMap<String, int[][]> comcount_array2 = new HashMap<String, int[][]>();
+	private HashMap<String, int[][][]> comcount_array3 = new HashMap<String, int[][][]>();
+	private HashMap<String, int[][][][]> comcount_array4 = new HashMap<String, int[][][][]>();
+	private HashMap<String, int[][][][][]> comcount_array5 = new HashMap<String, int[][][][][]>();
+	private HashMap<String, int[][][][][][]> comcount_array6 = new HashMap<String, int[][][][][][]>();
 
 	private boolean wait = false;
 	
@@ -359,7 +366,7 @@ public class Tway extends RecursiveTask {
 					}
 				}
 				//Store this comcount array for real time measurement...
-				comcount_array.put(temp_key, comcount);
+				comcount_array2.put(temp_key, comcount);
 				
 				n_varvalconfigs2 = _nvals[i] * _nvals[j];
 				n_varvalconfigs2 -= (invalidcomb + invalidcombNotCovered);
@@ -435,11 +442,7 @@ public class Tway extends RecursiveTask {
 
 			}
 
-			/*
-			 * if (_barra.isIndeterminate()) _barra.setIndeterminate(false);
-			 * 
-			 * _barra.setValue(_barra.getValue()+1);
-			 */
+
 		}
 
 		_n_tot_tway_cov = n_tot_tway_cov;
@@ -489,6 +492,7 @@ public class Tway extends RecursiveTask {
 							comcount[ti][tj] = new int[_nvals[k]];
 						}
 					}
+					String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + "," + String.valueOf(k) + ")";
 
 					// forall t-way combinations of input variable values:
 
@@ -514,12 +518,12 @@ public class Tway extends RecursiveTask {
 
 						if (_constraints.size() > 0) {
 							if (validcomb.EvaluateCombination(pars))
-								comcount[_test[m][i]][_test[m][j]][_test[m][k]] += 1;
+								comcount[_test[m][i]][_test[m][j]][_test[m][k]] = 1;
 							else
-								comcount[_test[m][i]][_test[m][j]][_test[m][k]] += -1;
+								comcount[_test[m][i]][_test[m][j]][_test[m][k]] = -1;
 
 						} else
-							comcount[_test[m][i]][_test[m][j]][_test[m][k]] += 1;
+							comcount[_test[m][i]][_test[m][j]][_test[m][k]] = 1;
 						// coumcount i,j == 1 iff some tests contains tuple i,j
 					}
 
@@ -548,7 +552,7 @@ public class Tway extends RecursiveTask {
 									pars[1][1] = _parameters.get(j).getValues().get(nj);
 									pars[2][1] = _parameters.get(k).getValues().get(nk);
 
-									if (comcount[ni][nj][nk] <= -1) {
+									if (comcount[ni][nj][nk] == -1) {
 										// count invalid configs in set test
 										invalidComb += 1;
 										_aInvalidComb.add(pars);
@@ -563,7 +567,7 @@ public class Tway extends RecursiveTask {
 																					// test
 											invalidcombNotCovered += 1;
 											_aInvalidNotIn.add(pars);
-											comcount[ni][nj][nk] = -2;
+											comcount[ni][nj][nk] = -3;
 										}
 
 									}
@@ -571,6 +575,9 @@ public class Tway extends RecursiveTask {
 							}
 						}
 					}
+					
+					comcount_array3.put(temp_key, comcount);
+					
 					n_varvalconfigs3 = _nvals[i] * _nvals[j] * _nvals[k];
 					n_varvalconfigs3 -= (invalidComb + invalidcombNotCovered);
 					tot_varvalconfigs3 += n_varvalconfigs3;
@@ -582,15 +589,7 @@ public class Tway extends RecursiveTask {
 					for (int b = 0; b <= NBINS; b++)
 						if (varval_cov >= (double) b / (double) NBINS)
 							varvalStats3[b]++;
-					// now determine color for heat map display
-					// if (varval_cov < 0.2) hm_colors3[i][j][k] = 0;
-					// else if (varval_cov < 0.4) hm_colors3[i][j][k] = 1;
-					// else if (varval_cov < 0.6) hm_colors3[i][j][k] = 2;
-					// else if (varval_cov < 0.8) hm_colors3[i][j][k] = 3;
-					// else hm_colors3[i][j][k] = 4;
-					// results += "Com " + i + "," + j + " = " + varval_cnt +
-					// "/" + n_varvalconfigs + " = " + (float)((float)varval_cnt
-					// / (float)n_varvalconfigs) + "\n";
+
 
 					// For missing combinations
 
@@ -632,62 +631,15 @@ public class Tway extends RecursiveTask {
 
 				}
 			}
-			/*
-			 * if (_barra.isIndeterminate()) _barra.setIndeterminate(false);
-			 * _barra.setValue(_barra.getValue()+1);
-			 */
+
 		}
 
 		_n_tot_tway_cov = n_tot_tway_cov;
 		_nComs = nComs;
 		_tot_varvalconfig = tot_varvalconfigs3;
 		_varvalStatN = varvalStats3;
-
-		/*
-		 * if (_GenTests) try {
-		 * 
-		 * if (_appendTests) { // append new tests to original, so write out
-		 * original first for (int ii = 0; ii < _nrows; ii++) { String outl =
-		 * ""; for (int jj = 0; jj < _ncols; jj++) {
-		 * 
-		 * outl += _map[jj][_test[ii][jj]];
-		 * 
-		 * if (jj < _ncols - 1) outl += ","; } write(_fileNameMissing,outl);
-		 * 
-		 * } } for (int ii = 0; ii < Nout_test; ii++) { String outl = ""; for
-		 * (int jj = 0; jj < _ncols; jj++) { int ntmp = out_test[ii][jj];
-		 * String[][] parV; if (ntmp>0 && _constraints.size() > 0) { parV = new
-		 * String[1][]; parV[0] = new String[2]; parV[0][0] =
-		 * _parameters.get(jj).getName(); parV[0][1] =
-		 * (String)_parameters.get(jj).getValues().get(ntmp);
-		 * 
-		 * if (!validcomb.EvaluateCombination(parV)) ntmp=-1; }
-		 * 
-		 * if (ntmp < 0) // output value from input test file mapped by index {
-		 * if (_constraints.size() > 0) //if there are constraints the valid
-		 * value will be search {
-		 * 
-		 * do { ntmp++; parV = new String[1][]; parV[0] = new String[2];
-		 * parV[0][0] = _parameters.get(jj).getName(); parV[0][1] =
-		 * (String)_parameters.get(jj).getValues().get(ntmp); } while
-		 * (!validcomb.EvaluateCombination(parV)); } else ntmp = 0; // use first
-		 * index into value array for this variable }
-		 * 
-		 * if (!_rng[jj] && !_grp[jj]) outl += _map[jj][ntmp]; else { for (int b
-		 * = 0; b < _end; b++) { if (_bnd[b] != null) { for (int r = 0; r <=
-		 * _bnd[b].length; r++) { if (ntmp == r) { if (r==0) { outl+="[value < "
-		 * + _bnd[b][r] + "]"; break; } if (r>0 && r<_bnd[b].length) { outl +=
-		 * "[" + _bnd[b][r-1] + "<= value <"+ _bnd[b][r] +"]"; break; } if
-		 * (r==_bnd[b].length) { outl+="[value >="+ _bnd[b][r-1] +"]"; break; }
-		 * } } } if (_group[b] != null) { for (int r = 0; r <= _group[b].length;
-		 * r++) { if (ntmp==r) { outl+="Group [" + r + "] Values [" +
-		 * _group[b][r] + "]"; break; } } } } } if (jj < _ncols - 1) outl +=
-		 * ","; }
-		 * 
-		 * write(_fileNameMissing,outl); }
-		 * 
-		 * } catch(Exception ex) { throw ex; }
-		 */
+		
+		initialized = true;
 
 	}
 
@@ -734,7 +686,9 @@ public class Tway extends RecursiveTask {
 								}
 							}
 						}
-
+						String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + "," + String.valueOf(k) +
+								"," + String.valueOf(r) + ")";
+						
 						// forall t-way combinations of input variable values:
 						// comcount i,j == 0
 						// for the combination designated by i,j increment
@@ -759,12 +713,12 @@ public class Tway extends RecursiveTask {
 
 							if (_constraints.size() > 0) {
 								if (validcomb.EvaluateCombination(pars))
-									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] += 1;
+									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = 1;
 								else
-									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] += -1;
+									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = -1;
 
 							} else
-								comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] += 1;
+								comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = 1;
 
 						}
 
@@ -776,7 +730,7 @@ public class Tway extends RecursiveTask {
 							for (nj = 0; nj < _nvals[j]; nj++) {
 								for (nk = 0; nk < _nvals[k]; nk++) {
 									for (nr = 0; nr < _nvals[r]; nr++) {
-										if (comcount[ni][nj][nk][nr] > 0) {
+										if (comcount[ni][nj][nk][nr] == 1) {
 											varval_cnt++;
 											n_tot_tway_cov++;
 										} else {
@@ -796,7 +750,7 @@ public class Tway extends RecursiveTask {
 											pars[2][1] = _parameters.get(k).getValues().get(nk);
 											pars[3][1] = _parameters.get(r).getValues().get(nr);
 
-											if (comcount[ni][nj][nk][nr] <= -1) {
+											if (comcount[ni][nj][nk][nr] == -1) {
 												invalidComb += 1;
 												_aInvalidComb.add(pars);
 											}
@@ -805,7 +759,7 @@ public class Tway extends RecursiveTask {
 												if (!validcomb.EvaluateCombination(pars)) {
 													invalidcombNotCovered += 1;
 													_aInvalidNotIn.add(pars);
-													comcount[ni][nj][nk][nr] = -2;
+													comcount[ni][nj][nk][nr] = -3;
 												}
 											}
 										}
@@ -813,6 +767,8 @@ public class Tway extends RecursiveTask {
 								}
 							}
 						}
+						
+						comcount_array4.put(temp_key, comcount);
 						n_varvalconfigs4 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r];
 						n_varvalconfigs4 -= (invalidComb + invalidcombNotCovered);
 						tot_varvalconfigs4 += n_varvalconfigs4;
@@ -860,69 +816,7 @@ public class Tway extends RecursiveTask {
 												im[7] = nr;
 												_missing.add(im);
 
-												// value i may be covered but
-												// not value j
-												/*
-												 * Boolean comout = false; int
-												 * w; for (w = 0; w < Nout_test
-												 * && !comout; w++) { if
-												 * (out_test[w][i] < 0 &&
-												 * out_test[w][j] < 0 &&
-												 * out_test[w][k] < 0 &&
-												 * out_test[w][r] < 0) {
-												 * out_test[w][i] = ni;
-												 * out_test[w][j] = nj;
-												 * out_test[w][k] = nk;
-												 * out_test[w][r] = nr; comout =
-												 * true; } if (out_test[w][i] ==
-												 * ni && out_test[w][j] < 0 &&
-												 * out_test[w][k] < 0 &&
-												 * out_test[w][r] < 0) {
-												 * out_test[w][j] = nj;
-												 * out_test[w][k] = nk;
-												 * out_test[w][r] = nr; comout =
-												 * true; } if (out_test[w][i] <
-												 * 0 && out_test[w][j] == nj &&
-												 * out_test[w][k] < 0 &&
-												 * out_test[w][r] < 0) {
-												 * out_test[w][i] = ni;
-												 * out_test[w][k] = nk;
-												 * out_test[w][r] = nr; comout =
-												 * true; } if (out_test[w][i] <
-												 * 0 && out_test[w][j] < 0 &&
-												 * out_test[w][k] == nk &&
-												 * out_test[w][r] < 0) {
-												 * out_test[w][i] = ni;
-												 * out_test[w][j] = nj;
-												 * out_test[w][r] = nr; comout =
-												 * true; }
-												 * 
-												 * if (out_test[w][i] < 0 &&
-												 * out_test[w][j] < 0 &&
-												 * out_test[w][k] < 0 &&
-												 * out_test[w][r] == nr) {
-												 * out_test[w][i] = ni;
-												 * out_test[w][j] = nj;
-												 * out_test[w][k] = nk; comout =
-												 * true; }
-												 * 
-												 * if (out_test[w][i] == ni &&
-												 * out_test[w][j] == nj &&
-												 * out_test[w][k] == nk &&
-												 * out_test[w][r] == nr) {
-												 * comout = true; } } if
-												 * (!comout && Nout_test <
-												 * _MaxGenTests) { // com was
-												 * not output to out_test[w] =
-												 * new int[_ncols]; for (int ii
-												 * = 0; ii < _ncols; ii++)
-												 * out_test[w][ii] = -1;
-												 * out_test[w][i] = ni;
-												 * out_test[w][j] = nj;
-												 * out_test[w][k] = nk;
-												 * out_test[w][r] = nr;
-												 * Nout_test++; }
-												 */
+												
 											}
 
 										}
@@ -932,14 +826,10 @@ public class Tway extends RecursiveTask {
 							}
 						}
 
-						// ***************************************
 					}
 				}
 			}
-			/*
-			 * if (_barra.isIndeterminate()) _barra.setIndeterminate(false);
-			 * _barra.setValue(_barra.getValue()+1);
-			 */
+
 		}
 
 		_n_tot_tway_cov = n_tot_tway_cov;
@@ -947,57 +837,7 @@ public class Tway extends RecursiveTask {
 		_tot_varvalconfig = tot_varvalconfigs4;
 		_varvalStatN = varvalStats4;
 
-		/*
-		 * if (_GenTests) try {
-		 * 
-		 * if (_appendTests) { // append new tests to original, so write out
-		 * original first for (int ii = 0; ii < _nrows; ii++) { String outl =
-		 * ""; for (int jj = 0; jj < _ncols; jj++) { outl +=
-		 * _map[jj][_test[ii][jj]];
-		 * 
-		 * if (jj < _ncols - 1) outl += ","; }
-		 * 
-		 * write(_fileNameMissing,outl);
-		 * 
-		 * 
-		 * 
-		 * } } for (int ii = 0; ii < Nout_test; ii++) { String outl = ""; for
-		 * (int jj = 0; jj < _ncols; jj++) { int ntmp = out_test[ii][jj];
-		 * String[][] parV; if (ntmp>0 && _constraints.size() > 0) { parV = new
-		 * String[1][]; parV[0] = new String[2]; parV[0][0] =
-		 * _parameters.get(jj).getName(); parV[0][1] =
-		 * (String)_parameters.get(jj).getValues().get(ntmp);
-		 * 
-		 * if (!validcomb.EvaluateCombination(parV)) ntmp=-1; }
-		 * 
-		 * if (ntmp < 0) { if (_constraints.size() > 0) //if there are
-		 * constraints the valid value will be search {
-		 * 
-		 * do { ntmp++; parV = new String[1][]; parV[0] = new String[2];
-		 * parV[0][0] = _parameters.get(jj).getName(); parV[0][1] =
-		 * (String)_parameters.get(jj).getValues().get(ntmp); } while
-		 * (!validcomb.EvaluateCombination(parV)); } else ntmp = 0;
-		 * 
-		 * } if (!_rng[jj] && !_grp[jj]) outl += _map[jj][ntmp]; else { for (int
-		 * b = 0; b < _ncols; b++) { if (_bnd[b] != null) { for (int h = 0; h <=
-		 * _bnd[b].length; h++) { if (ntmp == h) { if (h == 0) { outl +=
-		 * "[value <" + _bnd[b][h] + "]"; break; } if (h > 0 && h <
-		 * _bnd[b].length) { outl += "[" + _bnd[b][h - 1] + "<= value <" +
-		 * _bnd[b][h] + "]"; break; } if (h == _bnd[b].length) { outl +=
-		 * "[value >=" + _bnd[b][h - 1] + "]"; break; } } } } if (_group[b] !=
-		 * null) { for (int g = 0; g <= _group[b].length; g++) { if (ntmp==g) {
-		 * outl+="Group [" + g + "] Values [" + _group[b][g] + "]"; break; } } }
-		 * } } if (jj < _ncols - 1) outl += ","; }
-		 * 
-		 * write(_fileNameMissing,outl);
-		 * 
-		 * 
-		 * }
-		 * 
-		 * 
-		 * 
-		 * } catch(Exception ex) { throw ex; }
-		 */
+		initialized = true;
 
 	}
 
@@ -1052,6 +892,8 @@ public class Tway extends RecursiveTask {
 									}
 								}
 							}
+							String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + "," + String.valueOf(k) +
+									"," + String.valueOf(r) + "," + String.valueOf(x) + ")";
 
 							// forall t-way combinations of input variable
 							// values:
@@ -1090,12 +932,12 @@ public class Tway extends RecursiveTask {
 
 								if (_constraints.size() > 0) {
 									if (validcomb.EvaluateCombination(pars))
-										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] += 1;
+										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = 1;
 									else
-										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] += -1;
+										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = -1;
 
 								} else
-									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] += 1;
+									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = 1;
 
 							}
 
@@ -1109,7 +951,7 @@ public class Tway extends RecursiveTask {
 									for (nk = 0; nk < _nvals[k]; nk++) {
 										for (nr = 0; nr < _nvals[r]; nr++) {
 											for (nx = 0; nx < _nvals[x]; nx++) {
-												if (comcount[ni][nj][nk][nr][nx] > 0) {
+												if (comcount[ni][nj][nk][nr][nx] == 1) {
 													varval_cnt++;
 													n_tot_tway_cov++;
 												} else {
@@ -1132,7 +974,7 @@ public class Tway extends RecursiveTask {
 													pars[3][1] = _parameters.get(r).getValues().get(nr);
 													pars[4][1] = _parameters.get(x).getValues().get(nx);
 
-													if (comcount[ni][nj][nk][nr][nx] <= -1) {
+													if (comcount[ni][nj][nk][nr][nx] == -1) {
 														invalidComb += 1;
 														_aInvalidComb.add(pars);
 													}
@@ -1141,7 +983,7 @@ public class Tway extends RecursiveTask {
 														if (!validcomb.EvaluateCombination(pars)) {
 															invalidcombNotCovered += 1;
 															_aInvalidNotIn.add(pars);
-															comcount[ni][nj][nk][nr][nx] = -2;
+															comcount[ni][nj][nk][nr][nx] = -3;
 														}
 													}
 												}
@@ -1150,6 +992,7 @@ public class Tway extends RecursiveTask {
 									}
 								}
 							}
+							comcount_array5.put(temp_key, comcount);
 							n_varvalconfigs5 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r] * _nvals[x];
 							n_varvalconfigs5 -= (invalidComb + invalidcombNotCovered);
 							tot_varvalconfigs5 += n_varvalconfigs5;
@@ -1201,106 +1044,6 @@ public class Tway extends RecursiveTask {
 														im[8] = nr;
 														im[9] = nx;
 														_missing.add(im);
-
-														// value i may be
-														// covered but not value
-														// j
-														/*
-														 * Boolean comout =
-														 * false; int w; for (w
-														 * = 0; w < Nout_test &&
-														 * !comout; w++) { if
-														 * (out_test[w][i] < 0
-														 * && out_test[w][j] < 0
-														 * && out_test[w][k] < 0
-														 * && out_test[w][r] < 0
-														 * && out_test[w][x]<0)
-														 * { out_test[w][i] =
-														 * ni; out_test[w][j] =
-														 * nj; out_test[w][k] =
-														 * nk; out_test[w][r] =
-														 * nr; out_test[w][x] =
-														 * nx; comout = true; }
-														 * if (out_test[w][i] ==
-														 * ni && out_test[w][j]
-														 * < 0 && out_test[w][k]
-														 * < 0 && out_test[w][r]
-														 * < 0 && out_test[w][x]
-														 * < 0) { out_test[w][j]
-														 * = nj; out_test[w][k]
-														 * = nk; out_test[w][r]
-														 * = nr; out_test[w][x]
-														 * = nx; comout = true;
-														 * } if (out_test[w][i]
-														 * < 0 && out_test[w][j]
-														 * == nj &&
-														 * out_test[w][k] < 0 &&
-														 * out_test[w][r] < 0 &&
-														 * out_test[w][x] < 0) {
-														 * out_test[w][i] = ni;
-														 * out_test[w][k] = nk;
-														 * out_test[w][r] = nr;
-														 * out_test[w][x] = nx;
-														 * comout = true; } if
-														 * (out_test[w][i] < 0
-														 * && out_test[w][j] < 0
-														 * && out_test[w][k] ==
-														 * nk && out_test[w][r]
-														 * < 0 && out_test[w][x]
-														 * < 0) { out_test[w][i]
-														 * = ni; out_test[w][j]
-														 * = nj; out_test[w][r]
-														 * = nr; out_test[w][x]
-														 * = nx; comout = true;
-														 * }
-														 * 
-														 * if (out_test[w][i] <
-														 * 0 && out_test[w][j] <
-														 * 0 && out_test[w][k] <
-														 * 0 && out_test[w][r]
-														 * == nr &&
-														 * out_test[w][x] < 0) {
-														 * out_test[w][i] = ni;
-														 * out_test[w][j] = nj;
-														 * out_test[w][k] = nk;
-														 * out_test[w][x] = nx;
-														 * comout = true; }
-														 * 
-														 * if (out_test[w][i] <
-														 * 0 && out_test[w][j] <
-														 * 0 && out_test[w][k] <
-														 * 0 && out_test[w][r] <
-														 * 0 &&
-														 * out_test[w][x]==nx) {
-														 * out_test[w][i] = ni;
-														 * out_test[w][j] = nj;
-														 * out_test[w][k] = nk;
-														 * out_test[w][r] = nr;
-														 * comout = true; }
-														 * 
-														 * 
-														 * if (out_test[w][i] ==
-														 * ni && out_test[w][j]
-														 * == nj &&
-														 * out_test[w][k] == nk
-														 * && out_test[w][r] ==
-														 * nr && out_test[w][x]
-														 * == nx) { comout =
-														 * true; } } if (!comout
-														 * && Nout_test <
-														 * _MaxGenTests) { //
-														 * com was not output to
-														 * out_test[w] = new
-														 * int[_ncols]; for (int
-														 * ii = 0; ii < _ncols;
-														 * ii++) out_test[w][ii]
-														 * = -1; out_test[w][i]
-														 * = ni; out_test[w][j]
-														 * = nj; out_test[w][k]
-														 * = nk; out_test[w][r]
-														 * = nr; out_test[w][x]
-														 * = nx; Nout_test++; }
-														 */
 													}
 												}
 											}
@@ -1314,10 +1057,7 @@ public class Tway extends RecursiveTask {
 					}
 				}
 			}
-			/*
-			 * if (_barra.isIndeterminate()) _barra.setIndeterminate(false);
-			 * _barra.setValue(_barra.getValue()+1);
-			 */
+
 		}
 
 		_n_tot_tway_cov = n_tot_tway_cov;
@@ -1325,53 +1065,7 @@ public class Tway extends RecursiveTask {
 		_tot_varvalconfig = tot_varvalconfigs5;
 		_varvalStatN = varvalStats5;
 
-		/*
-		 * if (_GenTests) try {
-		 * 
-		 * if (_appendTests) { // append new tests to original, so write out
-		 * original first for (int ii = 0; ii < _nrows; ii++) { String outl =
-		 * ""; for (int jj = 0; jj < _ncols; jj++) { outl +=
-		 * _map[jj][_test[ii][jj]];
-		 * 
-		 * if (jj < _ncols - 1) outl += ","; } write(_fileNameMissing,outl);
-		 * 
-		 * 
-		 * } } for (int ii = 0; ii < Nout_test; ii++) { String outl = ""; for
-		 * (int jj = 0; jj < _ncols; jj++) { int ntmp = out_test[ii][jj];
-		 * String[][] parV; if (ntmp>0 && _constraints.size() > 0) { parV = new
-		 * String[1][]; parV[0] = new String[2]; parV[0][0] =
-		 * _parameters.get(jj).getName(); parV[0][1] =
-		 * (String)_parameters.get(jj).getValues().get(ntmp);
-		 * 
-		 * if (!validcomb.EvaluateCombination(parV)) ntmp=-1; }
-		 * 
-		 * if (ntmp < 0) { if (_constraints.size() > 0) //if there are
-		 * constraints the valid value will be search {
-		 * 
-		 * do { ntmp++; parV = new String[1][]; parV[0] = new String[2];
-		 * parV[0][0] = _parameters.get(jj).getName(); parV[0][1] =
-		 * (String)_parameters.get(jj).getValues().get(ntmp); } while
-		 * (!validcomb.EvaluateCombination(parV)); } else ntmp = 0;
-		 * 
-		 * } if (!_rng[jj] && !_grp[jj]) outl += _map[jj][ntmp]; else { for (int
-		 * b = 0; b < _ncols; b++) { if (_bnd[b] != null) { for (int h = 0; h <=
-		 * _bnd[b].length;h++) { if (ntmp == h) { if (h == 0) { outl +=
-		 * "[value <" + _bnd[b][h] + "]"; break; } if (h > 0 && h <
-		 * _bnd[b].length) { outl += "[" + _bnd[b][h - 1] + "<= value <" +
-		 * _bnd[b][h] + "]"; break; } if (h == _bnd[b].length) { outl +=
-		 * "[value >=" + _bnd[b][h - 1] + "]"; break; } } } }
-		 * 
-		 * if (_group[b] != null) { for (int g = 0; g <= _group[b].length; g++)
-		 * { if (ntmp==g) { outl+="Group [" + g + "] Values [" + _group[b][g] +
-		 * "]"; break; } } } } } if (jj < _ncols - 1) outl += ","; }
-		 * 
-		 * write(_fileNameMissing,outl);
-		 * 
-		 * }
-		 * 
-		 * 
-		 * } catch(Exception ex) { throw ex; }
-		 */
+		initialized = true;
 
 	}
 
@@ -1432,6 +1126,8 @@ public class Tway extends RecursiveTask {
 										}
 									}
 								}
+								String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + "," + String.valueOf(k) +
+										"," + String.valueOf(r) + "," + String.valueOf(x) + "," + String.valueOf(z) + ")";
 
 								// forall t-way combinations of input variable
 								// values:
@@ -1477,12 +1173,12 @@ public class Tway extends RecursiveTask {
 
 									if (_constraints.size() > 0) {
 										if (validcomb.EvaluateCombination(pars))
-											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] += 1;
+											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = 1;
 										else
-											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] += -1;
+											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = -1;
 
 									} else
-										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] += 1;
+										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = 1;
 								}
 
 								int varval_cnt = 0;
@@ -1496,7 +1192,7 @@ public class Tway extends RecursiveTask {
 											for (nr = 0; nr < _nvals[r]; nr++) {
 												for (nx = 0; nx < _nvals[x]; nx++) {
 													for (nz = 0; nz < _nvals[z]; nz++) {
-														if (comcount[ni][nj][nk][nr][nx][nz] > 0) {
+														if (comcount[ni][nj][nk][nr][nx][nz] == 1) {
 															varval_cnt++;
 															n_tot_tway_cov++;
 														} else {
@@ -1522,7 +1218,7 @@ public class Tway extends RecursiveTask {
 															pars[4][1] = _parameters.get(x).getValues().get(nx);
 															pars[5][1] = _parameters.get(z).getValues().get(nz);
 
-															if (comcount[ni][nj][nk][nr][nx][nz] <= -1) {
+															if (comcount[ni][nj][nk][nr][nx][nz] == -1) {
 																invalidComb += 1;
 																_aInvalidComb.add(pars);
 															}
@@ -1532,7 +1228,7 @@ public class Tway extends RecursiveTask {
 																if (!validcomb.EvaluateCombination(pars)) {
 																	invalidcombNotCovered += 1;
 																	_aInvalidNotIn.add(pars);
-																	comcount[ni][nj][nk][nr][nx][nz] = -2;
+																	comcount[ni][nj][nk][nr][nx][nz] = -3;
 																}
 
 															}
@@ -1543,6 +1239,7 @@ public class Tway extends RecursiveTask {
 										}
 									}
 								}
+								comcount_array6.put(temp_key, comcount);
 								n_varvalconfigs6 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r] * _nvals[x]
 										* _nvals[z];
 								n_varvalconfigs6 -= (invalidComb + invalidcombNotCovered);
@@ -1599,239 +1296,6 @@ public class Tway extends RecursiveTask {
 																im[10] = nx;
 																im[11] = nz;
 																_missing.add(im);
-
-																// value i may
-																// be covered
-																// but not value
-																// j
-																/*
-																 * Boolean
-																 * comout =
-																 * false; int w;
-																 * for (w = 0; w
-																 * < Nout_test
-																 * && !comout;
-																 * w++) { if
-																 * (out_test[w][
-																 * i] < 0 &&
-																 * out_test[w][
-																 * j] < 0 &&
-																 * out_test[w][
-																 * k] < 0 &&
-																 * out_test[w][
-																 * r] < 0 &&
-																 * out_test[w][
-																 * x] < 0 &&
-																 * out_test[w][
-																 * z] < 0) {
-																 * out_test[w][
-																 * i] = ni;
-																 * out_test[w][
-																 * j] = nj;
-																 * out_test[w][
-																 * k] = nk;
-																 * out_test[w][
-																 * r] = nr;
-																 * out_test[w][
-																 * x] = nx;
-																 * out_test[w][
-																 * z] = nz;
-																 * comout =
-																 * true; } if
-																 * (out_test[w][
-																 * i] == ni &&
-																 * out_test[w][
-																 * j] < 0 &&
-																 * out_test[w][
-																 * k] < 0 &&
-																 * out_test[w][
-																 * r] < 0 &&
-																 * out_test[w][
-																 * x] < 0 &&
-																 * out_test[w][
-																 * z] < 0) {
-																 * out_test[w][
-																 * j] = nj;
-																 * out_test[w][
-																 * k] = nk;
-																 * out_test[w][
-																 * r] = nr;
-																 * out_test[w][
-																 * x] = nx;
-																 * out_test[w][
-																 * z] = nz;
-																 * comout =
-																 * true; } if
-																 * (out_test[w][
-																 * i] < 0 &&
-																 * out_test[w][
-																 * j] == nj &&
-																 * out_test[w][
-																 * k] < 0 &&
-																 * out_test[w][
-																 * r] < 0 &&
-																 * out_test[w][
-																 * x] < 0 &&
-																 * out_test[w][
-																 * z] < 0) {
-																 * out_test[w][
-																 * i] = ni;
-																 * out_test[w][
-																 * k] = nk;
-																 * out_test[w][
-																 * r] = nr;
-																 * out_test[w][
-																 * x] = nx;
-																 * out_test[w][
-																 * z] = nz;
-																 * comout =
-																 * true; } if
-																 * (out_test[w][
-																 * i] < 0 &&
-																 * out_test[w][
-																 * j] < 0 &&
-																 * out_test[w][
-																 * k] == nk &&
-																 * out_test[w][
-																 * r] < 0 &&
-																 * out_test[w][
-																 * x] < 0 &&
-																 * out_test[w][
-																 * z] < 0) {
-																 * out_test[w][
-																 * i] = ni;
-																 * out_test[w][
-																 * j] = nj;
-																 * out_test[w][
-																 * r] = nr;
-																 * out_test[w][
-																 * x] = nx;
-																 * out_test[w][
-																 * z] = nz;
-																 * comout =
-																 * true; }
-																 * 
-																 * if
-																 * (out_test[w][
-																 * i] < 0 &&
-																 * out_test[w][
-																 * j] < 0 &&
-																 * out_test[w][
-																 * k] < 0 &&
-																 * out_test[w][
-																 * r] == nr &&
-																 * out_test[w][
-																 * x] < 0 &&
-																 * out_test[w][
-																 * z] < 0) {
-																 * out_test[w][
-																 * i] = ni;
-																 * out_test[w][
-																 * j] = nj;
-																 * out_test[w][
-																 * k] = nk;
-																 * out_test[w][
-																 * x] = nx;
-																 * out_test[w][
-																 * z] = nz;
-																 * comout =
-																 * true; }
-																 * 
-																 * if
-																 * (out_test[w][
-																 * i] < 0 &&
-																 * out_test[w][
-																 * j] < 0 &&
-																 * out_test[w][
-																 * k] < 0 &&
-																 * out_test[w][
-																 * r] < 0 &&
-																 * out_test[w][
-																 * x] == nx &&
-																 * out_test[w][
-																 * z] < 0) {
-																 * out_test[w][
-																 * i] = ni;
-																 * out_test[w][
-																 * j] = nj;
-																 * out_test[w][
-																 * k] = nk;
-																 * out_test[w][
-																 * r] = nr;
-																 * out_test[w][
-																 * z] = nz;
-																 * comout =
-																 * true; }
-																 * 
-																 * if
-																 * (out_test[w][
-																 * i] < 0 &&
-																 * out_test[w][
-																 * j] < 0 &&
-																 * out_test[w][
-																 * k] < 0 &&
-																 * out_test[w][
-																 * r] < 0 &&
-																 * out_test[w][
-																 * x] < 0 &&
-																 * out_test[w][
-																 * z] == nz) {
-																 * out_test[w][
-																 * i] = ni;
-																 * out_test[w][
-																 * j] = nj;
-																 * out_test[w][
-																 * k] = nk;
-																 * out_test[w][
-																 * r] = nr;
-																 * out_test[w][
-																 * x] = nx;
-																 * comout =
-																 * true; }
-																 * 
-																 * if
-																 * (out_test[w][
-																 * i] == ni &&
-																 * out_test[w][
-																 * j] == nj &&
-																 * out_test[w][
-																 * k] == nk &&
-																 * out_test[w][
-																 * r] == nr &&
-																 * out_test[w][
-																 * x] == nx &&
-																 * out_test[w][
-																 * z] == nz) {
-																 * comout =
-																 * true; } } if
-																 * (!comout &&
-																 * Nout_test <
-																 * _MaxGenTests)
-																 * { // com was
-																 * not output to
-																 * out_test[w] =
-																 * new
-																 * int[_ncols];
-																 * for (int ii =
-																 * 0; ii <
-																 * _ncols; ii++)
-																 * out_test[w][
-																 * ii] = -1;
-																 * out_test[w][
-																 * i] = ni;
-																 * out_test[w][
-																 * j] = nj;
-																 * out_test[w][
-																 * k] = nk;
-																 * out_test[w][
-																 * r] = nr;
-																 * out_test[w][
-																 * x] = nx;
-																 * out_test[w][
-																 * z] = nz;
-																 * Nout_test++;
-																 * }
-																 */
 															}
 														}
 													}
@@ -1847,11 +1311,7 @@ public class Tway extends RecursiveTask {
 					}
 				}
 			}
-			/*
-			 * if (_barra.isIndeterminate()) _barra.setIndeterminate(false);
-			 * 
-			 * _barra.setValue(_barra.getValue()+1);
-			 */
+
 		}
 
 		_n_tot_tway_cov = n_tot_tway_cov;
@@ -1859,47 +1319,7 @@ public class Tway extends RecursiveTask {
 		_tot_varvalconfig = tot_varvalconfigs6;
 		_varvalStatN = varvalStats6;
 
-		/*
-		 * if (_GenTests) try { if (_appendTests) { // append new tests to
-		 * original, so write out original first for (int ii = 0; ii < _nrows;
-		 * ii++) { String outl = ""; for (int jj = 0; jj < _ncols; jj++) { outl
-		 * += _map[jj][_test[ii][jj]];
-		 * 
-		 * if (jj < _ncols - 1) outl += ","; }
-		 * 
-		 * write(_fileNameMissing,outl);
-		 * 
-		 * } } for (int ii = 0; ii < Nout_test; ii++) { String outl = ""; for
-		 * (int jj = 0; jj < _ncols; jj++) { int ntmp = out_test[ii][jj]; if
-		 * (ntmp < 0) { if (_constraints.size() > 0) //if there are constraints
-		 * the valid value will be search { String[][] parV; do { ntmp++; parV =
-		 * new String[1][]; parV[0] = new String[2]; parV[0][0] =
-		 * _parameters.get(jj).getName(); parV[0][1] =
-		 * (String)_parameters.get(jj).getValues().get(ntmp); } while
-		 * (!validcomb.EvaluateCombination(parV)); } else ntmp = 0;
-		 * 
-		 * } if (!_rng[jj] && !_grp[jj]) outl += _map[jj][ntmp]; else { for (int
-		 * b = 0; b < _ncols; b++) { if (_bnd[b] != null) { for (int h = 0; h <=
-		 * _bnd[b].length; h++) { if (ntmp == h) { if (h == 0) { outl +=
-		 * "[value <" + _bnd[b][h] + "]"; break; } if (h > 0 && h <
-		 * _bnd[b].length) { outl += "[" + _bnd[b][h - 1] + "<= value <" +
-		 * _bnd[b][h] + "]"; break; } if (h == _bnd[b].length) { outl +=
-		 * "[value >=" + _bnd[b][h - 1] + "]"; break; } } } }
-		 * 
-		 * if (_group[b] != null) { for (int g = 0; g <= _group[b].length; g++)
-		 * { if (ntmp==g) { outl+="Group [" + g + "] Values [" + _group[b][g] +
-		 * "]"; break; } } } } } if (jj < _ncols - 1) outl += ","; }
-		 * 
-		 * write(_fileNameMissing,outl);
-		 * 
-		 * 
-		 * 
-		 * }
-		 * 
-		 * 
-		 * 
-		 * } catch(Exception ex) { throw ex; }
-		 */
+		initialized = true;
 	}
 
 	@Override
@@ -2605,12 +2025,9 @@ public class Tway extends RecursiveTask {
 		for (i = _start; i < _end; i++) {
 			for (j = i + 1; j < _ncols; j++) {
 				// nComs++; //number of combinations
-				//int[][] comcount = new int[_nvals[i]][];
-				//for (ti = 0; ti < _nvals[i]; ti++) {
-					//comcount[ti] = new int[_nvals[j]];
-				//}
+
 				String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
-				int[][] comcount = comcount_array.get(temp_key);
+				int[][] comcount = comcount_array2.get(temp_key);
 				// forall t-way combinations of input variable values:
 				// comcount i,j == 0
 				// for the combination designated by i,j increment counts
@@ -2704,7 +2121,7 @@ public class Tway extends RecursiveTask {
 					}
 				}
 			
-				comcount_array.put(temp_key, comcount);
+				comcount_array2.put(temp_key, comcount);
 				
 				n_varvalconfigs2 = _nvals[i] * _nvals[j];
 				n_varvalconfigs2 -= (invalidcomb + invalidcombNotCovered);
@@ -2740,4 +2157,672 @@ public class Tway extends RecursiveTask {
 		
 		initialized = true;
 	}
+	
+	public void updateThreeWay(int st, int num_rows, int[][] test) {
+		
+		_test = test;
+		_nrows = num_rows;
+		
+		long n_tot_tway_cov = _n_tot_tway_cov;
+		long tot_varvalconfigs3 = _tot_varvalconfig;
+		int i, j, k, ni, nj, nk, m, ti, tj = 0;
+		long[] varvalStats3 = new long[NBINS + 1];
+		long n_varvalconfigs3 = 0;
+
+
+;
+		
+
+		// solver for invalid combinations
+		CSolver validcomb = new CSolver();
+		validcomb.SetConstraints(_constraints);
+		validcomb.SetParameter(_parameters);
+
+
+		
+		for (i = 0; i < NBINS + 1; i++)
+			varvalStats3[i] = 0;
+
+
+		for (i = _start; i < _end; i++) {
+
+			for (j = i + 1; j < _ncols - 1; j++) {
+				for (k = j + 1; k < _ncols; k++) {
+
+					String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + "," + String.valueOf(k) + ")";
+					int[][][] comcount = comcount_array3.get(temp_key);
+					// forall t-way combinations of input variable values:
+
+					// comcount i,j == 0
+					// for the combination designated by i,j increment counts
+					for (m = st; m < _nrows; m++) { // mark if the var-val config
+													// is covered by the tests
+
+						String[][] pars = new String[3][];
+						pars[0] = new String[2];
+						pars[1] = new String[2];
+						pars[2] = new String[2];
+
+						pars[0][0] = _parameters.get(i).getName();
+						pars[1][0] = _parameters.get(j).getName();
+						pars[2][0] = _parameters.get(k).getName();
+
+						pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
+						pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
+						pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
+						
+						if(comcount[_test[m][i]][_test[m][j]][_test[m][k]] == 1 || comcount[_test[m][i]][_test[m][j]][_test[m][k]] == -1 || 
+								comcount[_test[m][i]][_test[m][j]][_test[m][k]] == -3){
+							//Combination is already in the set
+							continue;
+						}
+
+						if (_constraints.size() > 0) {
+							if (validcomb.EvaluateCombination(pars))
+								comcount[_test[m][i]][_test[m][j]][_test[m][k]] = 2;
+							else
+								comcount[_test[m][i]][_test[m][j]][_test[m][k]] = -2;
+
+						} else
+							comcount[_test[m][i]][_test[m][j]][_test[m][k]] = 2;
+						// coumcount i,j == 1 iff some tests contains tuple i,j
+					}
+
+					int varval_cnt = 0;
+					int invalidComb = 0;
+					int invalidcombNotCovered = 0;
+
+					for (ni = 0; ni < _nvals[i]; ni++) {
+						for (nj = 0; nj < _nvals[j]; nj++) {
+							for (nk = 0; nk < _nvals[k]; nk++) {
+								if(comcount[ni][nj][nk] == 1)
+									varval_cnt++;
+								if (comcount[ni][nj][nk] == 2) {
+									varval_cnt++;
+									n_tot_tway_cov++;
+									comcount[ni][nj][nk] = 1;
+								} // count valid configs in set test
+								else {
+									String[][] pars = new String[3][];
+									pars[0] = new String[2];
+									pars[1] = new String[2];
+									pars[2] = new String[2];
+
+									pars[0][0] = _parameters.get(i).getName();
+									pars[1][0] = _parameters.get(j).getName();
+									pars[2][0] = _parameters.get(k).getName();
+
+									pars[0][1] = _parameters.get(i).getValues().get(ni);
+									pars[1][1] = _parameters.get(j).getValues().get(nj);
+									pars[2][1] = _parameters.get(k).getValues().get(nk);
+									
+									if(comcount[ni][nj][nk] == -1){
+										invalidComb++;
+									}
+									if (comcount[ni][nj][nk] == -2) {
+										invalidComb += 1;
+										_aInvalidComb.add(pars);
+										comcount[ni][nj][nk] = -1;
+										_aInvalidNotIn.remove(pars);
+									}
+									if(comcount[ni][nj][nk] == -3){
+										invalidcombNotCovered += 1;
+									}
+
+								}
+							}
+						}
+					}
+					
+					comcount_array3.put(temp_key, comcount);
+					
+					n_varvalconfigs3 = _nvals[i] * _nvals[j] * _nvals[k];
+					n_varvalconfigs3 -= (invalidComb + invalidcombNotCovered);
+					tot_varvalconfigs3 += n_varvalconfigs3;
+
+					double varval_cov = (double) varval_cnt / (double) n_varvalconfigs3;
+					
+					double varval = (double) varval_cnt / (double) varvaltotal;
+
+					sumcov += varval;
+					// varval_cov bins give the number of var/val configurations
+					// covered
+					// at the levels: 0, [5,10), [10,15) etc. (assume 20 bins)
+					for (int b = 0; b <= NBINS; b++)
+						if (varval_cov >= (double) b / (double) NBINS)
+							varvalStats3[b]++;
+
+				}
+			}
+
+		}
+
+		_n_tot_tway_cov = n_tot_tway_cov;
+		_varvalStatN = varvalStats3;
+		
+		initialized = true;
+
+	}
+	
+	public void updateFourWay(int st, int num_rows, int[][] test) {
+		
+		int i, j, k, r, ni, nj, nk, nr, m, ti, tj, tk;
+		long[] varvalStats4 = new long[NBINS + 1];
+		long n_varvalconfigs4; 
+		long tot_varvalconfigs4 = _tot_varvalconfig; 
+		
+		_test = test;
+		_nrows = num_rows;
+		
+		long n_tot_tway_cov = _n_tot_tway_cov;
+
+
+
+;
+		
+
+		// solver for invalid combinations
+		CSolver validcomb = new CSolver();
+		validcomb.SetConstraints(_constraints);
+		validcomb.SetParameter(_parameters);
+
+
+		for (i = 0; i < NBINS + 1; i++)
+			varvalStats4[i] = 0;
+
+		for (i = _start; i < _end; i++) {
+			for (j = i + 1; j < _ncols - 2; j++) {
+				for (k = j + 1; k < _ncols - 1; k++) {
+					for (r = k + 1; r < _ncols; r++) {
+
+						String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + "," + String.valueOf(k) +
+								"," + String.valueOf(r) + ")";
+						int[][][][] comcount = comcount_array4.get(temp_key);
+
+						// forall t-way combinations of input variable values:
+						// comcount i,j == 0
+						// for the combination designated by i,j increment
+						// counts
+						for (m = st; m < _nrows; m++) {
+
+							String[][] pars = new String[4][];
+							pars[0] = new String[2];
+							pars[1] = new String[2];
+							pars[2] = new String[2];
+							pars[3] = new String[2];
+
+							pars[0][0] = _parameters.get(i).getName();
+							pars[1][0] = _parameters.get(j).getName();
+							pars[2][0] = _parameters.get(k).getName();
+							pars[3][0] = _parameters.get(r).getName();
+
+							pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
+							pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
+							pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
+							pars[3][1] = _parameters.get(r).getValues().get(_test[m][r]);
+							
+							if(comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] == 1 || 
+									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] == -1 || 
+									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] == -3){
+								//Combination is already in the set
+								continue;
+							}
+
+							if (_constraints.size() > 0) {
+								if (validcomb.EvaluateCombination(pars))
+									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = 2;
+								else
+									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = -2;
+
+							} else
+								comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = 2;
+
+						}
+
+						int varval_cnt = 0;
+						int invalidComb = 0;
+						int invalidcombNotCovered = 0;
+						// count how many value configs are contained in a test
+						for (ni = 0; ni < _nvals[i]; ni++) {
+							for (nj = 0; nj < _nvals[j]; nj++) {
+								for (nk = 0; nk < _nvals[k]; nk++) {
+									for (nr = 0; nr < _nvals[r]; nr++) {
+										if(comcount[ni][nj][nk][nr] == 1)
+											varval_cnt++;
+										if (comcount[ni][nj][nk][nr] == 2) {
+											varval_cnt++;
+											n_tot_tway_cov++;
+											comcount[ni][nj][nk][nr] = 1;
+										} else {
+											String[][] pars = new String[4][];
+											pars[0] = new String[2];
+											pars[1] = new String[2];
+											pars[2] = new String[2];
+											pars[3] = new String[2];
+
+											pars[0][0] = _parameters.get(i).getName();
+											pars[1][0] = _parameters.get(j).getName();
+											pars[2][0] = _parameters.get(k).getName();
+											pars[3][0] = _parameters.get(r).getName();
+
+											pars[0][1] = _parameters.get(i).getValues().get(ni);
+											pars[1][1] = _parameters.get(j).getValues().get(nj);
+											pars[2][1] = _parameters.get(k).getValues().get(nk);
+											pars[3][1] = _parameters.get(r).getValues().get(nr);
+
+											if(comcount[ni][nj][nk][nr] == -1){
+												invalidComb++;
+											}
+											if (comcount[ni][nj][nk][nr] == -2) {
+												invalidComb += 1;
+												_aInvalidComb.add(pars);
+												comcount[ni][nj][nk][nr] = -1;
+												_aInvalidNotIn.remove(pars);
+											}
+											if(comcount[ni][nj][nk][nr] == -3){
+												invalidcombNotCovered += 1;
+											}
+										}
+									}
+								}
+							}
+						}
+						n_varvalconfigs4 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r];
+						n_varvalconfigs4 -= (invalidComb + invalidcombNotCovered);
+						tot_varvalconfigs4 += n_varvalconfigs4;
+						
+
+						double varval_cov = (double) varval_cnt / (double) n_varvalconfigs4;
+						double varval = (double) varval_cnt / (double) varvaltotal;
+
+						sumcov += varval;
+						// varval_cov bins give the number of var/val
+						// configurations covered
+						// at the levels: 0, [5,10), [10,15) etc. (assume 20
+						// bins)
+						for (int b = 0; b <= NBINS; b++)
+							if (varval_cov >= (double) b / (double) NBINS)
+								varvalStats4[b]++;
+
+					}
+				}
+			}
+
+		}
+
+		_n_tot_tway_cov = n_tot_tway_cov;
+		_varvalStatN = varvalStats4;
+		
+		initialized = true;
+
+	}
+	
+	public void updateFiveWay(int st, int num_rows, int[][] test) {
+
+		int i, j, k, r, x, ni, nj, nk, nr, nx, m, ti, tj, tk, tr;
+		long[] varvalStats5 = new long[NBINS + 1]; 
+		long n_varvalconfigs5;
+
+		for (i = 0; i < NBINS + 1; i++)
+			varvalStats5[i] = 0;
+
+		long tot_varvalconfigs5 = _tot_varvalconfig; 
+		
+		_test = test;
+		_nrows = num_rows;
+		
+		long n_tot_tway_cov = _n_tot_tway_cov;
+
+
+
+;
+		
+
+		// solver for invalid combinations
+		CSolver validcomb = new CSolver();
+		validcomb.SetConstraints(_constraints);
+		validcomb.SetParameter(_parameters);
+
+		for (i = _start; i < _end; i++) {
+			for (j = i + 1; j < _ncols - 3; j++) {
+				for (k = j + 1; k < _ncols - 2; k++) {
+					for (r = k + 1; r < _ncols - 1; r++) {
+
+						for (x = r + 1; x < _ncols; x++) {
+
+
+							String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + "," + String.valueOf(k) +
+									"," + String.valueOf(r) + "," + String.valueOf(x) + ")";
+							
+							int [][][][][] comcount = comcount_array5.get(temp_key);
+
+							// forall t-way combinations of input variable
+							// values:
+
+							// comcount i,j == 0
+							// for the combination designated by i,j increment
+							// counts
+							for (m = st; m < _nrows; m++) { // mark if the
+															// var-val config is
+															// covered by the
+															// tests
+															// comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]]
+															// += 1;
+															// coumcount i,j ==
+															// 1 iff some tests
+															// contains tuple
+															// i,j
+								String[][] pars = new String[5][];
+								pars[0] = new String[2];
+								pars[1] = new String[2];
+								pars[2] = new String[2];
+								pars[3] = new String[2];
+								pars[4] = new String[2];
+
+								pars[0][0] = _parameters.get(i).getName();
+								pars[1][0] = _parameters.get(j).getName();
+								pars[2][0] = _parameters.get(k).getName();
+								pars[3][0] = _parameters.get(r).getName();
+								pars[4][0] = _parameters.get(x).getName();
+
+								pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
+								pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
+								pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
+								pars[3][1] = _parameters.get(r).getValues().get(_test[m][r]);
+								pars[4][1] = _parameters.get(x).getValues().get(_test[m][x]);
+								
+								if(comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] == 1 || 
+										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] == -1 || 
+										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] == -3){
+									//Combination is already in the set
+									continue;
+								}
+
+								if (_constraints.size() > 0) {
+									if (validcomb.EvaluateCombination(pars))
+										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = 2;
+									else
+										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = -2;
+
+								} else
+									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = 2;
+
+							}
+
+							int varval_cnt = 0;
+							int invalidComb = 0;
+							int invalidcombNotCovered = 0;
+							// count how many value configs are contained in a
+							// test
+							for (ni = 0; ni < _nvals[i]; ni++) {
+								for (nj = 0; nj < _nvals[j]; nj++) {
+									for (nk = 0; nk < _nvals[k]; nk++) {
+										for (nr = 0; nr < _nvals[r]; nr++) {
+											for (nx = 0; nx < _nvals[x]; nx++) {
+												if(comcount[ni][nj][nk][nr][nx] == 1)
+													varval_cnt++;
+												if (comcount[ni][nj][nk][nr][nx] == 2) {
+													varval_cnt++;
+													n_tot_tway_cov++;
+													comcount[ni][nj][nk][nr][nx] = 1;
+												} else {
+													String[][] pars = new String[5][];
+													pars[0] = new String[2];
+													pars[1] = new String[2];
+													pars[2] = new String[2];
+													pars[3] = new String[2];
+													pars[4] = new String[2];
+
+													pars[0][0] = _parameters.get(i).getName();
+													pars[1][0] = _parameters.get(j).getName();
+													pars[2][0] = _parameters.get(k).getName();
+													pars[3][0] = _parameters.get(r).getName();
+													pars[4][0] = _parameters.get(x).getName();
+
+													pars[0][1] = _parameters.get(i).getValues().get(ni);
+													pars[1][1] = _parameters.get(j).getValues().get(nj);
+													pars[2][1] = _parameters.get(k).getValues().get(nk);
+													pars[3][1] = _parameters.get(r).getValues().get(nr);
+													pars[4][1] = _parameters.get(x).getValues().get(nx);
+
+													if(comcount[ni][nj][nk][nr][nx] == -1){
+														invalidComb++;
+													}
+													if (comcount[ni][nj][nk][nr][nx] == -2) {
+														invalidComb += 1;
+														_aInvalidComb.add(pars);
+														comcount[ni][nj][nk][nr][nx] = -1;
+														_aInvalidNotIn.remove(pars);
+													}
+													if(comcount[ni][nj][nk][nr][nx] == -3){
+														invalidcombNotCovered += 1;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+							comcount_array5.put(temp_key, comcount);
+							n_varvalconfigs5 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r] * _nvals[x];
+							n_varvalconfigs5 -= (invalidComb + invalidcombNotCovered);
+							tot_varvalconfigs5 += n_varvalconfigs5;
+							double varval = (double) varval_cnt / (double) varvaltotal;
+
+							sumcov += varval;
+							double varval_cov = (double) varval_cnt / (double) n_varvalconfigs5;
+							// varval_cov bins give the number of var/val
+							// configurations covered
+							// at the levels: 0, [5,10), [10,15) etc. (assume 20
+							// bins)
+							for (int b = 0; b <= NBINS; b++)
+								if (varval_cov >= (double) b / (double) NBINS)
+									varvalStats5[b]++;
+
+						}
+					}
+				}
+			}
+
+		}
+
+		_n_tot_tway_cov = n_tot_tway_cov;
+		_varvalStatN = varvalStats5;
+		
+		initialized = true;
+
+	}
+	
+	public void updateSixWay(int st, int num_rows, int[][] test) {
+
+		int i, j, k, r, x, z, ni, nj, nk, nr, nx, nz, m, ti, tj, tk, tr, tx;
+		long[] varvalStats6 = new long[NBINS + 1];
+		long n_varvalconfigs6;
+	
+
+		for (i = 0; i < NBINS + 1; i++)
+			varvalStats6[i] = 0;
+
+		long tot_varvalconfigs6 = _tot_varvalconfig; 
+		
+		_test = test;
+		_nrows = num_rows;
+		
+		long n_tot_tway_cov = _n_tot_tway_cov;
+
+
+
+;
+		
+
+		// solver for invalid combinations
+		CSolver validcomb = new CSolver();
+		validcomb.SetConstraints(_constraints);
+		validcomb.SetParameter(_parameters);
+
+		for (i = _start; i < _end; i++) {
+
+			for (j = i + 1; j < _ncols - 4; j++) {
+				for (k = j + 1; k < _ncols - 3; k++) {
+					for (r = k + 1; r < _ncols - 2; r++) {
+
+						for (x = r + 1; x < _ncols - 1; x++) {
+							for (z = x + 1; z < _ncols; z++) {
+
+								
+								String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + "," + String.valueOf(k) +
+										"," + String.valueOf(r) + "," + String.valueOf(x) + "," + String.valueOf(z) + ")";
+								int [][][][][][] comcount = comcount_array6.get(temp_key);
+								// forall t-way combinations of input variable
+								// values:
+								//
+
+								// comcount i,j == 0
+								// for the combination designated by i,j
+								// increment counts
+								for (m = st; m < _nrows; m++) { // mark if the
+																// var-val
+																// config is
+																// covered by
+																// the tests
+																// comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]]
+																// += 1;
+																// coumcount i,j
+																// == 1 iff some
+																// tests
+																// contains
+																// tuple i,j
+
+									String[][] pars = new String[6][];
+									pars[0] = new String[2];
+									pars[1] = new String[2];
+									pars[2] = new String[2];
+									pars[3] = new String[2];
+									pars[4] = new String[2];
+									pars[5] = new String[2];
+
+									pars[0][0] = _parameters.get(i).getName();
+									pars[1][0] = _parameters.get(j).getName();
+									pars[2][0] = _parameters.get(k).getName();
+									pars[3][0] = _parameters.get(r).getName();
+									pars[4][0] = _parameters.get(x).getName();
+									pars[5][0] = _parameters.get(z).getName();
+
+									pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
+									pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
+									pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
+									pars[3][1] = _parameters.get(r).getValues().get(_test[m][r]);
+									pars[4][1] = _parameters.get(x).getValues().get(_test[m][x]);
+									pars[5][1] = _parameters.get(z).getValues().get(_test[m][z]);
+									
+									if(comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] == 1 || 
+											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] == -1 || 
+											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] == -3){
+										//Combination is already in the set
+										continue;
+									}
+
+									if (_constraints.size() > 0) {
+										if (validcomb.EvaluateCombination(pars))
+											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = 2;
+										else
+											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = -2;
+
+									} else
+										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = 2;
+								}
+
+								int varval_cnt = 0;
+								int invalidComb = 0;
+								int invalidcombNotCovered = 0;
+								// count how many value configs are contained in
+								// a test
+								for (ni = 0; ni < _nvals[i]; ni++) {
+									for (nj = 0; nj < _nvals[j]; nj++) {
+										for (nk = 0; nk < _nvals[k]; nk++) {
+											for (nr = 0; nr < _nvals[r]; nr++) {
+												for (nx = 0; nx < _nvals[x]; nx++) {
+													for (nz = 0; nz < _nvals[z]; nz++) {
+														if(comcount[ni][nj][nk][nr][nx][nz] == 1)
+															varval_cnt++;
+														if (comcount[ni][nj][nk][nr][nx][nz] == 2) {
+															varval_cnt++;
+															n_tot_tway_cov++;
+															comcount[ni][nj][nk][nr][nx][nz] = 1;
+														} else {
+															String[][] pars = new String[6][];
+															pars[0] = new String[2];
+															pars[1] = new String[2];
+															pars[2] = new String[2];
+															pars[3] = new String[2];
+															pars[4] = new String[2];
+															pars[5] = new String[2];
+
+															pars[0][0] = _parameters.get(i).getName();
+															pars[1][0] = _parameters.get(j).getName();
+															pars[2][0] = _parameters.get(k).getName();
+															pars[3][0] = _parameters.get(r).getName();
+															pars[4][0] = _parameters.get(x).getName();
+															pars[5][0] = _parameters.get(z).getName();
+
+															pars[0][1] = _parameters.get(i).getValues().get(ni);
+															pars[1][1] = _parameters.get(j).getValues().get(nj);
+															pars[2][1] = _parameters.get(k).getValues().get(nk);
+															pars[3][1] = _parameters.get(r).getValues().get(nr);
+															pars[4][1] = _parameters.get(x).getValues().get(nx);
+															pars[5][1] = _parameters.get(z).getValues().get(nz);
+
+															if(comcount[ni][nj][nk][nr][nx][nz] == -1){
+																invalidComb++;
+															}
+															if (comcount[ni][nj][nk][nr][nx][nz] == -2) {
+																invalidComb += 1;
+																_aInvalidComb.add(pars);
+																comcount[ni][nj][nk][nr][nx][nz] = -1;
+																_aInvalidNotIn.remove(pars);
+															}
+															if(comcount[ni][nj][nk][nr][nx][nz] == -3){
+																invalidcombNotCovered += 1;
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+								comcount_array6.put(temp_key, comcount);
+								n_varvalconfigs6 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r] * _nvals[x]
+										* _nvals[z];
+								n_varvalconfigs6 -= (invalidComb + invalidcombNotCovered);
+								tot_varvalconfigs6 += n_varvalconfigs6;
+								double varval = (double) varval_cnt / (double) varvaltotal;
+
+								sumcov += varval;
+								double varval_cov = (double) varval_cnt / (double) n_varvalconfigs6;
+								// varval_cov bins give the number of var/val
+								// configurations covered
+								// at the levels: 0, [5,10), [10,15) etc.
+								// (assume 20 bins)
+								for (int b = 0; b <= NBINS; b++)
+									if (varval_cov >= (double) b / (double) NBINS)
+										varvalStats6[b]++;
+
+
+							}
+						}
+					}
+				}
+			}
+
+		}
+
+		_n_tot_tway_cov = n_tot_tway_cov;
+		_varvalStatN = varvalStats6;
+		
+		initialized = true;
+	}
+	
+	
+
 }

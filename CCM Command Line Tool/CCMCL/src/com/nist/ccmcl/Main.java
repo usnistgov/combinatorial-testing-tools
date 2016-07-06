@@ -422,6 +422,13 @@ public class Main{
 					//m.frame.add(m.lblColumnChart, BorderLayout.EAST);
 					m.frame.pack();
 					
+					try {
+						Thread.sleep(7000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
 					
 					//This thread reads in input...
 					Thread readStdIn = new Thread(new Runnable(){
@@ -431,30 +438,21 @@ public class Main{
 						@Override
 						public void run() {
 							while(true){
-								String inputLine = readStdInput.nextLine();
+								//String inputLine = readStdInput.nextLine();
 								/*
 								 * Generate input line
 								 *
-								
-								String inputLine = "";
-								for(int i = 0; i < 5; i++){
-									int te = r.nextInt(3);
-									if(i != 4){
-										inputLine += (te + ",");
-									}else{
-										switch(String.valueOf(r.nextBoolean())){
-										case "true":
-											inputLine += "TRUE";
-											break;
-										case "false":
-											inputLine += "FALSE";
-											break;
-										}
-									}
-								}
 								*/
+								String inputLine = "";
+								for(int i = 0; i < 9; i++){
+									int te = r.nextInt(2);
+									if(i != 8)
+										inputLine += String.valueOf(te) + ",";
+									else
+										inputLine += String.valueOf(te);
+								}
+							
 								System.out.println(inputLine);
-								System.out.println("infile length = " + infile.length + ": " + m.data.get_rows());
 								if(infile.length <= m.data.get_rows()){
 									infile = Arrays.copyOf(infile, infile.length*2);
 									test = Arrays.copyOf(test, test.length*2);
@@ -465,6 +463,17 @@ public class Main{
 								m.setupFile(position);
 								position++;
 								m.Tway("2way");
+								//m.Tway("3way");
+								//m.Tway("4way");
+								//m.Tway("5way");
+								//m.Tway("6way");
+								
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 		
 							}
 							
@@ -2370,12 +2379,16 @@ public class Main{
 							tway_objects[tIndex].updateTwoWay(data.get_rows() - 1,data.get_rows(), test);
 							break;
 						case "3way":
+							tway_objects[tIndex].updateThreeWay(data.get_rows() - 1,data.get_rows(), test);
 							break;
 						case "4way":
+							tway_objects[tIndex].updateFourWay(data.get_rows() - 1,data.get_rows(), test);
 							break;
 						case "5way":
+							tway_objects[tIndex].updateFiveWay(data.get_rows() - 1,data.get_rows(), test);
 							break;
 						case "6way":
+							tway_objects[tIndex].updateSixWay(data.get_rows() - 1,data.get_rows(), test);
 							break;
 						}
 					}
@@ -2728,6 +2741,17 @@ public class Main{
 		{
 			// ======= display summary statistics ==================
 			TotCov3way = ((double) n_tot_tway_cov / (double) tot_varvalconfigs3);
+			
+			
+			/*
+			 * This is for real time combinatorial measurement updates.
+			 */
+			if(!chart_data.getSeries().isEmpty()){
+				for(int p = 0; p < chart_data.getSeriesCount(); p++){
+					if(chart_data.getSeriesKey(p).equals("3way"))
+						chart_data.removeSeries(p);	
+				}
+			}
 
 			// Add row to dtResults
 
@@ -2837,6 +2861,13 @@ public class Main{
 
 			// ======= display summary statistics ==================
 			TotCov4way = ((double) n_tot_tway_cov / (double) tot_varvalconfigs4);
+			
+			if(!chart_data.getSeries().isEmpty()){
+				for(int p = 0; p < chart_data.getSeriesCount(); p++){
+					if(chart_data.getSeriesKey(p).equals("4way"))
+						chart_data.removeSeries(p);	
+				}
+			}
 
 			// Add row to dtResults
 			if(barchart)
@@ -2938,6 +2969,14 @@ public class Main{
 
 			// ======= display summary statistics ==================
 			TotCov5way = ((double) n_tot_tway_cov / (double) tot_varvalconfigs5);
+			
+			if(!chart_data.getSeries().isEmpty()){
+				for(int p = 0; p < chart_data.getSeriesCount(); p++){
+					if(chart_data.getSeriesKey(p).equals("5way"))
+						chart_data.removeSeries(p);	
+				}
+			}
+			
 			if(barchart)
 				ColumnChart("5-way", TotCov5way);
 
@@ -3038,6 +3077,13 @@ public class Main{
 
 			// ======= display summary statistics ==================
 			TotCov6way = ((double) n_tot_tway_cov / (double) tot_varvalconfigs6);
+			
+			if(!chart_data.getSeries().isEmpty()){
+				for(int p = 0; p < chart_data.getSeriesCount(); p++){
+					if(chart_data.getSeriesKey(p).equals("6way"))
+						chart_data.removeSeries(p);	
+				}
+			}
 
 			if(barchart)
 				ColumnChart("6-way", TotCov6way);
@@ -3152,8 +3198,8 @@ public class Main{
 			chart = ChartFactory.createXYStepChart("", "Coverage", "Combinations", chart_data, PlotOrientation.HORIZONTAL, true,
 					false, false);
 		
-			LegendTitle legend = chart.getLegend();
-			legend.setPosition(RectangleEdge.RIGHT);
+			//LegendTitle legend = chart.getLegend();
+			//legend.setPosition(RectangleEdge.RIGHT);
 		
 			XYPlot plot = (XYPlot) chart.getPlot();
 			plot.setDomainAxis(0, new NumberAxis("Combinations")); 
