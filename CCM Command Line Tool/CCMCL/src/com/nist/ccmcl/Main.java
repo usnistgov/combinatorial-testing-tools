@@ -128,7 +128,7 @@ public class Main{
     public static String missingCombinationsFilePath = "";
 	public static String constraints_path = "";
 	public static String ext;
-	
+	public static boolean initial_complete = false;
 	/*
 	 * Real time arguments
 	 */
@@ -236,6 +236,7 @@ public class Main{
 				for(int i = 1; i < execVals.length; i++){
 					rtExArgs.add(execVals[i]);
 				}
+				break;
 			case "--inputfile":
 			case "-I":
 				m.tests_input_file_path = argument;
@@ -429,6 +430,7 @@ public class Main{
 				return;
 			}
 			m.frame.pack();
+			initial_complete = true;
 
 		if(mode_realtime){
 			m.parallel = false;
@@ -2424,13 +2426,16 @@ public class Main{
 					/*
 					 * Print invalid combinations
 					 */
-					System.out.println("\n" + t_way + " invalid combinations: ");
-					for(String[][] str : aInvalidComb){
-						for(int i = 0; i < str.length; i++){
-							System.out.print(str[i][0] + " = " + str[i][1] + " ; ");
+					if(!initial_complete){
+						System.out.println("\n" + t_way + " invalid combinations: ");
+						for(String[][] str : aInvalidComb){
+							for(int i = 0; i < str.length; i++){
+								System.out.print(str[i][0] + " = " + str[i][1] + " ; ");
+							}
+							System.out.println();
 						}
-						System.out.println();
 					}
+
 					
 
 					synchronized(results){
@@ -2574,10 +2579,13 @@ public class Main{
 				
 				report[0] = results;
 				
-				synchronized(report){
-					System.out.println("\n2-way Coverage Results:\n" + "Total 2-way coverage: " + String.format("%.5f", TotCov2way) + "\n" + results);
+				if(!initial_complete)
+					synchronized(report){
+						System.out.println("\n2-way Coverage Results:\n" + "Total 2-way coverage: " + String.format("%.5f", TotCov2way) + "\n" + results);
+					}
+				else{
+					System.out.println("Total 2-way coverage: " + String.format("%.5f", TotCov2way));
 				}
-
 
 				chart_data.setIntervalWidth(1.00);
 
@@ -2757,11 +2765,13 @@ public class Main{
 				}
 
 				report[1] = results;
-				
-				synchronized(report){
-					System.out.println("\n3-way Coverage Results:\n" + "Total 3-way coverage: " + String.format("%.5f", TotCov3way) + "\n" + results);
+				if(!initial_complete)
+					synchronized(report){
+						System.out.println("\n3-way Coverage Results:\n" + "Total 3-way coverage: " + String.format("%.5f", TotCov3way) + "\n" + results);
+					}
+				else{
+					System.out.println("Total 3-way coverage: " + String.format("%.5f", TotCov3way));
 				}
-
 
 				//if (chart_data.getSeriesIndex(series.getKey()) > -1) {
 					//chart_data.removeSeries(chart_data.getSeriesIndex(series.getKey()));
@@ -2869,11 +2879,13 @@ public class Main{
 					results += "\n";
 				}
 				report[2] = results;
-				
-				synchronized(report){
-					System.out.println("\n4-way Coverage Results:\n" + "Total 4-way coverage: " + String.format("%.5f", TotCov4way) + "\n" + results);
+				if(!initial_complete)
+					synchronized(report){
+						System.out.println("\n4-way Coverage Results:\n" + "Total 4-way coverage: " + String.format("%.5f", TotCov4way) + "\n" + results);
+					}
+				else{
+					System.out.println("Total 4-way coverage: " + String.format("%.5f", TotCov4way));
 				}
-
 
 				//if (chart_data.getSeriesIndex(series.getKey()) > -1) {
 					//chart_data.removeSeries(chart_data.getSeriesIndex(series.getKey()));
@@ -2976,11 +2988,13 @@ public class Main{
 					results += "\n";
 				}
 				report[3] = results;
-				
-				synchronized(report){
-					System.out.println("\n5-way Coverage Results:\n" + "Total 5-way coverage: " + String.format("%.5f", TotCov5way) + "\n" + results);
+				if(!initial_complete)
+					synchronized(report){
+						System.out.println("\n5-way Coverage Results:\n" + "Total 5-way coverage: " + String.format("%.5f", TotCov5way) + "\n" + results);
+					}
+				else{
+					System.out.println("Total 5-way coverage: " + String.format("%.5f", TotCov5way));
 				}
-
 
 				//if (chart_data.getSeriesIndex(series.getKey()) > -1) {
 
@@ -3085,11 +3099,13 @@ public class Main{
 					results += "\n";
 				}
 				report[4] = results;
-				
-				synchronized(report){
-					System.out.println("\n6-way Coverage Results:\n" + "Total 6-way coverage: " + String.format("%.5f", TotCov6way) + "\n" + results);
+				if(!initial_complete)
+					synchronized(report){
+						System.out.println("\n6-way Coverage Results:\n" + "Total 6-way coverage: " + String.format("%.5f", TotCov6way) + "\n" + results);
+					}
+				else{
+					System.out.println("Total 6-way coverage: " + String.format("%.5f", TotCov6way));
 				}
-
 
 				//if (chart_data.getSeriesIndex(series.getKey()) > -1) {
 					//chart_data.removeSeries(chart_data.getSeriesIndex(series.getKey()));

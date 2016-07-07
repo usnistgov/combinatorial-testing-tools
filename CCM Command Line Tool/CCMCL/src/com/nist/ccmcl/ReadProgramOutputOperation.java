@@ -9,13 +9,24 @@ public class ReadProgramOutputOperation extends ReadOperation {
 	@Override
 	public void readData() {
 		Runtime rt = Runtime.getRuntime();
-		String[] commands = new String[Main.rtExArgs.size() + 3];
-		commands[0] = "java";
-		commands[1] = "-jar";
-		commands[2] = Main.rtExPath;
-		for(int i = 3; i < commands.length; i++){
-			commands[i] = Main.rtExArgs.get(i - 3);
+		String[] commands = null;
+		if(Main.rtExPath.endsWith(".jar")){
+			commands = new String[Main.rtExArgs.size() + 3];
+			commands[0] = "java";
+			commands[1] = "-jar";
+			commands[2] = Main.rtExPath;
+			for(int i = 3; i < commands.length; i++){
+				commands[i] = Main.rtExArgs.get(i - 3);
+			}
+		}else if(Main.rtExPath.endsWith(".exe")){
+			commands = new String[Main.rtExArgs.size() + 1];
+			commands[0] = Main.rtExPath;
+			for(int i = 1; i < commands.length; i++){
+				commands[i] = Main.rtExArgs.get(i - 1);
+			}
 		}
+
+
 		Process proc;
 		try {
 			proc = rt.exec(commands);

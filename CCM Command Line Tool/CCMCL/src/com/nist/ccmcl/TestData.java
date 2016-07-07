@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestData {
-	private static int number_of_rows;
+	private static int number_of_rows = 0;
 	private static int number_of_columns;
 	private boolean paramNames;
 	private boolean acts_file_present;

@@ -22,11 +22,14 @@ public abstract class ReadOperation implements Runnable{
 					try {
 						input = buffer.take();
 						int position = TestData.get_rows();
+						if(TestData.get_rows() < 1){
+							Main.infile = new String[1];
+							Main.test = new int[1][];
+						}
 						if(Main.infile.length <= TestData.get_rows()){
 							Main.infile = Arrays.copyOf(Main.infile, Main.infile.length*2);
 							Main.test = Arrays.copyOf(Main.test, Main.test.length*2);
 						}
-						
 							Main.infile[position] = input;
 							Main.test[position] = new int[TestData.get_columns()];
 							TestData.set_rows(position + 1);
