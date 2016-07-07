@@ -28,9 +28,11 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.TimeZone;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,70 +75,79 @@ import org.xml.sax.SAXException;
 
 public class Main{
 	
-	public TestData data;
+	public static TestData data;
 	public List<String> usedParams;
 	public HashMap pars;
 	public volatile static String[] infile;
-	public String[] values;
+	public static String[] values;
 	public volatile static int[][] test;
-	public int[][] hm_colors2;
-	public int[] nvals;
+	public static int[][] hm_colors2;
+	public static int[] nvals;
 	public Boolean[] valSet;
 	public int prev_ncols = 0;
-	public double[][] bnd;
-	public Boolean[] rng;
-	public Boolean[] grp;
-	public Object[][] group;
-	public String[][] map;
+	public static double[][] bnd;
+	public static Boolean[] rng;
+	public static Boolean[] grp;
+	public static Object[][] group;
+	public static String[][] map;
 	//public String[][] SetTest;
-	public List<String[][]> aInvalidComb;
-    public List<String[][]> aInvalidNotIn;
-    public double TotCov2way;      // total coverage for 2-way combinations
-    public double TotCov3way;      // total coverage for 3-way combinations
-    public double TotCov4way;      // total coverage for 4-way combinations
-    public double TotCov5way;      // total coverage for 4-way combinations   
-    public double TotCov6way;
-    public final int NBINS = 20;
-    public int nbnds = 4;
+	public static List<String[][]> aInvalidComb;
+    public static List<String[][]> aInvalidNotIn;
+    public static double TotCov2way;      // total coverage for 2-way combinations
+    public static double TotCov3way;      // total coverage for 3-way combinations
+    public static double TotCov4way;      // total coverage for 4-way combinations
+    public static double TotCov5way;      // total coverage for 4-way combinations   
+    public static double TotCov6way;
+    public final static int NBINS = 20;
+    public static int nbnds = 4;
     public Boolean[] boundariesSet; // 1 = all parameters have had boundaries specified
     public static final XYSeriesCollection  chart_data = new XYSeriesCollection();
     public static final XYSeriesCollection bars = new XYSeriesCollection();
     public FileWriter fwRandomFile = null;
     public BufferedWriter bwRandomTests = null;
-    public JFreeChart chart;
-    public JFreeChart chartcolumn;
-    public JFrame frame = new JFrame("CCM");
-    public JPanel jPanel = new JPanel();
-    public JLabel lblStepChart = new JLabel("");
-    public JLabel lblColumnChart = new JLabel("");
-    public JLabel lblPointChart = new JLabel("");
-    public JPanel pointChartPanel = new JPanel();
-    public boolean parallel = false;
-    public boolean heatmap = false;
-    public boolean stepchart = false;
-    public boolean barchart = false;
-    public boolean generateMissing = false;
-    public boolean appendTests = false;
-    public boolean generateRandom = false;
-    public String random_path = "";
-    public int numberOfRandom = 0;
-    public String ACTSpath = "";
-    public int minCov = 100;
-    public String tests_input_file_path = "";
-    public String missingCombinationsFilePath = "";
-	public String constraints_path = "";
-	public String ext;
+    public static JFreeChart chart;
+    public static JFreeChart chartcolumn;
+    public static JFrame frame = new JFrame("CCM");
+    public static JPanel jPanel = new JPanel();
+    public static JLabel lblStepChart = new JLabel("");
+    public static JLabel lblColumnChart = new JLabel("");
+    public static JLabel lblPointChart = new JLabel("");
+    public static JPanel pointChartPanel = new JPanel();
+    public static boolean parallel = false;
+    public static boolean heatmap = false;
+    public static boolean stepchart = false;
+    public static boolean barchart = false;
+    public static boolean generateMissing = false;
+    public static boolean appendTests = false;
+    public static boolean generateRandom = false;
+    public static String random_path = "";
+    public static int numberOfRandom = 0;
+    public static String ACTSpath = "";
+    public static int minCov = 100;
+    public static String tests_input_file_path = "";
+    public static String missingCombinationsFilePath = "";
+	public static String constraints_path = "";
+	public static String ext;
 	
-	public Tway tway_objects[] = new Tway[5];
+	/*
+	 * Real time arguments
+	 */
+	public static char rtMode = 'k';
+	public static String rtExPath = "";
+	public static Vector<String> rtExArgs = new Vector<String>();
+	
+	public LinkedBlockingQueue<String> buffer_queue = new LinkedBlockingQueue<String>();
+	
+	public static Tway tway_objects[] = new Tway[5];
     
     public static boolean mode_realtime = false;
     
     public static int tway_max = 0;
 	
 	//can change this or user define it as cmd parameter
-	public int nmapMax = 50;
+	public static int nmapMax = 50;
 	
-	public String[] report = new String[5];
+	public static String[] report = new String[5];
 	
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
 		Main m = new Main();
@@ -155,9 +166,16 @@ public class Main{
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -I input.csv -T 2,3,4,5,6 -P");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -I i.csv -T 2 -A a.txt -G -m 50 -o m.txt -a -B -H");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -r -n 1000 -f random.txt -S -T 2\n\n");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -R -k -S -T 2,3,4\n\n");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -R -e generate_tests.exe -S -T 2,3,4\n\n");
+
+
 				
 				System.out.println("--realtime (-R) : *Sets the tool in Real Time Measurement Mode*");
-				System.out.println("                                     *Defaults to classic mode*\n");
+				System.out.println("                   *Must specify input type (-k),(-e), or (-t)*\n");
+				System.out.println("-k : *Specifies real time mode to accept keyboard (stdin) input*\n");
+				System.out.println("-e : [path to executable / runnable,program argument 1,program argument 2,etc...]\n");
+				System.out.println("        *Specifies real time mode to accept input from stdout of another program*\n");
 				System.out.println("--inputfile (-I) : [path to test case file]\n");
 				System.out.println("--ACTSfile (-A): [path to .txt ACTS file\n");
 
@@ -191,7 +209,8 @@ public class Main{
 			if(s.equals("-I") || s.equals("-M") || s.equals("-o") || s.equals("-m") || s.equals("-C") || 
 					s.equals("-T") || s.equals("-n") || s.equals("-f") || s.equals("-A") || s.equals("--inputfile")
 					|| s.equals("--ACTSfile") || s.equals("--mode") || s.equals("--constraints") || s.equals("--tway")
-					|| s.equals("--output-missing") || s.equals("--output-random") || s.equals("--minimum-coverage")){
+					|| s.equals("--output-missing") || s.equals("--output-random") || s.equals("--minimum-coverage")
+					|| s.equals("-e")){
 				//Command Line parameter with an argument...
 				arg_count++;
 				argument = args[arg_count];
@@ -208,6 +227,15 @@ public class Main{
 			case "-R":
 				mode_realtime = true;
 				break;
+			case "-k":
+				break;
+			case "-e":
+				rtMode = 'e';
+				String[] execVals = argument.split(",");
+				rtExPath = execVals[0];
+				for(int i = 1; i < execVals.length; i++){
+					rtExArgs.add(execVals[i]);
+				}
 			case "--inputfile":
 			case "-I":
 				m.tests_input_file_path = argument;
@@ -403,6 +431,7 @@ public class Main{
 			m.frame.pack();
 
 		if(mode_realtime){
+			m.parallel = false;
 			//Real time mode.
 			if(m.data.isActsFilePresent()){
 
@@ -415,84 +444,23 @@ public class Main{
 					 */
 					m.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 					m.lblStepChart.setSize(500,500);
-					//m.lblColumnChart.setSize(500,500);
-					//m.lblPointChart.setSize(500,300);
-					//m.pointChartPanel.add(m.lblPointChart);
 					m.frame.add(m.lblStepChart, BorderLayout.WEST);
-					//m.frame.add(m.lblColumnChart, BorderLayout.EAST);
 					m.frame.pack();
 					
-					try {
-						Thread.sleep(7000);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					ReadOperation readData = null;
 					
-					
-					//This thread reads in input...
-					Thread readStdIn = new Thread(new Runnable(){
-						Scanner readStdInput = new Scanner(System.in);
-						int position = m.data.get_rows();
-						Random r = new Random();
-						@Override
-						public void run() {
-							while(true){
-								//String inputLine = readStdInput.nextLine();
-								/*
-								 * Generate input line
-								 *
-								*/
-								String inputLine = "";
-								for(int i = 0; i < 9; i++){
-									int te = r.nextInt(2);
-									if(i != 8)
-										inputLine += String.valueOf(te) + ",";
-									else
-										inputLine += String.valueOf(te);
-								}
-							
-								System.out.println(inputLine);
-								if(infile.length <= m.data.get_rows()){
-									infile = Arrays.copyOf(infile, infile.length*2);
-									test = Arrays.copyOf(test, test.length*2);
-								}
-								infile[position] = inputLine;
-								test[position] = new int[m.data.get_columns()];
-								m.data.set_rows(position + 1);
-								m.setupFile(position);
-								position++;
-								m.Tway("2way");
-								//m.Tway("3way");
-								//m.Tway("4way");
-								//m.Tway("5way");
-								//m.Tway("6way");
-								
-								try {
-									Thread.sleep(500);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-		
-							}
-							
-						}
-						
-					});
-					readStdIn.start();
-					measured = false;
-					/*
-					for(int i = 0; i < tway_values.length; i++){
-						if(tway_values[i] != null){
-							m.Tway(tway_values[i]);
-							measured = true;
-						}
+					switch(rtMode){
+					case 'k':
+						readData = new ReadStandardInputOperation();
+						break;
+					case 'e':
+						readData = new ReadProgramOutputOperation();
+						break;
+					default:
+						readData = new ReadStandardInputOperation();
 					}
-					if(!measured)
-						System.out.println("\nNo t-way parameter specified. Use -T [1,2,3,4,5,6] to measure t-way coverage.\n");
-					m.frame.pack();
-					*/
+					Thread read_input = new Thread(readData);
+					read_input.start();
 				
 				
 			}else{
@@ -2149,7 +2117,7 @@ public class Main{
 	 * Use this function as a means of allocating memory
 	 */
 	
-	 private int setupFile(int start)
+	 public static int setupFile(int start)
      {
 		 final int ERR = 5;
          if (infile == null) { System.out.println("Test file must be loaded."); return ERR;}
@@ -2157,7 +2125,7 @@ public class Main{
         
          
          int i = start;
-         while (i < data.get_rows() ) {
+         while (i < TestData.get_rows() ) {
              values = infile[i].split(",");
             
              // locate this value in mapping array; if not found, create and return value
@@ -2165,7 +2133,7 @@ public class Main{
              // first read in the parameter values for this row as trings      
              
              int j = 0; int m = 0;
-             for (m = 0; m < data.get_columns(); m++) {
+             for (m = 0; m < TestData.get_columns(); m++) {
             	 
                  if (!rng[m] && !grp[m]) {  // discrete values, not range
                 	 
@@ -2186,9 +2154,20 @@ public class Main{
                          //nmapMax = parameters[m].getValues().size();
                      } else {// if matching value not in map array, add it and save index
               
-                         if (!fnd) { 
-                        	 map[m][j] = values[m];
-                        	 locn = j; 
+                         if (!fnd) {
+                        	 boolean knowAllValues = false;
+                        	 for(Tway ob : tway_objects){
+                        		 if(ob != null)
+                        			 knowAllValues = true;
+                        	 }
+                        	 if(!knowAllValues){
+                            	 map[m][j] = values[m];
+                            	 locn = j;
+                        	 }else{
+                        		 System.out.println("Invalid value: " + values[m] + "\n");
+                        		 return -1;
+                        	 }
+ 
                          }
                          test[i][m] = locn;
                      }
@@ -2321,7 +2300,7 @@ public class Main{
  * Tway function which handles alot of the heavy lifting...
  * 
  */
-		public void Tway(final String t_way) {
+		public static void Tway(final String t_way) {
 
 			int max = 0;
 			int tway_index = 0;
@@ -2506,7 +2485,7 @@ public class Main{
 			way.start();
 		}
 
-		private boolean ValidateTway(String tway) {
+		private static boolean ValidateTway(String tway) {
 
 			switch (tway) {
 			case "2way":
@@ -2554,7 +2533,7 @@ public class Main{
 		 * 
 		 */
 		
-		private String graph2way(long n_tot_tway_cov, long[] varvalStats2, long nComs, long tot_varvalconfigs2,
+		private static String graph2way(long n_tot_tway_cov, long[] varvalStats2, long nComs, long tot_varvalconfigs2,
 				String results, long tc, long tw, long InvalidIn, long InvalidNot) {
 			// ======= display summary statistics ==================
 
@@ -2611,8 +2590,6 @@ public class Main{
 
 				if(!heatmap)
 					return results;
-				//pointChartPanel.add(panel_5,BorderLayout.NORTH);
-
 				if (data.get_columns() > 100) {
 					System.out.println("Heat mat will not shown. Max of 100 parameters for heat map.");
 				} else {
@@ -2736,7 +2713,7 @@ public class Main{
 		 */
 		
 		
-		private String graph3way(long n_tot_tway_cov, long[] varvalStats3, long nComs, long tot_varvalconfigs3,
+		private static String graph3way(long n_tot_tway_cov, long[] varvalStats3, long nComs, long tot_varvalconfigs3,
 				String results, long tc, long tw, long invalidIn, long invalidNot) // drk121109
 		{
 			// ======= display summary statistics ==================
@@ -2855,7 +2832,7 @@ public class Main{
 		 * ===============================================================
 		 */
 
-		private String graph4way(long n_tot_tway_cov, long[] varvalStats4, long nComs, long tot_varvalconfigs4,
+		private static String graph4way(long n_tot_tway_cov, long[] varvalStats4, long nComs, long tot_varvalconfigs4,
 				String results, long tc, long tw, long invalidIn, long invalidNot) // drk121109
 		{
 
@@ -2964,7 +2941,7 @@ public class Main{
 		 * ========================================================================
 		 */
 		
-		private String graph5way(long n_tot_tway_cov, long[] varvalStats5, long nComs, long tot_varvalconfigs5,
+		private static String graph5way(long n_tot_tway_cov, long[] varvalStats5, long nComs, long tot_varvalconfigs5,
 				String results, long tc, long tw, long invalidIn, long invalidNot) {
 
 			// ======= display summary statistics ==================
@@ -3071,7 +3048,7 @@ public class Main{
 		 * =================================================================
 		 */
 
-		private String graph6way(long n_tot_tway_cov, long[] varvalStats6, long nComs, long tot_varvalconfigs6,
+		private static String graph6way(long n_tot_tway_cov, long[] varvalStats6, long nComs, long tot_varvalconfigs6,
 				String results, long tc, long tw, long invalidIn, long invalidNot) // drk121109
 		{
 
@@ -3193,13 +3170,17 @@ public class Main{
 		 * =================================================
 		 */
 		
-		protected void StepChart(XYSeries serie) {
+		protected static void StepChart(XYSeries serie) {
 			
 			chart = ChartFactory.createXYStepChart("", "Coverage", "Combinations", chart_data, PlotOrientation.HORIZONTAL, true,
 					false, false);
 		
+	
 			//LegendTitle legend = chart.getLegend();
 			//legend.setPosition(RectangleEdge.RIGHT);
+			//legend.setVisible(false);
+			//chart.removeLegend();
+
 		
 			XYPlot plot = (XYPlot) chart.getPlot();
 			plot.setDomainAxis(0, new NumberAxis("Combinations")); 
@@ -3209,8 +3190,7 @@ public class Main{
 			
 			if (chart_data.indexOf("2way") >= 0) {
 				plot.getRenderer().setSeriesPaint(chart_data.indexOf("2way"), new Color(237, 28, 36));
-				plot.getRenderer().setSeriesStroke(chart_data.indexOf("2way"), new BasicStroke(3.0f));
-		
+				plot.getRenderer().setSeriesStroke(chart_data.indexOf("2way"), new BasicStroke(3.0f));				
 			}
 		
 			if (chart_data.indexOf("3way") >= 0) {
@@ -3235,7 +3215,41 @@ public class Main{
 				plot.getRenderer().setSeriesStroke(chart_data.indexOf("6way"), new BasicStroke(3.0f, BasicStroke.CAP_BUTT,
 						BasicStroke.JOIN_ROUND, 1.0f, new float[] { 4.0f, 4.0f, 4.0f, 4.0f, 4.0f }, 2.0f));
 			}
-		
+			
+			
+			/*
+			 * Create Static Legend here...
+			 */
+			LegendItemCollection chartLegend = new LegendItemCollection();
+			LegendItem[] items = new LegendItem[5];
+			for(int i = 0; i < plot.getLegendItems().getItemCount(); i++){
+				String key = plot.getLegendItems().get(i).getLabel();
+				switch(key){
+				case "2way":
+					items[0] = plot.getLegendItems().get(i);
+					break;
+				case "3way":
+					items[1] = plot.getLegendItems().get(i);					
+					break;
+				case "4way":
+					items[2] = plot.getLegendItems().get(i);					
+					break;
+				case "5way":
+					items[3] = plot.getLegendItems().get(i);					
+					break;
+				case "6way":
+					items[4] = plot.getLegendItems().get(i);
+					break;
+				}
+			}
+
+			for(LegendItem it : items){
+				if(!(it == null))
+					chartLegend.add(it);
+			}
+
+			plot.setFixedLegendItems(chartLegend);
+			
 			plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 			plot.setBackgroundPaint(new Color(255, 255, 196));
 			plot.setDomainGridlinesVisible(true);
@@ -3280,7 +3294,7 @@ public class Main{
 		 * =========================================================
 		 */
 		
-		private void ColumnChart(String tway, double coverage) {
+		private static void ColumnChart(String tway, double coverage) {
 
 			XYSeries twaySerie = new XYSeries(tway, false, true);
 
@@ -3312,13 +3326,20 @@ public class Main{
 			chartcolumn = ChartFactory.createXYBarChart("", "t-way", false, "% Coverage", bars, PlotOrientation.VERTICAL,
 					true, false, false);
 
-			LegendTitle legend = chartcolumn.getLegend();
-			legend.setPosition(RectangleEdge.RIGHT);
+			
+			
+			//LegendTitle legend = chart.getLegend();
+			//legend.setPosition(RectangleEdge.RIGHT);
+			
+			chartcolumn.removeLegend();
+			
+
 
 			XYPlot plot = (XYPlot) chartcolumn.getPlot();
 			plot.setDomainAxis(0, new NumberAxis("t-way"));
 
 			plot.setRangeAxis(0, new NumberAxis("% Coverage"));
+			
 
 			if (bars.indexOf("2-way") >= 0)
 				plot.getRenderer().setSeriesPaint(bars.indexOf("2-way"), new Color(237, 28, 36));
@@ -3349,6 +3370,8 @@ public class Main{
 			plot.setRangeGridlinesVisible(true);
 			plot.setDomainGridlinePaint(Color.black);
 			plot.setRangeGridlinePaint(Color.black);
+			
+			
 
 			NumberAxis axisY = (NumberAxis) plot.getRangeAxis();
 
@@ -3457,6 +3480,7 @@ public class Main{
 		 * END OF GENERATING RANDOM TESTS
 		 * =========================================================
 		 */
+		
 }
 
 

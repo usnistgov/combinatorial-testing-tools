@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestData {
-	private int number_of_rows;
-	private int number_of_columns;
+	private static int number_of_rows;
+	private static int number_of_columns;
 	private boolean paramNames;
 	private boolean acts_file_present;
 	private boolean constraints_file_present;
@@ -19,7 +19,7 @@ public class TestData {
 		constraints = new ArrayList<meConstraint>();
 	}
 	
-	public void set_rows(int rows){
+	public static void set_rows(int rows){
 		number_of_rows = rows;
 	}
 	
@@ -27,11 +27,11 @@ public class TestData {
 		number_of_columns = columns;
 	}
 	
-	public int get_rows(){
+	public static int get_rows(){
 		return number_of_rows;
 	}
 	
-	public int get_columns(){
+	public static int get_columns(){
 		return number_of_columns;
 	}
 	
