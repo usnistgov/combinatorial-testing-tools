@@ -436,13 +436,10 @@ public class Main{
 			if(mode_realtime){
 				try {
 					//Wait for t-way objects to initialize
-					Thread.sleep(100);
+					Thread.sleep(250);
 					for(int i = 0; i < 5; i++){
 						if(tway_values[i] != null){
-							while(!tway_initialized[i]){
-								//Wait for all threads to finish...
-								Thread.sleep(1000);
-							}
+							tway_objects[i].join();
 						}
 					}
 				} catch (InterruptedException e) {
