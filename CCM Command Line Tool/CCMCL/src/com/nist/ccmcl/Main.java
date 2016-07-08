@@ -136,6 +136,8 @@ public class Main{
 	public static String rtExPath = "";
 	public static Vector<String> rtExArgs = new Vector<String>();
 	
+	public static boolean[] tway_initialized = new boolean[5];
+	
 	public LinkedBlockingQueue<String> buffer_queue = new LinkedBlockingQueue<String>();
 	
 	public static Tway tway_objects[] = new Tway[5];
@@ -313,31 +315,32 @@ public class Main{
 			case "--tway":
 			case "-T":
 				String[] vals = argument.split(",");
-				tway_values = new String[vals.length];
+				//tway_values = new String[vals.length];
+				tway_values = new String[5];
 				for(int i = 0; i < vals.length; i++){
 					switch (vals[i]){
 					case "2":
-						tway_values[i] = "2way";
+						tway_values[0] = "2way";
 						if(2 > tway_max)
 							tway_max = 2;
 						break;
 					case "3":
-						tway_values[i] = "3way";
+						tway_values[1] = "3way";
 						if(3 > tway_max)
 							tway_max = 3;
 						break;
 					case "4":
-						tway_values[i] = "4way";
+						tway_values[2] = "4way";
 						if(4 > tway_max)
 							tway_max = 4;
 						break;
 					case "5":
-						tway_values[i] = "5way";
+						tway_values[3] = "5way";
 						if(5 > tway_max)
 							tway_max = 5;
 						break;
 					case "6":
-						tway_values[i] = "6way";
+						tway_values[4] = "6way";
 						tway_max = 6;
 						break;
 					default:
@@ -429,10 +432,31 @@ public class Main{
 				System.exit(0);
 				return;
 			}
+			
+			if(mode_realtime){
+				try {
+					//Wait for t-way objects to initialize
+					Thread.sleep(100);
+					for(int i = 0; i < 5; i++){
+						if(tway_values[i] != null){
+							while(!tway_initialized[i]){
+								//Wait for all threads to finish...
+								Thread.sleep(1000);
+							}
+						}
+					}
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			m.frame.pack();
 			initial_complete = true;
 
 		if(mode_realtime){
+
+
 			m.parallel = false;
 			//Real time mode.
 			if(m.data.isActsFilePresent()){
@@ -2480,6 +2504,26 @@ public class Main{
 							//FillInvalidDataTable(6);
 							break;
 
+						}
+					}
+					
+					if(mode_realtime && !initial_complete){
+						switch(t_way){
+						case "2way":
+							tway_initialized[0] = true;
+							break;
+						case "3way":
+							tway_initialized[1] = true;
+							break;
+						case "4way":
+							tway_initialized[2] = true;
+							break;
+						case "5way":
+							tway_initialized[3] = true;
+							break;
+						case "6way":
+							tway_initialized[4] = true;
+							break;
 						}
 					}
 					

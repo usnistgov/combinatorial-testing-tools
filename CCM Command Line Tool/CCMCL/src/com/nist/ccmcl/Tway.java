@@ -53,7 +53,7 @@ public class Tway extends RecursiveTask {
 
 	private boolean wait = false;
 	
-	private boolean initialized = false;
+	public volatile boolean initialized = false;
 
 	private int _parmName = 0;
 
