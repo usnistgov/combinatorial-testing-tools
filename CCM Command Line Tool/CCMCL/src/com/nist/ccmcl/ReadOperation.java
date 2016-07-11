@@ -20,6 +20,7 @@ public abstract class ReadOperation implements Runnable{
 				while(true){
 					String input;
 					try {
+						
 						input = buffer.take();
 						int position = TestData.get_rows();
 						if(TestData.get_rows() < 1){
@@ -41,6 +42,7 @@ public abstract class ReadOperation implements Runnable{
 								System.exit(status);
 							}
 							position++;
+							
 							for(int i = 0; i < 5; i++){
 								if(Main.tway_objects[i] != null){
 									switch(i){

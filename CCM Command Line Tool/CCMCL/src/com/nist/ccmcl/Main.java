@@ -3,52 +3,39 @@ package com.nist.ccmcl;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.Console;
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.Box;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+
 import javax.swing.JPanel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartFrame;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
@@ -59,13 +46,8 @@ import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYStepAreaRenderer;
-import org.jfree.chart.title.LegendTitle;
-import org.jfree.data.general.Series;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.RectangleEdge;
 import org.jfree.util.ShapeUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -128,7 +110,7 @@ public class Main{
     public static String missingCombinationsFilePath = "";
 	public static String constraints_path = "";
 	public static String ext;
-	public static boolean initial_complete = false;
+	public static boolean[] initial_complete = new boolean[5];
 	/*
 	 * Real time arguments
 	 */
@@ -155,9 +137,13 @@ public class Main{
 		Main m = new Main();
 		String tway_values[] = new String[5];
 		m.data = new TestData();
+		
 		/*
 		 * Parse the command line arguments
 		 */
+		for(int i = 0; i < 5; i++){
+			initial_complete[i] = false;
+		}
 		int arg_count = 0;
 		boolean skip = false;
 		for(String s : args){
@@ -228,6 +214,7 @@ public class Main{
 			case "--realtime":
 			case "-R":
 				mode_realtime = true;
+				stepchart = true;
 				break;
 			case "-k":
 				break;
@@ -433,7 +420,7 @@ public class Main{
 				return;
 			}
 			
-			if(mode_realtime){
+			if(true){
 				try {
 					//Wait for t-way objects to initialize
 					Thread.sleep(250);
@@ -447,12 +434,11 @@ public class Main{
 					e.printStackTrace();
 				}
 			}
-
+			
 			m.frame.pack();
-			initial_complete = true;
 
 		if(mode_realtime){
-
+		
 
 			m.parallel = false;
 			//Real time mode.
@@ -2187,7 +2173,7 @@ public class Main{
                             	 map[m][j] = values[m];
                             	 locn = j;
                         	 }else{
-                        		 System.out.println("Invalid value: " + values[m] + "\n");
+                        		 System.out.println("Invalid value: " + values[m] + " in parameter " + m + "\n");
                         		 return -1;
                         	 }
  
@@ -2447,7 +2433,9 @@ public class Main{
 					/*
 					 * Print invalid combinations
 					 */
-					if(!initial_complete){
+					
+					
+					if(!initial_complete[tIndex]){
 						System.out.println("\n" + t_way + " invalid combinations: ");
 						for(String[][] str : aInvalidComb){
 							for(int i = 0; i < str.length; i++){
@@ -2468,7 +2456,7 @@ public class Main{
 							results = graph2way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN, 
 									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
-
+							initial_complete[tIndex] = true;
 							//FillInvalidDataTable(2);
 							break;
 						case "3way":
@@ -2477,6 +2465,7 @@ public class Main{
 							results = graph3way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
 									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
+							initial_complete[tIndex] = true;
 							//FillInvalidDataTable(3);
 							break;
 						case "4way":
@@ -2484,6 +2473,7 @@ public class Main{
 							results = graph4way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN, 
 									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
+							initial_complete[tIndex] = true;
 							//FillInvalidDataTable(4);
 							break;
 						case "5way":
@@ -2491,6 +2481,7 @@ public class Main{
 							results = graph5way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
 									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
+							initial_complete[tIndex] = true;
 							//FillInvalidDataTable(5);
 							break;
 						case "6way":
@@ -2498,13 +2489,14 @@ public class Main{
 							results = graph6way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
 									tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig,
 									results, timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
+							initial_complete[tIndex] = true;
 							//FillInvalidDataTable(6);
 							break;
 
 						}
 					}
 					
-					if(mode_realtime && !initial_complete){
+					if(mode_realtime && !initial_complete[tIndex]){
 						switch(t_way){
 						case "2way":
 							tway_initialized[0] = true;
@@ -2620,7 +2612,7 @@ public class Main{
 				
 				report[0] = results;
 				
-				if(!initial_complete)
+				if(!initial_complete[0])
 					synchronized(report){
 						System.out.println("\n2-way Coverage Results:\n" + "Total 2-way coverage: " + String.format("%.5f", TotCov2way) + "\n" + results);
 					}
@@ -2806,7 +2798,7 @@ public class Main{
 				}
 
 				report[1] = results;
-				if(!initial_complete)
+				if(!initial_complete[1])
 					synchronized(report){
 						System.out.println("\n3-way Coverage Results:\n" + "Total 3-way coverage: " + String.format("%.5f", TotCov3way) + "\n" + results);
 					}
@@ -2920,7 +2912,7 @@ public class Main{
 					results += "\n";
 				}
 				report[2] = results;
-				if(!initial_complete)
+				if(!initial_complete[2])
 					synchronized(report){
 						System.out.println("\n4-way Coverage Results:\n" + "Total 4-way coverage: " + String.format("%.5f", TotCov4way) + "\n" + results);
 					}
@@ -3029,7 +3021,7 @@ public class Main{
 					results += "\n";
 				}
 				report[3] = results;
-				if(!initial_complete)
+				if(!initial_complete[3])
 					synchronized(report){
 						System.out.println("\n5-way Coverage Results:\n" + "Total 5-way coverage: " + String.format("%.5f", TotCov5way) + "\n" + results);
 					}
@@ -3140,7 +3132,7 @@ public class Main{
 					results += "\n";
 				}
 				report[4] = results;
-				if(!initial_complete)
+				if(!initial_complete[4])
 					synchronized(report){
 						System.out.println("\n6-way Coverage Results:\n" + "Total 6-way coverage: " + String.format("%.5f", TotCov6way) + "\n" + results);
 					}

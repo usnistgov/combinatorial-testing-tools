@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestData {
-	private static int number_of_rows = 0;
+	private volatile static int number_of_rows = 0;
 	private static int number_of_columns;
 	private boolean paramNames;
 	private boolean acts_file_present;
@@ -12,8 +12,7 @@ public class TestData {
 	private List<Parameter> parameters;
 	private List<meConstraint> constraints;
 	public static volatile String[][]tests;
-	
-	
+
 	public TestData(){
 		parameters = new ArrayList<Parameter>();
 		constraints = new ArrayList<meConstraint>();

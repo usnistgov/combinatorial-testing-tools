@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveTask;
 
 import javax.swing.JProgressBar;
@@ -45,11 +46,11 @@ public class Tway extends RecursiveTask {
 	/*
 	 * Multi-deminisional arrays to hold used combinations...
 	 */
-	private HashMap<String, int[][]> comcount_array2 = new HashMap<String, int[][]>();
-	private HashMap<String, int[][][]> comcount_array3 = new HashMap<String, int[][][]>();
-	private HashMap<String, int[][][][]> comcount_array4 = new HashMap<String, int[][][][]>();
-	private HashMap<String, int[][][][][]> comcount_array5 = new HashMap<String, int[][][][][]>();
-	private HashMap<String, int[][][][][][]> comcount_array6 = new HashMap<String, int[][][][][][]>();
+	private static ConcurrentHashMap<String, int[][]> comcount_array2 = new ConcurrentHashMap<String, int[][]>();
+	private static ConcurrentHashMap<String, int[][][]> comcount_array3 = new ConcurrentHashMap<String, int[][][]>();
+	private static ConcurrentHashMap<String, int[][][][]> comcount_array4 = new ConcurrentHashMap<String, int[][][][]>();
+	private static ConcurrentHashMap<String, int[][][][][]> comcount_array5 = new ConcurrentHashMap<String, int[][][][][]>();
+	private static ConcurrentHashMap<String, int[][][][][][]> comcount_array6 = new ConcurrentHashMap<String, int[][][][][][]>();
 
 	private boolean wait = false;
 	
@@ -59,8 +60,8 @@ public class Tway extends RecursiveTask {
 
 	private List<int[]> _missing = new ArrayList<int[]>();
 
-	private List<Parameter> _parameters;
-	private List<meConstraint> _constraints;
+	private static List<Parameter> _parameters;
+	private static List<meConstraint> _constraints;
 
 	private int NBINS = 20;
 
@@ -254,6 +255,7 @@ public class Tway extends RecursiveTask {
 		_aInvalidNotIn = new ArrayList<String[][]>();
 
 
+
 		// solver for invalid combinations
 		CSolver validcomb = new CSolver();
 		validcomb.SetConstraints(_constraints);
@@ -268,14 +270,21 @@ public class Tway extends RecursiveTask {
 		 */
 
 		// Process the tests
+		
 		for (i = _start; i < _end; i++) {
 			for (j = i + 1; j < _ncols; j++) {
 				// nComs++; //number of combinations
 				int[][] comcount = new int[_nvals[i]][];
 				for (ti = 0; ti < _nvals[i]; ti++) {
 					comcount[ti] = new int[_nvals[j]];
+					for(int zz = 0; zz < _nvals[j]; zz++){
+						comcount[ti][zz] = 0;
+					}
 				}
+				
+				
 				String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
+
 				// forall t-way combinations of input variable values:
 				// comcount i,j == 0
 				// for the combination designated by i,j increment counts
@@ -1993,8 +2002,7 @@ public class Tway extends RecursiveTask {
 	}
 	
 	
-	public void updateTwoWay(int st, int num_rows, int[][] test) {
-		
+	public synchronized void updateTwoWay(int st, int num_rows, int[][] test) {
 		_test = test;
 		_nrows = num_rows;
 		
@@ -2003,15 +2011,13 @@ public class Tway extends RecursiveTask {
 		int i, j, ni, nj, m, ti = 0;
 		long[] varvalStats2 = new long[NBINS + 1];
 		long n_varvalconfigs2 = 0;
-
-
-;
 		
 
 		// solver for invalid combinations
 		CSolver validcomb = new CSolver();
 		validcomb.SetConstraints(_constraints);
 		validcomb.SetParameter(_parameters);
+
 
 
 
@@ -2027,7 +2033,12 @@ public class Tway extends RecursiveTask {
 				// nComs++; //number of combinations
 
 				String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
+
+
 				int[][] comcount = comcount_array2.get(temp_key);
+
+
+				
 				// forall t-way combinations of input variable values:
 				// comcount i,j == 0
 				// for the combination designated by i,j increment counts
@@ -2045,10 +2056,13 @@ public class Tway extends RecursiveTask {
 					if(comcount[_test[m][i]][_test[m][j]] == 1 || comcount[_test[m][i]][_test[m][j]] == -1 || 
 							comcount[_test[m][i]][_test[m][j]] == -3){
 						//Combination is already in the set
+						if(comcount[_test[m][i]][_test[m][j]] == -1)
+							//System.out.println("Invalid combination.");
 						continue;
 					}
 					
 					if (_constraints.size() > 0) {
+	
 						if (validcomb.EvaluateCombination(pars)){
 							comcount[_test[m][i]][_test[m][j]] = 2;
 						}
@@ -2059,8 +2073,11 @@ public class Tway extends RecursiveTask {
 																		// in
 																		// set
 																		// test
-						else
-							comcount[_test[m][i]][_test[m][j]] = -2; // flag
+						else{
+							//System.out.println("Invalid combination.");
+							comcount[_test[m][i]][_test[m][j]] = -2;
+						}
+							 // flag
 																		// invalid
 																		// var-val
 																		// config
@@ -2158,7 +2175,7 @@ public class Tway extends RecursiveTask {
 		initialized = true;
 	}
 	
-	public void updateThreeWay(int st, int num_rows, int[][] test) {
+	public synchronized void updateThreeWay(int st, int num_rows, int[][] test) {
 		
 		_test = test;
 		_nrows = num_rows;
@@ -2304,7 +2321,7 @@ public class Tway extends RecursiveTask {
 
 	}
 	
-	public void updateFourWay(int st, int num_rows, int[][] test) {
+	public synchronized void updateFourWay(int st, int num_rows, int[][] test) {
 		
 		int i, j, k, r, ni, nj, nk, nr, m, ti, tj, tk;
 		long[] varvalStats4 = new long[NBINS + 1];
@@ -2457,7 +2474,7 @@ public class Tway extends RecursiveTask {
 
 	}
 	
-	public void updateFiveWay(int st, int num_rows, int[][] test) {
+	public synchronized void updateFiveWay(int st, int num_rows, int[][] test) {
 
 		int i, j, k, r, x, ni, nj, nk, nr, nx, m, ti, tj, tk, tr;
 		long[] varvalStats5 = new long[NBINS + 1]; 
@@ -2633,7 +2650,7 @@ public class Tway extends RecursiveTask {
 
 	}
 	
-	public void updateSixWay(int st, int num_rows, int[][] test) {
+	public synchronized void updateSixWay(int st, int num_rows, int[][] test) {
 
 		int i, j, k, r, x, z, ni, nj, nk, nr, nx, nz, m, ti, tj, tk, tr, tx;
 		long[] varvalStats6 = new long[NBINS + 1];
