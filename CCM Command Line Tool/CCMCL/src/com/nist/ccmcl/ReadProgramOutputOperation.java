@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class ReadProgramOutputOperation extends ReadOperation {
+	
 
 	@Override
 	public void readData() {

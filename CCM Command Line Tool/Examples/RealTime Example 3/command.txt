@@ -1,0 +1,9 @@
+java -jar ccmcl.jar -A apache.txt -T 2 -S -B -p -R -e apache_simulation.jar -d
+
+
+NOTE: This is a much more complicated example, with several parameters and
+      constraints. You will notice the program takes longer to run, which 
+      is why I included (-d) to display the measurement progress in the 
+      console window. The apache_simulation.jar will generate test cases
+      and send them to the real time measurement tool at random intervals
+      between 0 and 5 seconds to simulate an apache server being used. 

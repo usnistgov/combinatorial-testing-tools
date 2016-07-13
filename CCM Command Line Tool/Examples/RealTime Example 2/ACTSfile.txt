@@ -1,0 +1,17 @@
+[Parameter]
+Jake (int): 0,1
+Luke (int): 0,1
+Zach (int): 0,1
+Sam (int): 0,1
+Chris (int): 0,1
+Mark (int): 0,1
+Cameron (int): 0,1
+Josh (int): 0,1
+Rick (int): 0,1
+
+[Constraint]
+Jake=0=>Josh=0
+
+[Test Set]
+0,0,0,1,1,1,0,1,0
+1,1,1,1,1,1,1,1,1

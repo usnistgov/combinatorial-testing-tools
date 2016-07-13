@@ -5,10 +5,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JProgressBar;
 
@@ -41,6 +41,8 @@ public class Tway extends RecursiveTask {
 	public int nComs;
 	public int varvaltotal;
 	public double sumcov = 0;
+	
+	public static ReentrantLock lock = new ReentrantLock();
 	
 	
 	/*
@@ -450,9 +452,17 @@ public class Tway extends RecursiveTask {
 				}
 
 			}
-
-
+			
+			if(Main.display_progress){
+				Main.increment_progress(0);
+				print_progress();
+			}
+			
+			
+			
 		}
+		
+
 
 		_n_tot_tway_cov = n_tot_tway_cov;
 		_nComs = nComs;
@@ -639,6 +649,10 @@ public class Tway extends RecursiveTask {
 					}
 
 				}
+			}
+			if(Main.display_progress){
+				Main.increment_progress(1);
+				print_progress();
 			}
 
 		}
@@ -837,6 +851,10 @@ public class Tway extends RecursiveTask {
 
 					}
 				}
+			}
+			if(Main.display_progress){
+				Main.increment_progress(2);
+				print_progress();
 			}
 
 		}
@@ -1065,6 +1083,10 @@ public class Tway extends RecursiveTask {
 						}
 					}
 				}
+			}
+			if(Main.display_progress){
+				Main.increment_progress(3);
+				print_progress();
 			}
 
 		}
@@ -1319,6 +1341,10 @@ public class Tway extends RecursiveTask {
 						}
 					}
 				}
+			}
+			if(Main.display_progress){
+				Main.increment_progress(4);
+				print_progress();
 			}
 
 		}
@@ -2056,7 +2082,7 @@ public class Tway extends RecursiveTask {
 					if(comcount[_test[m][i]][_test[m][j]] == 1 || comcount[_test[m][i]][_test[m][j]] == -1 || 
 							comcount[_test[m][i]][_test[m][j]] == -3){
 						//Combination is already in the set
-						if(comcount[_test[m][i]][_test[m][j]] == -1)
+						//if(comcount[_test[m][i]][_test[m][j]] == -1)
 							//System.out.println("Invalid combination.");
 						continue;
 					}
@@ -2840,6 +2866,17 @@ public class Tway extends RecursiveTask {
 		initialized = true;
 	}
 	
+	public static synchronized void print_progress(){
+		double progress[] = new double[5];
+		System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMEASUREMENT PROGRESS: \n\n");
+		for(int i = 0; i < 5; i++){
+			progress[i] = ((double) Main.progress[i] / ((double)TestData.get_columns() - (i + 1)) * 100);
+			if(Main.tway_objects[i] != null){
+				System.out.println(String.format("%dway progress: %.2f%%",i+2, progress[i]));
+			}
+		}
+
+	}
 	
 
 }

@@ -9,10 +9,18 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,12 +119,20 @@ public class Main{
 	public static String constraints_path = "";
 	public static String ext;
 	public static boolean[] initial_complete = new boolean[5];
+	
+	public static boolean display_progress = false;
 	/*
 	 * Real time arguments
 	 */
 	public static char rtMode = 'k';
 	public static String rtExPath = "";
 	public static Vector<String> rtExArgs = new Vector<String>();
+	
+	public static volatile int[] progress = new int[5];
+
+	public static int max_array_size = 0;
+	public static int update_interval = 1000;
+	public static int threadmax = 500;
 	
 	public static boolean[] tway_initialized = new boolean[5];
 	
@@ -141,6 +157,7 @@ public class Main{
 		/*
 		 * Parse the command line arguments
 		 */
+		
 		for(int i = 0; i < 5; i++){
 			initial_complete[i] = false;
 		}
@@ -149,40 +166,84 @@ public class Main{
 		for(String s : args){
 			if(s.equals("--help")){
 				//Bring up the menu to display possible input parameters.
-				System.out.println("CCM Command Line Arguments\n\n*NOTE THE ARGUMENTS ARE CASE SENSITIVE*\n\n");
+				System.out.println("\n\n******************************************************************************\n");
+				System.out.println("                CCMCL: COMBINATORIAL COVERAGE MEASUREMENT TOOL                \n");
+				System.out.println("                             version COMMAND LINE                             \n\n");
+				System.out.println("                 National Institute of Standards & Technology                 \n\n");
+				System.out.println("******************************************************************************\n\n");
+				
 				System.out.println("USAGE: java -jar ccmcl.jar [param1] [param2] ...\n");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -I input.csv -T 2,3,4,5,6 -P");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -I i.csv -T 2 -A a.txt -G -m 50 -o m.txt -a -B -H");
-				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -r -n 1000 -f random.txt -S -T 2\n\n");
-				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -R -k -S -T 2,3,4\n\n");
-				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -R -e generate_tests.exe -S -T 2,3,4\n\n");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -r -n 1000 -f random.txt -S -T 2");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -R -k -S -T 2,3,4");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -R -k gen_tests.exe -S -T 2,3,4");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A acts.xml -R -e gen.exe -B -T 2 -u 500 -tm 1500\n\n");
+
+				System.out.println("==============================================================================\n");
+				System.out.println("                         CCMCL: CLASSIC FUNCTIONALITY                         \n");
+				System.out.println("==============================================================================\n");
 
 
-				
-				System.out.println("--realtime (-R) : *Sets the tool in Real Time Measurement Mode*");
-				System.out.println("                   *Must specify input type (-k),(-e), or (-t)*\n");
-				System.out.println("-k : *Specifies real time mode to accept keyboard (stdin) input*\n");
-				System.out.println("-e : [path to executable / runnable,program argument 1,program argument 2,etc...]\n");
-				System.out.println("        *Specifies real time mode to accept input from stdout of another program*\n");
-				System.out.println("--inputfile (-I) : [path to test case file]\n");
-				System.out.println("--ACTSfile (-A): [path to .txt ACTS file\n");
+				System.out.println("--inputfile (-I) : [path to test case file (.txt, .csv)]\n");
+				System.out.println("--ACTSfile (-A): [path to .txt or .xml ACTS file]\n");
 
 				System.out.println("--constraints (-C): [path to .txt file containing constraints]\n");
-				System.out.println("--tway (-T): [2,3,4,5,6] any order and any combination of these values*\n");
+				System.out.println("--tway (-T): [2,3,4,5,6] *any order and any combination of these values*\n");
 				System.out.println("--generate-missing (-G): *generates missing combinations not in test file.*\n"
-						         + "                         *Must include  \"-m\"  and  \"-o\"  with this option.*\n");
+						         + "                         *Must include  \"-m\"  and  \"-o\"  with this option.*\n"
+						         + "                         *Not available for real time mode (-R).*\n");
 				System.out.println("--minimum-coverage (-m): *Minimum coverage for generating missing combinations*\n");
 				System.out.println("--output-missing (-o): *output path for the missing combinations.*\n");
 				System.out.println("--append-tests (-a): *appends original tests to missing combinations file.*\n");
-				System.out.println("--parameter-names (-P): *if parameter names are first line of test case file*\n");
+				System.out.println("--parameter-names (-P): *parameter names are first line of test case file (-I)*\n");
 				System.out.println("--parallel (-p): *Puts the program in parallel processing mode.*\n");
 				System.out.println("--generate-random (-r): *Sets the program to generate a random set of inputs.*\n"
-						         + "                            *Must include  \"-n\"  and  \"-f\"  with this option.*\n");
+						         + "                        *Must include  \"-n\"  and  \"-f\"  with this option.*\n"
+						         + "                        *Not available in real time mode (-R).*\n");
 				System.out.println("--number-random (-n): *Amount of random inputs to generate.*\n");
 				System.out.println("--output-random (-f): *Path to output the random test cases to.*\n");
 				System.out.println("--stepchart (-S): *Generates a step chart displaying t-way coverage.*\n");
 				System.out.println("--barchart (-B): *Generates a bar chart displaying t-way coverage.*\n");
 				System.out.println("--heatmap (-H): *Generates a 2-way coverage heatmap.*\n");
+				System.out.println("--display-progress (-d): *Displays progress of coverage measurement*\n");
+				
+				System.out.println("\n\n==============================================================================\n");
+				System.out.println("                        CCMCL: REAL TIME FUNCTIONALITY                        \n");
+				System.out.println("==============================================================================\n\n");
+				System.out.println("--realtime (-R) : *Sets the tool in Real Time Measurement Mode*");
+				//System.out.println("                   *Must specify input type (-k),(-e), or (-t)*");
+				System.out.println("                  *Must specify input type (-k) or (-e)*");
+				System.out.println("                  *Must specify ACTS configuration file (-A)*\n");
+				System.out.println("-k : *Specifies real time mode to accept keyboard (stdin) input*\n");
+				System.out.println("-e : [path to executable ,program argument 1,program argument 2,etc.]\n");
+				System.out.print("\nNOTE: The (-e) option specifies real time mode to accept input from\n"
+						        +"the standard output (console output) of another program. Stepchart will\n"
+						        +"be enabled automatically.\n\n");
+
+				//System.out.println("-t : *Specifies real time mode to accept TCP input via a socket @ localhost IP*\n");
+
+				System.out.println("--update-interval (-u):[time in ms] *Refresh interval for coverage measurement*\n"
+						+          "                            *Defaults 1000 milliseconds (recommended) for (-e)*\n"
+						+          "                            *0 milleseconds for (-k)*\n");
+				System.out.println("--thread-max (-tm): [max number of threads] *Default 500 threads*\n");
+				System.out.println("NOTE: --thread-max and --update-interval are primarily designed to aid in the\n"
+						+          "data throttling of executed programs (-e). Programs which are executed and\n"
+						+          "generate and send alot of data to the CCMCL tool will likely need these\n"
+						+          "features. \n");
+				System.out.print("\nNOTE: Setting a low update interval rate or high thread rate can cause problems\n"
+						+         "in certain situations. It is recommended to either throttle data coming into\n"
+						+         "the program or to use the recommended (default settings)... \n"
+						+         "Unless you know what you are doing.\n\n");
+				//System.out.println("\n--log (-L): [all, tests] *Log level for real time combinatorial measurement*");
+				//System.out.println("\nNOTE: --log creates a report called \"log.txt\" in the same directory as the\n"
+				//		+                "ACTS configuration file. Select an option for how verbose you want the\n"
+				//		+                "file to be.\n");
+				//System.out.println("        -all: invalid combination, new tests, final coverage");
+				//System.out.println("        -tests: only logs the tests\n\n");
+
+
+				
 				return;
 
 			}
@@ -198,7 +259,8 @@ public class Main{
 					s.equals("-T") || s.equals("-n") || s.equals("-f") || s.equals("-A") || s.equals("--inputfile")
 					|| s.equals("--ACTSfile") || s.equals("--mode") || s.equals("--constraints") || s.equals("--tway")
 					|| s.equals("--output-missing") || s.equals("--output-random") || s.equals("--minimum-coverage")
-					|| s.equals("-e")){
+					|| s.equals("-e") || s.equals("--update-interval") || s.equals("-u") || s.equals("--thread-max")
+					|| s.equals("-tm") || s.equals("--log") || s.equals("-L")){
 				//Command Line parameter with an argument...
 				arg_count++;
 				argument = args[arg_count];
@@ -214,17 +276,26 @@ public class Main{
 			case "--realtime":
 			case "-R":
 				mode_realtime = true;
-				stepchart = true;
 				break;
 			case "-k":
+				update_interval = 0;
 				break;
 			case "-e":
 				rtMode = 'e';
+				stepchart = true;
 				String[] execVals = argument.split(",");
 				rtExPath = execVals[0];
 				for(int i = 1; i < execVals.length; i++){
 					rtExArgs.add(execVals[i]);
 				}
+				break;
+			case "--update-interval":
+			case "-u":
+				update_interval = Integer.parseInt(argument);
+				break;
+			case "--thread-max":
+			case "-tm":
+				threadmax = Integer.parseInt(argument);
 				break;
 			case "--inputfile":
 			case "-I":
@@ -258,6 +329,10 @@ public class Main{
 			case "--heatmap":
 			case "-H":
 				m.heatmap = true;
+				break;
+			case "--display-progress":
+			case "-d":
+				display_progress = true;
 				break;
 			case "--generate-missing":
 			case "-G":
@@ -336,6 +411,10 @@ public class Main{
 					}
 				}
 				break;
+			default:
+				System.out.println("USAGE: java -jar ccmcl.jar [param1] [param2] ...\n\nor type java -jar ccmcl.jar --help for more options.");
+				System.exit(0);
+				break;
 				
 			}
 		}
@@ -355,6 +434,10 @@ public class Main{
 			m.frame.pack();
 			
 			//Check and make sure the tests input file is present...
+			
+			for(int i = 0; i < 5; i++){
+				progress[i] = 0;
+			}
 			
 			if(m.data.isActsFilePresent()){
 				//check ACTS file
@@ -436,10 +519,40 @@ public class Main{
 			}
 			
 			m.frame.pack();
+			max_array_size = TestData.get_rows();
 
 		if(mode_realtime){
-		
+		/*
+		 * Load the tests infile into a file...
+		 * 
+		 * Save beginning and end position on tests...
+		 */
+			
+			/*
+			String save_path = ACTSpath.substring(0,ACTSpath.lastIndexOf("\\") + 1);
+			save_path += "test_cases.txt";
 
+			if(max_array_size > 0){
+				try {
+					FileWriter fw = new FileWriter(save_path,true);
+					BufferedWriter bw = new BufferedWriter(fw);
+					
+					
+					PrintStream fileStream = new PrintStream(new File(save_path));
+
+					for (int i = 0; i < infile.length; i++) {
+						//fileStream.println(infile[i]);
+						bw.write(infile[i]);
+						bw.write('\n');
+					}
+					fileStream.close();
+					bw.close();
+					// more code
+				} catch (IOException e) {
+					// exception handling left as an exercise for the reader
+				}
+			}
+		*/
 			m.parallel = false;
 			//Real time mode.
 			if(m.data.isActsFilePresent()){
@@ -3530,6 +3643,11 @@ public class Main{
 		 * =========================================================
 		 */
 		
+		
+		public static synchronized void increment_progress(int prog_id){
+			progress[prog_id]++;
+		}
+
 }
 
 
