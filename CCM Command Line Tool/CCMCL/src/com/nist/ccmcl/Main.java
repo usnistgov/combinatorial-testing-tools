@@ -121,6 +121,8 @@ public class Main{
 	public static boolean[] initial_complete = new boolean[5];
 	
 	public static boolean display_progress = false;
+	
+	public static int[] tway_threads = new int[5];
 	/*
 	 * Real time arguments
 	 */
@@ -131,7 +133,6 @@ public class Main{
 	public static volatile int[] progress = new int[5];
 
 	public static int max_array_size = 0;
-	public static int update_interval = 1000;
 	public static int threadmax = 500;
 	
 	public static boolean[] tway_initialized = new boolean[5];
@@ -153,6 +154,10 @@ public class Main{
 		Main m = new Main();
 		String tway_values[] = new String[5];
 		m.data = new TestData();
+		
+		for(int i = 0; i < 5; i++){
+			tway_threads[i] = 1;
+		}
 		
 		/*
 		 * Parse the command line arguments
@@ -223,18 +228,14 @@ public class Main{
 
 				//System.out.println("-t : *Specifies real time mode to accept TCP input via a socket @ localhost IP*\n");
 
-				System.out.println("--update-interval (-u):[time in ms] *Refresh interval for coverage measurement*\n"
-						+          "                            *Defaults 1000 milliseconds (recommended) for (-e)*\n"
-						+          "                            *0 milleseconds for (-k)*\n");
 				System.out.println("--thread-max (-tm): [max number of threads] *Default 500 threads*\n");
 				System.out.println("NOTE: --thread-max and --update-interval are primarily designed to aid in the\n"
 						+          "data throttling of executed programs (-e). Programs which are executed and\n"
 						+          "generate and send alot of data to the CCMCL tool will likely need these\n"
 						+          "features. \n");
-				System.out.print("\nNOTE: Setting a low update interval rate or high thread rate can cause problems\n"
-						+         "in certain situations. It is recommended to either throttle data coming into\n"
-						+         "the program or to use the recommended (default settings)... \n"
-						+         "Unless you know what you are doing.\n\n");
+				System.out.print("\nNOTE: Setting a high thread rate can cause problems in certain situations.\n"
+						+         "It is recommended to either throttle data coming into the program or use\n"
+						+         "the recommended (default settings)... Unless you know what you are doing...\n\n");
 				//System.out.println("\n--log (-L): [all, tests] *Log level for real time combinatorial measurement*");
 				//System.out.println("\nNOTE: --log creates a report called \"log.txt\" in the same directory as the\n"
 				//		+                "ACTS configuration file. Select an option for how verbose you want the\n"
@@ -259,8 +260,7 @@ public class Main{
 					s.equals("-T") || s.equals("-n") || s.equals("-f") || s.equals("-A") || s.equals("--inputfile")
 					|| s.equals("--ACTSfile") || s.equals("--mode") || s.equals("--constraints") || s.equals("--tway")
 					|| s.equals("--output-missing") || s.equals("--output-random") || s.equals("--minimum-coverage")
-					|| s.equals("-e") || s.equals("--update-interval") || s.equals("-u") || s.equals("--thread-max")
-					|| s.equals("-tm") || s.equals("--log") || s.equals("-L")){
+					|| s.equals("-e") || s.equals("--thread-max") || s.equals("-tm") || s.equals("--log") || s.equals("-L")){
 				//Command Line parameter with an argument...
 				arg_count++;
 				argument = args[arg_count];
@@ -278,7 +278,7 @@ public class Main{
 				mode_realtime = true;
 				break;
 			case "-k":
-				update_interval = 0;
+
 				break;
 			case "-e":
 				rtMode = 'e';
@@ -288,10 +288,6 @@ public class Main{
 				for(int i = 1; i < execVals.length; i++){
 					rtExArgs.add(execVals[i]);
 				}
-				break;
-			case "--update-interval":
-			case "-u":
-				update_interval = Integer.parseInt(argument);
 				break;
 			case "--thread-max":
 			case "-tm":
@@ -522,6 +518,8 @@ public class Main{
 			max_array_size = TestData.get_rows();
 
 		if(mode_realtime){
+
+			
 		/*
 		 * Load the tests infile into a file...
 		 * 
@@ -2846,6 +2844,7 @@ public class Main{
 				System.out.println(ex.getMessage());
 
 			}
+			tway_threads[0]--;
 
 			return results;
 
@@ -2963,6 +2962,7 @@ public class Main{
 					StepChart(serie);
 				}
 				*/
+				tway_threads[1]--;
 
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
@@ -3080,6 +3080,7 @@ public class Main{
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
 			}
+			tway_threads[2]--;
 
 			return results;
 		}
@@ -3190,6 +3191,7 @@ public class Main{
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
 			}
+			tway_threads[3]--;
 
 			return results;
 		}
@@ -3299,7 +3301,7 @@ public class Main{
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
 			}
-
+			tway_threads[4]--;
 			return results;
 		}
 		
