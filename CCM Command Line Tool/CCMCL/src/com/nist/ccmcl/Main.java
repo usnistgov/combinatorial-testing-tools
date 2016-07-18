@@ -11,10 +11,15 @@ import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,11 +118,14 @@ public class Main {
 	public static String constraints_path = "";
 	public static String ext;
 	public static boolean[] initial_complete = new boolean[5];
+	public static double[] initial_coverage = new double[5];
 
 	public static boolean display_progress = false;
+	
+	public static int[] invalidCombIndex = new int[5];
 
 	public static int[] tway_threads = new int[5];
-	
+
 	public static int tcp_port = 33312;
 
 	public static String[] real_time_cmd_results = new String[5];
@@ -158,15 +166,15 @@ public class Main {
 			tway_threads[i] = 1;
 			real_time_cmd_results[i] = ("Total " + String.valueOf((i + 2)) + "-way coverage: "
 					+ String.format("%.5f", 0.0f));
+			initial_complete[i] = false;
+			initial_coverage[i] = 0.0f;
+			invalidCombIndex[i] = 0;
 		}
 
 		/*
 		 * Parse the command line arguments
 		 */
 
-		for (int i = 0; i < 5; i++) {
-			initial_complete[i] = false;
-		}
 		int arg_count = 0;
 		boolean skip = false;
 		for (String s : args) {
@@ -188,8 +196,8 @@ public class Main {
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -r -n 1000 -f random.txt -S -T 2");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -R -k -S -T 2,3,4");
 				System.out.println("EXAMPLE: java -jar ccmcl.jar -A actsfile.txt -R -k gen_tests.exe -S -T 2,3,4");
-				System.out
-						.println("EXAMPLE: java -jar ccmcl.jar -A acts.xml -R -e gen.exe -B -T 2 -u 500 -tm 1500\n\n");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A acts.xml -R -e gen.exe -B -T 2 -tm 1500");
+				System.out.println("EXAMPLE: java -jar ccmcl.jar -A acts.txt -R -t 6789 -B -T 2 -d\n\n");
 
 				System.out.println("==============================================================================\n");
 				System.out.println("                         CCMCL: CLASSIC FUNCTIONALITY                         \n");
@@ -235,18 +243,12 @@ public class Main {
 				System.out.println("-t : [port] *Specifies real time mode to accept TCP input on the port*\n");
 
 				System.out.println("--thread-max (-tm): [max number of threads] *Default 500 threads*\n");
-				System.out.println("NOTE: --thread-max and --update-interval are primarily designed to aid in the\n"
-						+ "data throttling of executed programs (-e). Programs which are executed and\n"
-						+ "generate and send alot of data to the CCMCL tool will likely need these\n" + "features. \n");
 				System.out.print("\nNOTE: Setting a high thread rate can cause problems in certain situations.\n"
 						+ "It is recommended to either throttle data coming into the program or use\n"
 						+ "the recommended (default settings)... Unless you know what you are doing...\n\n");
-				System.out.println(
-						"\n--log (-L): [log file path] *Logs incoming data information of real time measurement*");
-				System.out.println("\nNOTE: --log creates a report called \"log.txt\" in the same directory as the\n"
-						+ "ACTS configuration file. Select an option for how verbose you want the\n" + "file to be.\n");
-				System.out.println("        -all: invalid combination, new tests, final coverage");
-				System.out.println("        -tests: only logs the tests\n\n");
+				System.out.println("--log (-L): [log file path] *Logs incoming data and measurement information*");
+				System.out.println("\nNOTE: --log creates a report holding invalid combinations, total coverage, new\n"
+						+ "tests, etc. that occur while measuring in real time mode.");
 
 				return;
 
@@ -533,75 +535,169 @@ public class Main {
 		max_array_size = TestData.get_rows();
 
 		if (mode_realtime) {
+			/*
+			 * This is for the report... Sorry for the weird output.
+			 */
+			if (logRT) {
+				File f = new File(log_path);
+				f.delete();
+				f.createNewFile();
+				String title = "";
+				title = "***************************************************************************";
+				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				title = "*  CCMCL: Combinatorial Coverage Measurement Tool (Command Line Version)  *";
+				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				title = "*              National Institute of Standards and Technology             *";
+				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				title = "***************************************************************************";
+				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				title = "Initial tests:";
+				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				if (max_array_size > 0) {
 
+					try {
+						//Log initial tests...
+						for (int i = 0; i < infile.length; i++) {
+							Files.write(Paths.get(log_path), infile[i].getBytes(), StandardOpenOption.APPEND);
+							Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+						}
+						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+
+					} catch (IOException e) {
+						// exception handling left as an exercise for the reader
+					}
+					
+					//Log initial invalid combinations...
+					for(int i = 0; i < 5; i++){
+						if(tway_objects[i] != null){
+							try{
+								title = "\n\nInitial " + (i+2) + "-way invalid combinations: \n";
+								Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+
+
+								for(String[][] str : tway_objects[i].get_InvalidComb()){
+									for (int z = 0; z < str.length; z++) {
+										String inval = str[z][0] + " = " + str[z][1] + " ; ";
+										Files.write(Paths.get(log_path), inval.getBytes(), StandardOpenOption.APPEND);
+									}
+									invalidCombIndex[i]++;
+									Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+								}
+								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+
+								
+							}catch(IOException e){
+								
+							}
+						}
+					}
+				}
+				
+				/*
+				 * End of code for the reporting stuff...
+				 */
+				
+				
+				
+				
+				for(int i = 0; i < 5; i++){
+					if(tway_objects[i] != null){
+						try{
+							title = "";
+							switch(i){
+							
+							case 0:
+								title = "Initial 2-way coverage: " + initial_coverage[0];
+								break;
+							case 1:
+								title = "Initial 3-way coverage: " + initial_coverage[1];
+								break;
+							case 2:
+								title = "Initial 4-way coverage: " + initial_coverage[2];
+								break;
+							case 3:
+								title = "Initial 5-way coverage: " + initial_coverage[3];
+								break;
+							case 4:
+								title = "Initial 6-way coverage: " + initial_coverage[4];
+								break;
+							}
+							Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+							Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+							
+						}catch(IOException e){
+							
+						}
+					}
+				}
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+			}
 			/*
 			 * Load the tests infile into a file...
 			 * 
 			 * Save beginning and end position on tests...
 			 */
 
-			String save_path = log_path;
+			parallel = false;
+			// Real time mode.
+			if (data.isActsFilePresent()) {
 
-			if (logRT) {
-				if (max_array_size > 0) {
+				// ACTS file checks out.
+				// If constraints are present, they've already been processed.
+				// If a previous test case file is present, it too has already
+				// been
+				// processed.
 
-					PrintStream fileStream = new PrintStream(new File(save_path));
+				/*
+				 * Time to set up real time monitoring.
+				 */
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				lblStepChart.setSize(500, 500);
+				frame.add(lblStepChart, BorderLayout.WEST);
+				frame.pack();
 
-					fileStream.println("Initial Test Cases:");
-					fileStream.println();
+				ReadOperation readData = null;
 
-					for (int i = 0; i < infile.length; i++) {
-						fileStream.println(infile[i]);
-					}
-					fileStream.println();
-					fileStream.println("END OF INITIAL TEST CASES");
-					fileStream.close();
-
+				switch (rtMode) {
+				case 'k':
+					readData = new ReadStandardInputOperation();
+					break;
+				case 'e':
+					readData = new ReadProgramOutputOperation();
+					break;
+				case 't':
+					readData = new ReadTCPInputOperation();
+					break;
+				default:
+					readData = new ReadStandardInputOperation();
 				}
+				Thread read_input = new Thread(readData);
+				read_input.start();
+
+			} else {
+				System.out.println("Must specify an ACTS configuration file.\n");
+				System.exit(0);
+				return;
 			}
 		}
-
-		parallel = false;
-		// Real time mode.
-		if (data.isActsFilePresent()) {
-
-			// ACTS file checks out.
-			// If constraints are present, they've already been processed.
-			// If a previous test case file is present, it too has already been
-			// processed.
-
-			/*
-			 * Time to set up real time monitoring.
-			 */
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			lblStepChart.setSize(500, 500);
-			frame.add(lblStepChart, BorderLayout.WEST);
-			frame.pack();
-
-			ReadOperation readData = null;
-
-			switch (rtMode) {
-			case 'k':
-				readData = new ReadStandardInputOperation();
-				break;
-			case 'e':
-				readData = new ReadProgramOutputOperation();
-				break;
-			case 't':
-				readData = new ReadTCPInputOperation();
-				break;
-			default:
-				readData = new ReadStandardInputOperation();
-			}
-			Thread read_input = new Thread(readData);
-			read_input.start();
-
-		} else {
-			System.out.println("Must specify an ACTS configuration file.\n");
-			System.exit(0);
-			return;
-		}
-	
 
 	}
 
@@ -2483,6 +2579,7 @@ public class Main {
 				Long timeway1 = System.currentTimeMillis();
 
 				if (tway_objects[tIndex] == null) {
+					System.out.println("CREATEd");
 					tway_objects[tIndex] = new Tway(t_way, 0, temp_max, test, nvals, data.get_rows(),
 							data.get_columns(), data.get_parameters(), data.get_constraints(), map);
 				} else {
@@ -2565,6 +2662,7 @@ public class Main {
 						}
 						System.out.println();
 					}
+
 				}
 
 				synchronized (results) {
@@ -2723,6 +2821,7 @@ public class Main {
 				synchronized (report) {
 					System.out.println("\n2-way Coverage Results:\n" + "Total 2-way coverage: "
 							+ String.format("%.5f", TotCov2way) + "\n" + results);
+					initial_coverage[0] = TotCov2way;
 				}
 			else {
 				// System.out.println("Total 2-way coverage: " +
@@ -2908,6 +3007,8 @@ public class Main {
 				synchronized (report) {
 					System.out.println("\n3-way Coverage Results:\n" + "Total 3-way coverage: "
 							+ String.format("%.5f", TotCov3way) + "\n" + results);
+					initial_coverage[1] = TotCov3way;
+
 				}
 			else {
 				// System.out.println("Total 3-way coverage: " +
@@ -3009,6 +3110,8 @@ public class Main {
 				synchronized (report) {
 					System.out.println("\n4-way Coverage Results:\n" + "Total 4-way coverage: "
 							+ String.format("%.5f", TotCov4way) + "\n" + results);
+					initial_coverage[2] = TotCov4way;
+
 				}
 			else {
 				// System.out.println("Total 4-way coverage: " +
@@ -3109,6 +3212,8 @@ public class Main {
 				synchronized (report) {
 					System.out.println("\n5-way Coverage Results:\n" + "Total 5-way coverage: "
 							+ String.format("%.5f", TotCov5way) + "\n" + results);
+					initial_coverage[3] = TotCov5way;
+
 				}
 			else {
 				// System.out.println("Total 5-way coverage: " +
@@ -3209,6 +3314,8 @@ public class Main {
 				synchronized (report) {
 					System.out.println("\n6-way Coverage Results:\n" + "Total 6-way coverage: "
 							+ String.format("%.5f", TotCov6way) + "\n" + results);
+					initial_coverage[4] = TotCov6way;
+
 				}
 			else {
 				// System.out.println("Total 6-way coverage: " +

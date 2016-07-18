@@ -334,6 +334,8 @@ public class Tway extends RecursiveTask {
 				int varval_cnt = 0;
 				int invalidcomb = 0;
 				int invalidcombNotCovered = 0;
+				
+				
 
 				for (ni = 0; ni < _nvals[i]; ni++) {
 					for (nj = 0; nj < _nvals[j]; nj++) {
@@ -360,7 +362,7 @@ public class Tway extends RecursiveTask {
 								invalidcomb += 1;
 								_aInvalidComb.add(pars);
 							}
-							if (comcount[ni][nj] == 0 && _constraints.size() > 0) {
+							if (comcount[ni][nj] == 0 && _constraints.size() > 0 && _nrows > 0) {
 
 								if (!validcomb.EvaluateCombination(pars)) {
 									// count how many invalid configs are not
@@ -576,7 +578,7 @@ public class Tway extends RecursiveTask {
 										invalidComb += 1;
 										_aInvalidComb.add(pars);
 									}
-									if (comcount[ni][nj][nk] == 0 && _constraints.size() > 0) {
+									if (comcount[ni][nj][nk] == 0 && _constraints.size() > 0 && _nrows > 0) {
 										if (!validcomb.EvaluateCombination(pars)) {// count
 																					// invalid
 																					// configs
@@ -778,7 +780,7 @@ public class Tway extends RecursiveTask {
 												_aInvalidComb.add(pars);
 											}
 
-											if (comcount[ni][nj][nk][nr] == 0 && _constraints.size() > 0) {
+											if (comcount[ni][nj][nk][nr] == 0 && _constraints.size() > 0 && _nrows > 0) {
 												if (!validcomb.EvaluateCombination(pars)) {
 													invalidcombNotCovered += 1;
 													_aInvalidNotIn.add(pars);
@@ -1006,7 +1008,7 @@ public class Tway extends RecursiveTask {
 														_aInvalidComb.add(pars);
 													}
 
-													if (comcount[ni][nj][nk][nr][nx] == 0 && _constraints.size() > 0) {
+													if (comcount[ni][nj][nk][nr][nx] == 0 && _constraints.size() > 0 && _nrows > 0) {
 														if (!validcomb.EvaluateCombination(pars)) {
 															invalidcombNotCovered += 1;
 															_aInvalidNotIn.add(pars);
@@ -1255,7 +1257,7 @@ public class Tway extends RecursiveTask {
 															}
 
 															if (comcount[ni][nj][nk][nr][nx][nz] == 0
-																	&& _constraints.size() > 0) {
+																	&& _constraints.size() > 0 && _nrows > 0) {
 																if (!validcomb.EvaluateCombination(pars)) {
 																	invalidcombNotCovered += 1;
 																	_aInvalidNotIn.add(pars);
@@ -2078,29 +2080,21 @@ public class Tway extends RecursiveTask {
 
 					pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]).toString();
 					pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]).toString();
-					
+
 					if(comcount[_test[m][i]][_test[m][j]] == 1 || comcount[_test[m][i]][_test[m][j]] == -1 || 
 							comcount[_test[m][i]][_test[m][j]] == -3){
 						//Combination is already in the set
 						//if(comcount[_test[m][i]][_test[m][j]] == -1)
-							//System.out.println("Invalid combination.");
+							System.out.println("Invalid combination: " + comcount[_test[m][i]][_test[m][j]]);
 						continue;
 					}
 					
 					if (_constraints.size() > 0) {
-	
+
 						if (validcomb.EvaluateCombination(pars)){
+
 							comcount[_test[m][i]][_test[m][j]] = 2;
-						}
-							 // flag
-																		// valid
-																		// var-val
-																		// config
-																		// in
-																		// set
-																		// test
-						else{
-							//System.out.println("Invalid combination.");
+						}else{
 							comcount[_test[m][i]][_test[m][j]] = -2;
 						}
 							 // flag

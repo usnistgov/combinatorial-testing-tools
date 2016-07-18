@@ -1,5 +1,9 @@
 package com.nist.ccmcl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -17,6 +21,112 @@ public abstract class ReadOperation implements Runnable {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				try {
+					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+					String title = "NEW TEST CASES:";
+					Files.write(Paths.get(Main.log_path), title.getBytes(), StandardOpenOption.APPEND);
+					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					@Override
+					public void run() {
+						try {
+							for(int i = 0; i < 5; i++){
+								if(Main.tway_objects[i] != null){
+									try{
+										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+										String title = "\n\nNew " + (i+2) + "-way invalid combinations: \n";
+										Files.write(Paths.get(Main.log_path), title.getBytes(), StandardOpenOption.APPEND);
+										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+
+										int start = 0;
+										for(String[][] str : Main.tway_objects[i].get_InvalidComb()){
+											//String title2 = "HELLO FROM: " + (i+2) + "-way";
+											//Files.write(Paths.get(Main.log_path), title2.getBytes(), StandardOpenOption.APPEND);
+											//if(start < Main.invalidCombIndex[i]){
+												//start++;
+												//continue;
+											//}
+											for (int z = 0; z < str.length; z++) {
+												String inval = str[z][0] + " = " + str[z][1] + " ; ";
+												Files.write(Paths.get(Main.log_path), inval.getBytes(), StandardOpenOption.APPEND);
+											}
+											
+											Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+										}
+										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+
+										
+									}catch(IOException e){
+										
+									}
+								}
+							}
+							
+							
+							
+							
+							
+							
+							
+							Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(),
+									StandardOpenOption.APPEND);
+							Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(),
+									StandardOpenOption.APPEND);
+							String title1 = "NEW T-WAY COVERAGE RESULTS:";
+							Files.write(Paths.get(Main.log_path), title1.getBytes(),
+									StandardOpenOption.APPEND);
+							Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(),
+									StandardOpenOption.APPEND);
+							Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(),
+									StandardOpenOption.APPEND);
+
+							for (int i = 0; i < 5; i++) {
+								if (Main.tway_objects[i] != null) {
+
+									String title = "";
+									switch (i) {
+
+									case 0:
+										title = Main.real_time_cmd_results[0];
+										break;
+									case 1:
+										title = Main.real_time_cmd_results[1];
+										break;
+									case 2:
+										title = Main.real_time_cmd_results[2];
+										break;
+									case 3:
+										title = Main.real_time_cmd_results[3];
+										break;
+									case 4:
+										title = Main.real_time_cmd_results[4];
+										break;
+									}
+									Files.write(Paths.get(Main.log_path), title.getBytes(), StandardOpenOption.APPEND);
+									Files.write(Paths.get(Main.log_path),
+											System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+
+								}
+							}
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
+				});
+
+
 				while (true) {
 					String input;
 					try {
@@ -89,6 +199,15 @@ public abstract class ReadOperation implements Runnable {
 									Main.tway_threads[4]++;
 									break;
 								}
+							}
+						}
+						if(Main.logRT){
+							try {
+								Files.write(Paths.get(Main.log_path), input.getBytes(), StandardOpenOption.APPEND);
+								Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
 						}
 
