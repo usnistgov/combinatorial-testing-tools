@@ -31,7 +31,7 @@ public abstract class ReadOperation implements Runnable {
 						if (position == Main.max_array_size) {
 							
 							for(int i = 0; i < 5; i++)
-								while(Main.tway_threads[i] != 0){
+								while(Main.tway_threads[i] != 0 && Main.tway_objects[i] != null){
 									Thread.sleep(1000);
 								}
 						
@@ -67,7 +67,6 @@ public abstract class ReadOperation implements Runnable {
 
 						for (int i = 0; i < 5; i++) {
 							if (Main.tway_objects[i] != null) {
-
 								switch (i) {
 								case 0:
 									Main.Tway("2way");
