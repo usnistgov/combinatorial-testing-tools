@@ -131,6 +131,8 @@ public class Main {
 	public static String[] real_time_cmd_results = new String[5];
 	public static boolean logRT = false;
 	public static String log_path = "";
+	
+	public static HashMap<String, Boolean> initial_invalid = new HashMap<String,Boolean>();
 	/*
 	 * Real time arguments
 	 */
@@ -595,6 +597,7 @@ public class Main {
 									for (int z = 0; z < str.length; z++) {
 										String inval = str[z][0] + " = " + str[z][1] + " ; ";
 										Files.write(Paths.get(log_path), inval.getBytes(), StandardOpenOption.APPEND);
+										initial_invalid.put(inval, true);
 									}
 									invalidCombIndex[i]++;
 									Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
@@ -647,6 +650,10 @@ public class Main {
 						}
 					}
 				}
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), ("==========================================" + 
+				"=============================================================================").getBytes(), StandardOpenOption.APPEND);
 				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
 				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
 			}
@@ -2579,7 +2586,6 @@ public class Main {
 				Long timeway1 = System.currentTimeMillis();
 
 				if (tway_objects[tIndex] == null) {
-					System.out.println("CREATEd");
 					tway_objects[tIndex] = new Tway(t_way, 0, temp_max, test, nvals, data.get_rows(),
 							data.get_columns(), data.get_parameters(), data.get_constraints(), map);
 				} else {

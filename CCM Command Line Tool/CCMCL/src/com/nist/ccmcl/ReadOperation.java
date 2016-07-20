@@ -10,6 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class ReadOperation implements Runnable {
 
 	private static LinkedBlockingQueue<String> buffer = new LinkedBlockingQueue<String>();
+	public static volatile boolean running;
 
 	final protected void produce(String s) {
 		buffer.add(s);
@@ -20,7 +21,7 @@ public abstract class ReadOperation implements Runnable {
 
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
+				running = false;
 				try {
 					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
 					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
@@ -49,18 +50,18 @@ public abstract class ReadOperation implements Runnable {
 
 										int start = 0;
 										for(String[][] str : Main.tway_objects[i].get_InvalidComb()){
-											//String title2 = "HELLO FROM: " + (i+2) + "-way";
-											//Files.write(Paths.get(Main.log_path), title2.getBytes(), StandardOpenOption.APPEND);
-											//if(start < Main.invalidCombIndex[i]){
-												//start++;
-												//continue;
-											//}
+											boolean newinvalid = false;
 											for (int z = 0; z < str.length; z++) {
 												String inval = str[z][0] + " = " + str[z][1] + " ; ";
-												Files.write(Paths.get(Main.log_path), inval.getBytes(), StandardOpenOption.APPEND);
+												if(!Main.initial_invalid.containsKey(inval)){
+													Files.write(Paths.get(Main.log_path), inval.getBytes(), StandardOpenOption.APPEND);
+													newinvalid = true;
+												}
 											}
+											if(newinvalid)
+												Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
 											
-											Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+											
 										}
 										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
 										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
@@ -202,13 +203,16 @@ public abstract class ReadOperation implements Runnable {
 							}
 						}
 						if(Main.logRT){
-							try {
-								Files.write(Paths.get(Main.log_path), input.getBytes(), StandardOpenOption.APPEND);
-								Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+							if(running){
+								try {
+									Files.write(Paths.get(Main.log_path), input.getBytes(), StandardOpenOption.APPEND);
+									Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 							}
+							
 						}
 
 					} catch (InterruptedException e) {
@@ -231,6 +235,7 @@ public abstract class ReadOperation implements Runnable {
 		try {
 			consume();
 			readData();
+			running = true;
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

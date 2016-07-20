@@ -2085,7 +2085,6 @@ public class Tway extends RecursiveTask {
 							comcount[_test[m][i]][_test[m][j]] == -3){
 						//Combination is already in the set
 						//if(comcount[_test[m][i]][_test[m][j]] == -1)
-							System.out.println("Invalid combination: " + comcount[_test[m][i]][_test[m][j]]);
 						continue;
 					}
 					
