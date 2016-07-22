@@ -10,8 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.swing.JProgressBar;
-
 public class Tway extends RecursiveTask {
 	private String _tway;
 	private int _start;
@@ -262,7 +260,8 @@ public class Tway extends RecursiveTask {
 		CSolver validcomb = new CSolver();
 		validcomb.SetConstraints(_constraints);
 		validcomb.SetParameter(_parameters);
-
+		long start = 0;
+		long end = 0;
 
 
 		/*
@@ -1920,9 +1919,7 @@ public class Tway extends RecursiveTask {
 					//for (meConstraint c : _constraints)
 						//write(_fileNameMissing, c.get_cons());
 
-				//for (int ii = 0; ii < _nrows; ii++) {
-					String outl = "";
-					/*
+				/*
 					for (int jj = 0; jj < _ncols; jj++) {
 						outl += _map[jj][_test[ii][jj]];
 						if (jj < _ncols - 1)
@@ -2031,12 +2028,11 @@ public class Tway extends RecursiveTask {
 	
 	
 	public synchronized void updateTwoWay(int st, int num_rows, int[][] test) {
-		_test = test;
+		//_test = test;
 		_nrows = num_rows;
 		
 		long n_tot_tway_cov = _n_tot_tway_cov;
-		long tot_varvalconfigs2 = _tot_varvalconfig;
-		int i, j, ni, nj, m, ti = 0;
+		int i, j, ni, nj, m;
 		long[] varvalStats2 = new long[NBINS + 1];
 		long n_varvalconfigs2 = 0;
 		
@@ -2078,11 +2074,10 @@ public class Tway extends RecursiveTask {
 					pars[0][0] = _parameters.get(i).getName();
 					pars[1][0] = _parameters.get(j).getName();
 
-					pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]).toString();
-					pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]).toString();
+					pars[0][1] = _parameters.get(i).getValues().get(test[m][i]).toString();
+					pars[1][1] = _parameters.get(j).getValues().get(test[m][j]).toString();
 
-					if(comcount[_test[m][i]][_test[m][j]] == 1 || comcount[_test[m][i]][_test[m][j]] == -1 || 
-							comcount[_test[m][i]][_test[m][j]] == -3){
+					if(comcount[test[m][i]][test[m][j]] == 1 || comcount[test[m][i]][test[m][j]] == -1){
 						//Combination is already in the set
 						//if(comcount[_test[m][i]][_test[m][j]] == -1)
 						continue;
@@ -2092,9 +2087,9 @@ public class Tway extends RecursiveTask {
 
 						if (validcomb.EvaluateCombination(pars)){
 
-							comcount[_test[m][i]][_test[m][j]] = 2;
+							comcount[test[m][i]][test[m][j]] = 2;
 						}else{
-							comcount[_test[m][i]][_test[m][j]] = -2;
+							comcount[test[m][i]][test[m][j]] = -2;
 						}
 							 // flag
 																		// invalid
@@ -2104,7 +2099,7 @@ public class Tway extends RecursiveTask {
 																		// set
 																		// test
 					} else{
-						comcount[_test[m][i]][_test[m][j]] = 2; // flag var-val
+						comcount[test[m][i]][test[m][j]] = 2; // flag var-val
 						// config in
 						// set test
 					}
@@ -2138,6 +2133,7 @@ public class Tway extends RecursiveTask {
 
 							// count how many invalid configs are contained in
 							// the test
+
 							if(comcount[ni][nj] == -1){
 								invalidcomb++;
 							}
@@ -2161,8 +2157,6 @@ public class Tway extends RecursiveTask {
 				
 				n_varvalconfigs2 = _nvals[i] * _nvals[j];
 				n_varvalconfigs2 -= (invalidcomb + invalidcombNotCovered);
-				tot_varvalconfigs2 += n_varvalconfigs2;
-				 
 				double varval_cov = (double) varval_cnt / (double) n_varvalconfigs2;
 
 				double varval = (double) varval_cnt / (double) varvaltotal;
@@ -2196,12 +2190,11 @@ public class Tway extends RecursiveTask {
 	
 	public synchronized void updateThreeWay(int st, int num_rows, int[][] test) {
 		
-		_test = test;
+		//_test = test;
 		_nrows = num_rows;
 		
 		long n_tot_tway_cov = _n_tot_tway_cov;
-		long tot_varvalconfigs3 = _tot_varvalconfig;
-		int i, j, k, ni, nj, nk, m, ti, tj = 0;
+		int i, j, k, ni, nj, nk, m;
 		long[] varvalStats3 = new long[NBINS + 1];
 		long n_varvalconfigs3 = 0;
 
@@ -2243,24 +2236,23 @@ public class Tway extends RecursiveTask {
 						pars[1][0] = _parameters.get(j).getName();
 						pars[2][0] = _parameters.get(k).getName();
 
-						pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
-						pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
-						pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
+						pars[0][1] = _parameters.get(i).getValues().get(test[m][i]);
+						pars[1][1] = _parameters.get(j).getValues().get(test[m][j]);
+						pars[2][1] = _parameters.get(k).getValues().get(test[m][k]);
 						
-						if(comcount[_test[m][i]][_test[m][j]][_test[m][k]] == 1 || comcount[_test[m][i]][_test[m][j]][_test[m][k]] == -1 || 
-								comcount[_test[m][i]][_test[m][j]][_test[m][k]] == -3){
+						if(comcount[test[m][i]][test[m][j]][test[m][k]] == 1 || comcount[test[m][i]][test[m][j]][test[m][k]] == -1){
 							//Combination is already in the set
 							continue;
 						}
 
 						if (_constraints.size() > 0) {
 							if (validcomb.EvaluateCombination(pars))
-								comcount[_test[m][i]][_test[m][j]][_test[m][k]] = 2;
+								comcount[test[m][i]][test[m][j]][test[m][k]] = 2;
 							else
-								comcount[_test[m][i]][_test[m][j]][_test[m][k]] = -2;
+								comcount[test[m][i]][test[m][j]][test[m][k]] = -2;
 
 						} else
-							comcount[_test[m][i]][_test[m][j]][_test[m][k]] = 2;
+							comcount[test[m][i]][test[m][j]][test[m][k]] = 2;
 						// coumcount i,j == 1 iff some tests contains tuple i,j
 					}
 
@@ -2314,8 +2306,6 @@ public class Tway extends RecursiveTask {
 					
 					n_varvalconfigs3 = _nvals[i] * _nvals[j] * _nvals[k];
 					n_varvalconfigs3 -= (invalidComb + invalidcombNotCovered);
-					tot_varvalconfigs3 += n_varvalconfigs3;
-
 					double varval_cov = (double) varval_cnt / (double) n_varvalconfigs3;
 					
 					double varval = (double) varval_cnt / (double) varvaltotal;
@@ -2342,12 +2332,10 @@ public class Tway extends RecursiveTask {
 	
 	public synchronized void updateFourWay(int st, int num_rows, int[][] test) {
 		
-		int i, j, k, r, ni, nj, nk, nr, m, ti, tj, tk;
+		int i, j, k, r, ni, nj, nk, nr, m;
 		long[] varvalStats4 = new long[NBINS + 1];
 		long n_varvalconfigs4; 
-		long tot_varvalconfigs4 = _tot_varvalconfig; 
-		
-		_test = test;
+		//_test = test;
 		_nrows = num_rows;
 		
 		long n_tot_tway_cov = _n_tot_tway_cov;
@@ -2392,26 +2380,25 @@ public class Tway extends RecursiveTask {
 							pars[2][0] = _parameters.get(k).getName();
 							pars[3][0] = _parameters.get(r).getName();
 
-							pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
-							pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
-							pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
-							pars[3][1] = _parameters.get(r).getValues().get(_test[m][r]);
+							pars[0][1] = _parameters.get(i).getValues().get(test[m][i]);
+							pars[1][1] = _parameters.get(j).getValues().get(test[m][j]);
+							pars[2][1] = _parameters.get(k).getValues().get(test[m][k]);
+							pars[3][1] = _parameters.get(r).getValues().get(test[m][r]);
 							
-							if(comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] == 1 || 
-									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] == -1 || 
-									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] == -3){
+							if(comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]] == 1 || 
+									comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]] == -1){
 								//Combination is already in the set
 								continue;
 							}
 
 							if (_constraints.size() > 0) {
 								if (validcomb.EvaluateCombination(pars))
-									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = 2;
+									comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]] = 2;
 								else
-									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = -2;
+									comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]] = -2;
 
 							} else
-								comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]] = 2;
+								comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]] = 2;
 
 						}
 
@@ -2465,9 +2452,6 @@ public class Tway extends RecursiveTask {
 						}
 						n_varvalconfigs4 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r];
 						n_varvalconfigs4 -= (invalidComb + invalidcombNotCovered);
-						tot_varvalconfigs4 += n_varvalconfigs4;
-						
-
 						double varval_cov = (double) varval_cnt / (double) n_varvalconfigs4;
 						double varval = (double) varval_cnt / (double) varvaltotal;
 
@@ -2495,23 +2479,17 @@ public class Tway extends RecursiveTask {
 	
 	public synchronized void updateFiveWay(int st, int num_rows, int[][] test) {
 
-		int i, j, k, r, x, ni, nj, nk, nr, nx, m, ti, tj, tk, tr;
+		int i, j, k, r, x, ni, nj, nk, nr, nx, m;
 		long[] varvalStats5 = new long[NBINS + 1]; 
 		long n_varvalconfigs5;
 
 		for (i = 0; i < NBINS + 1; i++)
 			varvalStats5[i] = 0;
 
-		long tot_varvalconfigs5 = _tot_varvalconfig; 
-		
-		_test = test;
+		//_test = test;
 		_nrows = num_rows;
 		
 		long n_tot_tway_cov = _n_tot_tway_cov;
-
-
-
-;
 		
 
 		// solver for invalid combinations
@@ -2561,30 +2539,28 @@ public class Tway extends RecursiveTask {
 								pars[3][0] = _parameters.get(r).getName();
 								pars[4][0] = _parameters.get(x).getName();
 
-								pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
-								pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
-								pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
-								pars[3][1] = _parameters.get(r).getValues().get(_test[m][r]);
-								pars[4][1] = _parameters.get(x).getValues().get(_test[m][x]);
+								pars[0][1] = _parameters.get(i).getValues().get(test[m][i]);
+								pars[1][1] = _parameters.get(j).getValues().get(test[m][j]);
+								pars[2][1] = _parameters.get(k).getValues().get(test[m][k]);
+								pars[3][1] = _parameters.get(r).getValues().get(test[m][r]);
+								pars[4][1] = _parameters.get(x).getValues().get(test[m][x]);
 								
-								if(comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] == 1 || 
-										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] == -1 || 
-										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] == -3){
+								if(comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]] == 1 || 
+										comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]] == -1){
 									//Combination is already in the set
 									continue;
 								}
 
 								if (_constraints.size() > 0) {
 									if (validcomb.EvaluateCombination(pars))
-										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = 2;
+										comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]] = 2;
 									else
-										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = -2;
+										comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]] = -2;
 
 								} else
-									comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]] = 2;
+									comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]] = 2;
 
 							}
-
 							int varval_cnt = 0;
 							int invalidComb = 0;
 							int invalidcombNotCovered = 0;
@@ -2642,7 +2618,6 @@ public class Tway extends RecursiveTask {
 							comcount_array5.put(temp_key, comcount);
 							n_varvalconfigs5 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r] * _nvals[x];
 							n_varvalconfigs5 -= (invalidComb + invalidcombNotCovered);
-							tot_varvalconfigs5 += n_varvalconfigs5;
 							double varval = (double) varval_cnt / (double) varvaltotal;
 
 							sumcov += varval;
@@ -2671,7 +2646,7 @@ public class Tway extends RecursiveTask {
 	
 	public synchronized void updateSixWay(int st, int num_rows, int[][] test) {
 
-		int i, j, k, r, x, z, ni, nj, nk, nr, nx, nz, m, ti, tj, tk, tr, tx;
+		int i, j, k, r, x, z, ni, nj, nk, nr, nx, nz, m;
 		long[] varvalStats6 = new long[NBINS + 1];
 		long n_varvalconfigs6;
 	
@@ -2679,9 +2654,7 @@ public class Tway extends RecursiveTask {
 		for (i = 0; i < NBINS + 1; i++)
 			varvalStats6[i] = 0;
 
-		long tot_varvalconfigs6 = _tot_varvalconfig; 
-		
-		_test = test;
+		//_test = test;
 		_nrows = num_rows;
 		
 		long n_tot_tway_cov = _n_tot_tway_cov;
@@ -2744,28 +2717,27 @@ public class Tway extends RecursiveTask {
 									pars[4][0] = _parameters.get(x).getName();
 									pars[5][0] = _parameters.get(z).getName();
 
-									pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]);
-									pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]);
-									pars[2][1] = _parameters.get(k).getValues().get(_test[m][k]);
-									pars[3][1] = _parameters.get(r).getValues().get(_test[m][r]);
-									pars[4][1] = _parameters.get(x).getValues().get(_test[m][x]);
-									pars[5][1] = _parameters.get(z).getValues().get(_test[m][z]);
+									pars[0][1] = _parameters.get(i).getValues().get(test[m][i]);
+									pars[1][1] = _parameters.get(j).getValues().get(test[m][j]);
+									pars[2][1] = _parameters.get(k).getValues().get(test[m][k]);
+									pars[3][1] = _parameters.get(r).getValues().get(test[m][r]);
+									pars[4][1] = _parameters.get(x).getValues().get(test[m][x]);
+									pars[5][1] = _parameters.get(z).getValues().get(test[m][z]);
 									
-									if(comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] == 1 || 
-											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] == -1 || 
-											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] == -3){
+									if(comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]][test[m][z]] == 1 || 
+											comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]][test[m][z]] == -1){
 										//Combination is already in the set
 										continue;
 									}
 
 									if (_constraints.size() > 0) {
 										if (validcomb.EvaluateCombination(pars))
-											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = 2;
+											comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]][test[m][z]] = 2;
 										else
-											comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = -2;
+											comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]][test[m][z]] = -2;
 
 									} else
-										comcount[_test[m][i]][_test[m][j]][_test[m][k]][_test[m][r]][_test[m][x]][_test[m][z]] = 2;
+										comcount[test[m][i]][test[m][j]][test[m][k]][test[m][r]][test[m][x]][test[m][z]] = 2;
 								}
 
 								int varval_cnt = 0;
@@ -2831,7 +2803,6 @@ public class Tway extends RecursiveTask {
 								n_varvalconfigs6 = _nvals[i] * _nvals[j] * _nvals[k] * _nvals[r] * _nvals[x]
 										* _nvals[z];
 								n_varvalconfigs6 -= (invalidComb + invalidcombNotCovered);
-								tot_varvalconfigs6 += n_varvalconfigs6;
 								double varval = (double) varval_cnt / (double) varvaltotal;
 
 								sumcov += varval;
@@ -2863,7 +2834,7 @@ public class Tway extends RecursiveTask {
 		double progress[] = new double[5];
 		System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMEASUREMENT PROGRESS: \n\n");
 		for(int i = 0; i < 5; i++){
-			progress[i] = ((double) Main.progress[i] / ((double)TestData.get_columns() - (i + 1)) * 100);
+			progress[i] = ((double) Main.progress[i] / ((double)Main.ncols - (i + 1)) * 100);
 			if(Main.tway_objects[i] != null){
 				System.out.println(String.format("%dway progress: %.2f%%",i+2, progress[i]));
 			}

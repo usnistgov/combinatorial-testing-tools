@@ -8,11 +8,13 @@ import java.net.Socket;
 
 public class ReadTCPInputOperation extends ReadOperation {
 
+	private ServerSocket initial;
+
 	@Override
 	public void readData() {
 		try {
 			String inputLine = "";
-			ServerSocket initial = new ServerSocket(Main.tcp_port);
+			initial = new ServerSocket(Main.tcp_port);
 			while(true){
 				Socket connection = initial.accept();
 				BufferedReader dataStream = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -21,9 +23,9 @@ public class ReadTCPInputOperation extends ReadOperation {
 			    if(inputLine == null)
 			    	continue;
 			    else{
-					if(inputLine.replaceAll("\\s","").trim().split(",").length != TestData.get_columns()){
+					if(inputLine.replaceAll("\\s","").trim().split(",").length != Main.ncols){
 						System.out.println("Incorrect number of parameters...");
-						System.out.print(inputLine + " - Expected columns = " + TestData.get_columns());
+						System.out.print(inputLine + " - Expected columns = " + Main.ncols);
 						continue;
 					}
 					produce(inputLine);

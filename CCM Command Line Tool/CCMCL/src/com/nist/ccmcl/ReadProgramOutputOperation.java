@@ -61,9 +61,9 @@ public class ReadProgramOutputOperation extends ReadOperation {
 			    if(s == null)
 			    	continue;
 			    else{
-					if(s.replaceAll("\\s","").trim().split(",").length != TestData.get_columns()){
+					if(s.replaceAll("\\s","").trim().split(",").length != Main.ncols){
 						System.out.println("Incorrect number of parameters...");
-						System.out.print(s + " - Expected columns = " + TestData.get_columns());
+						System.out.print(s + " - Expected columns = " + Main.ncols);
 						continue;
 					}
 					produce(s);

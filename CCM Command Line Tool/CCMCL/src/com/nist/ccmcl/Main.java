@@ -5,18 +5,19 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -63,7 +64,6 @@ import org.xml.sax.SAXException;
 
 public class Main {
 
-	public static TestData data;
 	public static List<String> usedParams;
 	public static HashMap<String, Parameter> pars;
 	public volatile static String[] infile;
@@ -119,14 +119,21 @@ public class Main {
 	public static String ext;
 	public static boolean[] initial_complete = new boolean[5];
 	public static double[] initial_coverage = new double[5];
-
+	
+	public static boolean ACTSfilePresent = false;
+	public static boolean paramNames = false;
+	public static int nrows = 0;
+	public static int ncols = 0;
+	public static List<Parameter> parameters = new ArrayList<Parameter>();
+	public static List<meConstraint> constraints = new ArrayList<meConstraint>();
+	
 	public static boolean display_progress = false;
 	
 	public static int[] invalidCombIndex = new int[5];
 
 	public static int[] tway_threads = new int[5];
 
-	public static int tcp_port = 33312;
+	public static int tcp_port = 0;
 
 	public static String[] real_time_cmd_results = new String[5];
 	public static boolean logRT = false;
@@ -162,7 +169,6 @@ public class Main {
 
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
 		String tway_values[] = new String[5];
-		data = new TestData();
 
 		for (int i = 0; i < 5; i++) {
 			tway_threads[i] = 1;
@@ -239,8 +245,7 @@ public class Main {
 				System.out.println("-k : *Specifies real time mode to accept keyboard (stdin) input*\n");
 				System.out.println("-e : [path to executable ,program argument 1,program argument 2,etc.]\n");
 				System.out.print("\nNOTE: The (-e) option specifies real time mode to accept input from\n"
-						+ "the standard output (console output) of another program. Stepchart will\n"
-						+ "be enabled automatically.\n\n");
+						+ "the standard output (console output) of another program.\n\n");
 
 				System.out.println("-t : [port] *Specifies real time mode to accept TCP input on the port*\n");
 
@@ -271,7 +276,15 @@ public class Main {
 					|| s.equals("-L") || s.equals("-t")) {
 				// Command Line parameter with an argument...
 				arg_count++;
+				if(arg_count >= args.length){
+					System.out.println("Incorrect command line usage. Check --help\n");
+					System.exit(0);
+				}
 				argument = args[arg_count];
+				if(argument.startsWith("-")){
+					System.out.println("Incorrect command line usage: " + s + " " + argument);
+					System.exit(0);
+				}
 				param = s;
 				skip = true;
 
@@ -290,7 +303,7 @@ public class Main {
 				break;
 			case "-e":
 				rtMode = 'e';
-				stepchart = true;
+				//stepchart = true;
 				String[] execVals = argument.split(",");
 				rtExPath = execVals[0];
 				for (int i = 1; i < execVals.length; i++) {
@@ -319,12 +332,12 @@ public class Main {
 				break;
 			case "--parameter-names":
 			case "-P":
-				data.set_paramNames(true);
+				paramNames = true;
 				break;
 			case "--ACTSfile":
 			case "-A":
 				ACTSpath = argument;
-				data.set_acts_file_present(true);
+				ACTSfilePresent = true;
 				break;
 			case "--parallel":
 			case "-p":
@@ -437,7 +450,7 @@ public class Main {
 		 */
 
 		// Classic mode based off of the GUI version
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		lblStepChart.setSize(500, 500);
 		lblColumnChart.setSize(500, 500);
 		lblPointChart.setSize(500, 300);
@@ -445,6 +458,54 @@ public class Main {
 		frame.add(lblStepChart, BorderLayout.WEST);
 		frame.add(lblColumnChart, BorderLayout.EAST);
 		frame.pack();
+		
+		frame.addWindowListener(new WindowListener(){
+
+			@Override
+			public void windowActivated(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				frame.setFocusableWindowState(false);
+			}
+
+			@Override
+			public void windowClosed(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				stepchart = false;
+				barchart = false;
+				heatmap = false;
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowIconified(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowOpened(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 
 		// Check and make sure the tests input file is present...
 
@@ -452,7 +513,7 @@ public class Main {
 			progress[i] = 0;
 		}
 
-		if (data.isActsFilePresent()) {
+		if (ACTSfilePresent) {
 			// check ACTS file
 			if (!readTestCaseConfigurationFile(ACTSpath)) {
 				System.exit(0);
@@ -534,7 +595,7 @@ public class Main {
 		}
 
 		frame.pack();
-		max_array_size = TestData.get_rows();
+		max_array_size = nrows;
 
 		if (mode_realtime) {
 			/*
@@ -594,11 +655,13 @@ public class Main {
 
 
 								for(String[][] str : tway_objects[i].get_InvalidComb()){
+									String invalidCombString = "";
 									for (int z = 0; z < str.length; z++) {
 										String inval = str[z][0] + " = " + str[z][1] + " ; ";
-										Files.write(Paths.get(log_path), inval.getBytes(), StandardOpenOption.APPEND);
-										initial_invalid.put(inval, true);
+										invalidCombString += inval;
 									}
+									Files.write(Paths.get(log_path), invalidCombString.getBytes(), StandardOpenOption.APPEND);
+									initial_invalid.put(invalidCombString, true);
 									invalidCombIndex[i]++;
 									Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
 								}
@@ -665,7 +728,7 @@ public class Main {
 
 			parallel = false;
 			// Real time mode.
-			if (data.isActsFilePresent()) {
+			if (ACTSfilePresent) {
 
 				// ACTS file checks out.
 				// If constraints are present, they've already been processed.
@@ -676,7 +739,7 @@ public class Main {
 				/*
 				 * Time to set up real time monitoring.
 				 */
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				lblStepChart.setSize(500, 500);
 				frame.add(lblStepChart, BorderLayout.WEST);
 				frame.pack();
@@ -814,13 +877,13 @@ public class Main {
 				// present in the input file...
 
 				br.close();
-				data.set_columns(param_arg.split(",").length);
-				values = new String[data.get_columns()];
+				ncols = param_arg.split(",").length;
+				values = new String[ncols];
 				HashMapParameters();
 				setupParams(true);
 				if (num_rows > 0) {
-					data.set_rows(num_rows);
-					infile = new String[data.get_rows()];
+					nrows = num_rows;
+					infile = new String[nrows];
 					setupParams(false);
 				}
 
@@ -995,8 +1058,8 @@ public class Main {
 								System.out.println("Must have at least 2 values when defining an equivalence class.\n");
 								return false;
 							}
-							Parameter parm = data.get_parameters().get(paramIndex);
-							data.get_parameters().remove(parm);
+							Parameter parm = parameters.get(paramIndex);
+							parameters.remove(parm);
 							nbnds = (n - 1 > 0 ? n - 1 : 1);
 							nvals[paramIndex] = n;
 							if (bnd[paramIndex] == null)
@@ -1035,7 +1098,7 @@ public class Main {
 
 							values_array.add(tempory);
 
-							data.get_parameters().add(paramIndex, parm);
+							parameters.add(paramIndex, parm);
 
 							paramIndex++;
 
@@ -1054,18 +1117,15 @@ public class Main {
 							// Get the information
 							List<String> groupDeclarations = new ArrayList<String>();
 							String buffer = line.substring(line.indexOf("{"), line.length());
-							boolean in_group = false;
 							String temp_str = "";
 
 							for (char c : buffer.replaceAll("\\s", "").trim().toCharArray()) {
 								if (c == '{') {
-									in_group = true;
 									continue;
 
 								} else if (c == '}') {
 									groupDeclarations.add(temp_str);
 									temp_str = "";
-									in_group = false;
 								} else
 									temp_str += c;
 							}
@@ -1078,11 +1138,11 @@ public class Main {
 							// go ahead and add all the values to the parameter
 							for (int r = 0; r < all_groups.size(); r++) {
 								for (int g = 0; g < all_groups.get(r).length; g++) {
-									data.get_parameters().get(paramIndex).addValue(all_groups.get(r)[g]);
+									parameters.get(paramIndex).addValue(all_groups.get(r)[g]);
 								}
 							}
 
-							Parameter tp = data.get_parameters().get(paramIndex);
+							Parameter tp = parameters.get(paramIndex);
 							nvals[paramIndex] = groupDeclarations.size();
 
 							group[paramIndex] = new Object[groupDeclarations.size()];
@@ -1136,7 +1196,7 @@ public class Main {
 						}
 					} else if (in_tests_section && !line.replaceAll("\\s", "").equals("")) {
 						// Process the tests...
-						if (line.split(",").length != data.get_columns()) {
+						if (line.split(",").length != ncols) {
 							System.out.println(
 									"Test Set section of ACTS files has different number of parameters than specified in "
 											+ "Parameter section.\nExiting...");
@@ -1146,27 +1206,27 @@ public class Main {
 						// with the appropriate data type.
 						String[] testcase_vals = line.trim().split(",");
 						for (int i = 0; i < testcase_vals.length; i++) {
-							if (!data.get_parameters().get(i).getBoundary()
-									&& !data.get_parameters().get(i).getGroup()) {
+							if (!parameters.get(i).getBoundary()
+									&& !parameters.get(i).getGroup()) {
 								if (!Arrays.asList(values_array.get(i)).contains(testcase_vals[i])) {
 									System.out.println("Undefined value in the test set\n("
-											+ data.get_parameters().get(i).getName() + ") = " + testcase_vals[i]
+											+ parameters.get(i).getName() + ") = " + testcase_vals[i]
 											+ " @ Test Set Line: " + (test_index + 1));
 
 									return false;
 								}
 							} else {
-								if (data.get_parameters().get(i).getBoundary()) {
+								if (parameters.get(i).getBoundary()) {
 									if (!Tools.isNumeric(testcase_vals[i])) {
 										System.out.println("Undefined value in the test set\n("
-												+ data.get_parameters().get(i).getName() + ") = " + testcase_vals[i]
+												+ parameters.get(i).getName() + ") = " + testcase_vals[i]
 												+ " @ Test Set Line: " + (test_index + 1));
 										return false;
 									}
-								} else if (data.get_parameters().get(i).getGroup()) {
-									if (!data.get_parameters().get(i).getValuesO().contains(testcase_vals[i])) {
+								} else if (parameters.get(i).getGroup()) {
+									if (!parameters.get(i).getValuesO().contains(testcase_vals[i])) {
 										System.out.println("Undefined value in the test set\n("
-												+ data.get_parameters().get(i).getName() + ") = " + testcase_vals[i]
+												+ parameters.get(i).getName() + ") = " + testcase_vals[i]
 												+ " @ Test Set Line: " + (test_index + 1));
 
 										return false;
@@ -1192,13 +1252,13 @@ public class Main {
 				 * ADD THE VALUES TO THE PARAMETER
 				 */
 
-				if (values_array.size() != data.get_parameters().size()) {
+				if (values_array.size() != parameters.size()) {
 					System.out.println("Something went wrong reading the ACTS file.\n");
 					return false;
 				}
 				for (int z = 0; z < values_array.size(); z++) {
 					String[] temp_values = values_array.get(z);
-					Parameter tp = data.get_parameters().get(z);
+					Parameter tp = parameters.get(z);
 					try {
 						for (int x = 0; x < temp_values.length; x++) {
 							if (!temp_values[x].trim().equals("")) {
@@ -1336,7 +1396,7 @@ public class Main {
 						}
 						int m = 0;
 						String[] t = new String[temp_vals.size()];
-						for (String str : temp_vals) {
+						for (int j = 0; j < temp_vals.size(); j++) {
 							t[m] = temp_vals.get(m);
 							m++;
 						}
@@ -1353,9 +1413,9 @@ public class Main {
 			}
 			param_arg.trim().replaceAll("\\s", "");
 			param_arg = param_arg.substring(0, param_arg.length() - 1);
-			data.set_columns(param_arg.split(",").length);
+			ncols = param_arg.split(",").length;
 			CreateParameters(param_arg.split(",").length, param_arg);
-			values = new String[data.get_columns()];
+			values = new String[ncols];
 			HashMapParameters();
 			setupParams(true);
 
@@ -1368,7 +1428,6 @@ public class Main {
 						continue;
 					}
 					if (tempNode.hasAttributes()) {
-						String test_line = "";
 						if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
 							Element e = (Element) tempNode;
 							NodeList values = e.getChildNodes();
@@ -1376,7 +1435,7 @@ public class Main {
 								if (!values.item(z).getTextContent().replaceAll("\\s", "").equals(""))
 									num_pars++;
 							}
-							if (num_pars != data.get_parameters().size() + 1) {
+							if (num_pars != parameters.size() + 1) {
 								System.out.println(
 										"Error: Test cases don't have the same number of parameters as the defined parameters in configuration"
 												+ " file.\nCheck Testset " + (num_rows + 1) + "\n");
@@ -1390,19 +1449,19 @@ public class Main {
 			}
 
 			if (num_rows > 0) {
-				data.set_rows(num_rows);
-				infile = new String[data.get_rows()];
+				nrows = num_rows;
+				infile = new String[nrows];
 				setupParams(false);
 			}
 
-			if (values_array.size() != data.get_parameters().size()) {
+			if (values_array.size() != parameters.size()) {
 				System.out.println("Something went wrong reading the ACTS file.\n");
 				return false;
 			}
 
 			for (int z = 0; z < values_array.size(); z++) {
 				String[] temp_values = values_array.get(z);
-				Parameter tp = data.get_parameters().get(z);
+				Parameter tp = parameters.get(z);
 
 				try {
 					for (int x = 0; x < temp_values.length; x++) {
@@ -1520,7 +1579,7 @@ public class Main {
 									return false;
 								}
 
-								data.get_parameters().remove(z);
+								parameters.remove(z);
 								nbnds = (n - 1 > 0 ? n - 1 : 1);
 								nvals[z] = n;
 								if (bnd[z] == null)
@@ -1559,7 +1618,7 @@ public class Main {
 									tp.addValue(Integer.toString(b));
 								}
 
-								data.get_parameters().add(z, tp);
+								parameters.add(z, tp);
 
 								continue;
 							} else if (types.get(z) == 4) {
@@ -1605,7 +1664,7 @@ public class Main {
 									for (int r = 0; r < all_groups.size(); r++) {
 										for (int g = 0; g < all_groups.get(r).length; g++) {
 											if (!all_groups.get(r)[g].trim().equals("")) {
-												data.get_parameters().get(z).addValue(all_groups.get(r)[g].trim());
+												parameters.get(z).addValue(all_groups.get(r)[g].trim());
 											}
 
 										}
@@ -1629,12 +1688,12 @@ public class Main {
 
 								} else {
 									System.out.println("Not a valid group value in .xml file: ("
-											+ data.get_parameters().get(z).getName() + ") value = " + temp_values[x]);
+											+ parameters.get(z).getName() + ") value = " + temp_values[x]);
 									return false;
 								}
 							} else {
 								System.out.println("Value type not supported in .xml file: ("
-										+ data.get_parameters().get(z).getName() + ") type = " + types.get(z));
+										+ parameters.get(z).getName() + ") type = " + types.get(z));
 								return false;
 							}
 						}
@@ -1689,7 +1748,7 @@ public class Main {
 			// Parse the Test Cases
 			int current = 0;
 			if (!(testList == null)) {
-				for (int i = 0; i < data.get_rows();) {
+				for (int i = 0; i < nrows;) {
 					Node tempNode = testList.item(current);
 					if (!tempNode.getParentNode().getNodeName().equals("Testset")) {
 						continue;
@@ -1710,7 +1769,7 @@ public class Main {
 										continue;
 									}
 									test_line += (values.item(z).getTextContent().trim() + ",");
-									Parameter mp = data.get_parameters().get(param);
+									Parameter mp = parameters.get(param);
 									param++;
 									if (!mp.getGroup() && !mp.getBoundary()) {
 										if (!mp.getValues().contains(values.item(z).getTextContent().trim())) {
@@ -1835,11 +1894,11 @@ public class Main {
 		/*
 		 * If the ACTS file is present we need to look at this differently
 		 */
-		if (data.isActsFilePresent()) {
+		if (ACTSfilePresent) {
 			try {
 				int i = 0;
-				int ncols = 0;
-				int nrows = 0;
+				int cols = 0;
+				int rows = 0;
 
 				FileInputStream fstream = new FileInputStream(path);
 				DataInputStream in = new DataInputStream(fstream);
@@ -1850,15 +1909,15 @@ public class Main {
 				while ((line = br.readLine()) != null) {
 					values = line.split(",");
 					int columns = values.length;
-					if (columns != data.get_columns()) {
+					if (columns != ncols) {
 						System.out.println("\nTest case input file doesn't match up with ACTS file.\nExiting\n");
 						return false;
 					}
-					if (data.hasParamNames() && ncols == 0) {
+					if (paramNames && cols == 0) {
 						// Essentially auto detection mode for parameter values
 						// CreateParameters(columns, line);
 						int temp = 0;
-						for (Parameter pre : data.get_parameters()) {
+						for (Parameter pre : parameters) {
 							;
 							if (!values[temp].trim().replaceAll("\\s", "")
 									.equals(pre.getName().trim().replaceAll("\\s", ""))) {
@@ -1872,13 +1931,13 @@ public class Main {
 							}
 							temp++;
 						}
-						ncols = columns;
+						cols = columns;
 						continue;
 					}
 					if (line.contains(",")) {
 						values = line.split(",");
-						ncols = values.length;
-						if (ncols != data.get_columns()) {
+						cols = values.length;
+						if (cols != ncols) {
 							System.out.println("Test case input file doesn't match up with ACTS file.\n");
 							return false;
 						}
@@ -1887,10 +1946,10 @@ public class Main {
 
 				}
 
-				nrows = i;
+				rows = i;
 				br.close();
-				data.set_rows(nrows);
-				infile = new String[data.get_rows()];
+				nrows = rows;
+				infile = new String[nrows];
 				setupParams(false);
 			} catch (Exception ex) {
 
@@ -1908,7 +1967,7 @@ public class Main {
 					line.trim();
 					values = line.split(",");
 					int columns = values.length;
-					if (data.hasParamNames() && i == 0 && !read_params) {
+					if (paramNames && i == 0 && !read_params) {
 						read_params = true;
 						continue;
 					} else if (line.contains(",")) {
@@ -1916,28 +1975,28 @@ public class Main {
 						infile[i] = line;
 
 						for (int t = 0; t < values.length; t++) {
-							if (data.get_parameters().get(t).getBoundary()) {
+							if (parameters.get(t).getBoundary()) {
 								if (!Tools.isNumeric(values[t])) {
 									System.out.println("Undefined value in the test set\n("
-											+ data.get_parameters().get(t).getName() + ") = " + values[t]
+											+ parameters.get(t).getName() + ") = " + values[t]
 											+ " @ Test Set Line: " + (i + 1));
 									return false;
 								}
 								continue;
-							} else if (data.get_parameters().get(t).getGroup()) {
+							} else if (parameters.get(t).getGroup()) {
 								// Add error checking here to ensure only values
 								// defined in groups are here
-								if (!data.get_parameters().get(t).getValuesO().contains(values[t])) {
+								if (!parameters.get(t).getValuesO().contains(values[t])) {
 									System.out.println("Undefined value in the test set\n("
-											+ data.get_parameters().get(t).getName() + ") = " + values[t]
+											+ parameters.get(t).getName() + ") = " + values[t]
 											+ " @ Test Set Line: " + (i + 1));
 									return false;
 								}
 								continue;
 							}
-							if (!data.get_parameters().get(t).getValues().contains(values[t])) {
+							if (!parameters.get(t).getValues().contains(values[t])) {
 								System.out.println(
-										"Undefined value in the test set\n(" + data.get_parameters().get(t).getName()
+										"Undefined value in the test set\n(" + parameters.get(t).getName()
 												+ ") = " + values[t] + " @ Test Set Line: " + (i + 1));
 
 								return false;
@@ -1966,8 +2025,8 @@ public class Main {
 			 */
 
 			int i = 0;
-			int ncols = 0;
-			int nrows = 0;
+			int cols = 0;
+			int rows = 0;
 			FileInputStream fstream = new FileInputStream(path);
 			// Get the object of DataInputStream
 			DataInputStream in = new DataInputStream(fstream);
@@ -1979,43 +2038,42 @@ public class Main {
 				line.trim();
 				values = line.split(",");
 				int columns = values.length;
-				if (data.hasParamNames() && ncols == 0) {
+				if (paramNames && cols == 0) {
 					// Essentially auto detection mode for parameter values
 					CreateParameters(columns, line);
-					ncols = columns;
+					cols = columns;
 					continue;
-				} else if (!data.hasParamNames() && ncols == 0) {
+				} else if (paramNames && cols == 0) {
 					CreateParameters(columns, "");
-					ncols = columns;
-					nrows++;
+					cols = columns;
+					rows++;
 					continue;
-				} else if (data.hasParamNames() && ncols == 0) {
-					ncols = data.get_parameters().size();
+				} else if (paramNames && cols == 0) {
+					cols = parameters.size();
 					continue;
 				}
 				if (line.contains(",")) {
 					values = line.split(",");
-					ncols = values.length;
+					cols = values.length;
 					// Make sure that all rows have the same number of columns.
-					if ((i > 0 && ncols != lastlen) || ncols < 2) {
+					if ((i > 0 && cols != lastlen) || cols < 2) {
 						System.out.println("Invalid input file.\n must have same number of columns all rows");
 						br.close();
 						return false;
 					} else
-						lastlen = ncols;
+						lastlen = cols;
 					i++;
-					nrows++;
+					rows++;
 				}
 
 			}
 
-			// nrows = i;
 			br.close();
-			data.set_columns(ncols);
-			data.set_rows(nrows);
+			ncols = cols;
+			nrows = rows;
 			values = new String[ncols];
 			HashMapParameters();
-			infile = new String[data.get_rows()];
+			infile = new String[nrows];
 			setupParams(false);
 
 		} catch (Exception ex) {
@@ -2038,8 +2096,7 @@ public class Main {
 			while ((line = br.readLine()) != null) {
 				line.trim();
 				values = line.split(",");
-				int columns = values.length;
-				if (data.hasParamNames() && i == 0 && !read_params) {
+				if (paramNames && i == 0 && !read_params) {
 					read_params = true;
 					continue;
 				} else if (line.contains(",")) {
@@ -2065,13 +2122,13 @@ public class Main {
 	 * Adds a list of values to the parameters.
 	 */
 	public static void AddValuesToParameters(String[] values) {
-		if (values.length != data.get_parameters().size())
+		if (values.length != parameters.size())
 			return;
 		Parameter p;
 		try {
 			for (int x = 0; x < values.length; x++) {
 				if (!values[x].trim().equals("")) {
-					p = data.get_parameters().get(x);
+					p = parameters.get(x);
 					if (Tools.isNumeric(values[x])) {
 						p.setType(Parameter.PARAM_TYPE_INT);
 					} else {
@@ -2100,14 +2157,14 @@ public class Main {
 		for (int i = 0; i < number; i++) {
 			// if names are not in file, by default parameters will be named P1,
 			// P2, p3...
-			if (data.isActsFilePresent()) {
+			if (ACTSfilePresent) {
 				p = new Parameter(names[i].trim());
 			}
-			if (!data.hasParamNames() && !data.isActsFilePresent())
+			if (!paramNames && !ACTSfilePresent)
 				p = new Parameter("P" + (i + 1));
 			else
 				p = new Parameter(names[i].trim());
-			data.get_parameters().add(p);
+			parameters.add(p);
 		}
 	}
 
@@ -2131,7 +2188,7 @@ public class Main {
 				cp.parse();
 
 				// add constraint to list
-				data.get_constraints().add(new meConstraint(str, usedParams));
+				constraints.add(new meConstraint(str, usedParams));
 				usedParams = null;
 				return true;
 			}
@@ -2148,9 +2205,9 @@ public class Main {
 	// Key/Value list for parameters, used to solve constraints
 	public static void HashMapParameters() {
 		if (pars == null)
-			pars = new HashMap();
+			pars = new HashMap<String, Parameter>();
 		if (pars.size() == 0) {
-			for (Parameter p : data.get_parameters()) {
+			for (Parameter p : parameters) {
 				pars.put(p.getName(), p);
 			}
 		}
@@ -2166,7 +2223,7 @@ public class Main {
 		HashMap<String, Parameter> lp = new HashMap<String, Parameter>();
 		List<String> used_parameters = new ArrayList<String>();
 
-		for (Parameter p : data.get_parameters()) {
+		for (Parameter p : parameters) {
 			lp.put(p.getName(), p);
 		}
 
@@ -2213,9 +2270,9 @@ public class Main {
 	// Check to make sure constraints are not repeated
 	public static Boolean ConstraintExists(String str) {
 
-		for (int c = 0; c < data.get_constraints().size(); c++) {
+		for (int c = 0; c < constraints.size(); c++) {
 
-			if (data.get_constraints().get(c).get_cons().equalsIgnoreCase(str)) {
+			if (constraints.get(c).get_cons().equalsIgnoreCase(str)) {
 				System.out.println("The constriant already exists!!");
 				return true;
 			}
@@ -2239,52 +2296,52 @@ public class Main {
 															// needed for
 															// processing
 		try {
-			if (data.isActsFilePresent()) {
+			if (ACTSfilePresent) {
 				if (procACTS) {
 					// allocate array for 2-way heat map values
-					hm_colors2 = new int[data.get_columns()][];
-					for (int i = 0; i < data.get_columns(); i++) {
-						hm_colors2[i] = new int[data.get_columns()];
+					hm_colors2 = new int[ncols][];
+					for (int i = 0; i < ncols; i++) {
+						hm_colors2[i] = new int[ncols];
 					}
 
-					if (nvals == null || data.get_columns() != prev_ncols)
-						nvals = new int[data.get_columns()];
+					if (nvals == null || ncols != prev_ncols)
+						nvals = new int[ncols];
 
-					if (valSet == null || data.get_columns() != prev_ncols) {
-						valSet = new Boolean[data.get_columns()];
-						for (int i = 0; i < data.get_columns(); i++)
+					if (valSet == null || ncols != prev_ncols) {
+						valSet = new Boolean[ncols];
+						for (int i = 0; i < ncols; i++)
 							valSet[i] = false;
 					}
 
-					if (bnd == null || data.get_columns() != prev_ncols)
-						bnd = new double[data.get_columns()][];
+					if (bnd == null || ncols != prev_ncols)
+						bnd = new double[ncols][];
 
-					if (rng == null || data.get_columns() != prev_ncols) {
-						rng = new Boolean[data.get_columns()];
+					if (rng == null || ncols != prev_ncols) {
+						rng = new Boolean[ncols];
 						Arrays.fill(rng, Boolean.FALSE);
 					}
 
-					if (group == null || data.get_columns() != prev_ncols)
-						group = new Object[data.get_columns()][];
+					if (group == null || ncols != prev_ncols)
+						group = new Object[ncols][];
 
-					if (grp == null || data.get_columns() != prev_ncols) {
-						grp = new Boolean[data.get_columns()];
+					if (grp == null || ncols != prev_ncols) {
+						grp = new Boolean[ncols];
 						Arrays.fill(grp, Boolean.FALSE);
 					}
 
-					if (map == null || data.get_columns() != prev_ncols) {
-						map = new String[data.get_columns()][];
-						for (int i = 0; i < data.get_columns(); i++) {
+					if (map == null || ncols != prev_ncols) {
+						map = new String[ncols][];
+						for (int i = 0; i < ncols; i++) {
 							map[i] = new String[nmapMax];
 						}
 					}
-					prev_ncols = data.get_columns();
+					prev_ncols = ncols;
 				} else {
 
 					// allocate array for in-memory storage of tests
-					test = new int[data.get_rows()][];
-					for (int i = 0; i < data.get_rows(); i++) {
-						test[i] = new int[data.get_columns()];
+					test = new int[nrows][];
+					for (int i = 0; i < nrows; i++) {
+						test[i] = new int[ncols];
 					}
 
 				}
@@ -2293,49 +2350,49 @@ public class Main {
 				 * No ACTS File present... Set up everything here.
 				 */
 				// allocate array for in-memory storage of tests
-				test = new int[data.get_rows()][];
-				for (int i = 0; i < data.get_rows(); i++) {
-					test[i] = new int[data.get_columns()];
+				test = new int[nrows][];
+				for (int i = 0; i < nrows; i++) {
+					test[i] = new int[ncols];
 				}
 
 				// allocate array for 2-way heat map values
-				hm_colors2 = new int[data.get_columns()][];
-				for (int i = 0; i < data.get_columns(); i++) {
-					hm_colors2[i] = new int[data.get_columns()];
+				hm_colors2 = new int[ncols][];
+				for (int i = 0; i < ncols; i++) {
+					hm_colors2[i] = new int[ncols];
 				}
 
-				if (nvals == null || data.get_columns() != prev_ncols)
-					nvals = new int[data.get_columns()];
+				if (nvals == null || ncols != prev_ncols)
+					nvals = new int[ncols];
 
-				if (valSet == null || data.get_columns() != prev_ncols) {
-					valSet = new Boolean[data.get_columns()];
-					for (int i = 0; i < data.get_columns(); i++)
+				if (valSet == null || ncols != prev_ncols) {
+					valSet = new Boolean[ncols];
+					for (int i = 0; i < ncols; i++)
 						valSet[i] = false;
 				}
 
-				if (bnd == null || data.get_columns() != prev_ncols)
-					bnd = new double[data.get_columns()][];
+				if (bnd == null || ncols != prev_ncols)
+					bnd = new double[ncols][];
 
-				if (rng == null || data.get_columns() != prev_ncols) {
-					rng = new Boolean[data.get_columns()];
+				if (rng == null || ncols != prev_ncols) {
+					rng = new Boolean[ncols];
 					Arrays.fill(rng, Boolean.FALSE);
 				}
 
-				if (group == null || data.get_columns() != prev_ncols)
-					group = new Object[data.get_columns()][];
+				if (group == null || ncols != prev_ncols)
+					group = new Object[ncols][];
 
-				if (grp == null || data.get_columns() != prev_ncols) {
-					grp = new Boolean[data.get_columns()];
+				if (grp == null || ncols != prev_ncols) {
+					grp = new Boolean[ncols];
 					Arrays.fill(grp, Boolean.FALSE);
 				}
 
-				if (map == null || data.get_columns() != prev_ncols) {
-					map = new String[data.get_columns()][];
-					for (int i = 0; i < data.get_columns(); i++) {
+				if (map == null || ncols != prev_ncols) {
+					map = new String[ncols][];
+					for (int i = 0; i < ncols; i++) {
 						map[i] = new String[nmapMax];
 					}
 				}
-				prev_ncols = data.get_columns();
+				prev_ncols = ncols;
 			}
 
 		} catch (Exception ex) {
@@ -2368,7 +2425,7 @@ public class Main {
 		}
 
 		int i = start;
-		while (i < TestData.get_rows()) {
+		while (i < nrows) {
 			values = infile[i].split(",");
 
 			// locate this value in mapping array; if not found, create and
@@ -2379,7 +2436,7 @@ public class Main {
 
 			int j = 0;
 			int m = 0;
-			for (m = 0; m < TestData.get_columns(); m++) {
+			for (m = 0; m < ncols; m++) {
 
 				if (!rng[m] && !grp[m]) { // discrete values, not range
 
@@ -2395,10 +2452,10 @@ public class Main {
 						}
 
 					}
-					if (data.get_parameters().get(m).getValues().size() > nmapMax) {
+					if (parameters.get(m).getValues().size() > nmapMax) {
 						System.out.println("Maximum parameter values exceeded for parameter "
-								+ data.get_parameters().get(m).getName() + "="
-								+ data.get_parameters().get(m).getValues().size() + " values." + "\n");
+								+ parameters.get(m).getName() + "="
+								+ parameters.get(m).getValues().size() + " values." + "\n");
 
 						return ERR;
 						// nmapMax = parameters[m].getValues().size();
@@ -2494,9 +2551,9 @@ public class Main {
 			i++;
 		}
 
-		if (!data.isActsFilePresent()) {
+		if (!ACTSfilePresent) {
 			int j;
-			for (i = 0; i < data.get_columns(); i++) { // set up number of
+			for (i = 0; i < ncols; i++) { // set up number of
 														// values for
 														// automatically
 														// detected parms
@@ -2509,26 +2566,8 @@ public class Main {
 			}
 		}
 
-		try {
+		return 0;
 
-			/*
-			 * SetTest = new String[data.get_rows()][];
-			 * 
-			 * for (int st = 0; st < data.get_rows(); st++) {
-			 * 
-			 * SetTest[st] = new String[data.get_columns()];
-			 * 
-			 * for (int v = 0; v < data.get_columns(); v++) {
-			 * 
-			 * if (!rng[v] && !grp[v]) { SetTest[st][v] = map[v][test[st][v]]; }
-			 * else { SetTest[st][v] = Integer.toString(test[st][v]); } } }
-			 */
-
-			return 0;
-		} catch (Exception ex) {
-			System.out.println("Problem with file or parameter/value specs.");
-			return ERR;
-		}
 
 	}
 
@@ -2549,23 +2588,23 @@ public class Main {
 		switch (t_way) {
 		case "2way":
 			tway_index = 0;
-			max = data.get_columns() - 1;
+			max = ncols - 1;
 			break;
 		case "3way":
 			tway_index = 1;
-			max = data.get_columns() - 2;
+			max = ncols - 2;
 			break;
 		case "4way":
 			tway_index = 2;
-			max = data.get_columns() - 3;
+			max = ncols - 3;
 			break;
 		case "5way":
 			tway_index = 3;
-			max = data.get_columns() - 4;
+			max = ncols - 4;
 			break;
 		case "6way":
 			tway_index = 4;
-			max = data.get_columns() - 5;
+			max = ncols - 5;
 			break;
 
 		}
@@ -2586,24 +2625,24 @@ public class Main {
 				Long timeway1 = System.currentTimeMillis();
 
 				if (tway_objects[tIndex] == null) {
-					tway_objects[tIndex] = new Tway(t_way, 0, temp_max, test, nvals, data.get_rows(),
-							data.get_columns(), data.get_parameters(), data.get_constraints(), map);
+					tway_objects[tIndex] = new Tway(t_way, 0, temp_max, test, nvals, nrows,
+							ncols, parameters, constraints, map);
 				} else {
 					switch (t_way) {
 					case "2way":
-						tway_objects[tIndex].updateTwoWay(data.get_rows() - 1, data.get_rows(), test);
+						tway_objects[tIndex].updateTwoWay(nrows - 1, nrows, test);
 						break;
 					case "3way":
-						tway_objects[tIndex].updateThreeWay(data.get_rows() - 1, data.get_rows(), test);
+						tway_objects[tIndex].updateThreeWay(nrows - 1, nrows, test);
 						break;
 					case "4way":
-						tway_objects[tIndex].updateFourWay(data.get_rows() - 1, data.get_rows(), test);
+						tway_objects[tIndex].updateFourWay(nrows - 1, nrows, test);
 						break;
 					case "5way":
-						tway_objects[tIndex].updateFiveWay(data.get_rows() - 1, data.get_rows(), test);
+						tway_objects[tIndex].updateFiveWay(nrows - 1, nrows, test);
 						break;
 					case "6way":
-						tway_objects[tIndex].updateSixWay(data.get_rows() - 1, data.get_rows(), test);
+						tway_objects[tIndex].updateSixWay(nrows - 1, nrows, test);
 						break;
 					}
 				}
@@ -2628,7 +2667,7 @@ public class Main {
 					tway_objects[tIndex].set_minCov(minCov);
 					tway_objects[tIndex].set_NGenTests(10000);
 					tway_objects[tIndex].set_map(map);
-					if (data.hasParamNames())
+					if (paramNames)
 						tway_objects[tIndex].set_parmName(1);
 					else
 						tway_objects[tIndex].set_parmName(0);
@@ -2719,15 +2758,22 @@ public class Main {
 
 					}
 				}
+				
+				if(!stepchart){
 
-				/*
-				 * if(mode_realtime && !initial_complete[tIndex]){
-				 * switch(t_way){ case "2way": tway_initialized[0] = true;
-				 * break; case "3way": tway_initialized[1] = true; break; case
-				 * "4way": tway_initialized[2] = true; break; case "5way":
-				 * tway_initialized[3] = true; break; case "6way":
-				 * tway_initialized[4] = true; break; } }
-				 */
+					if (mode_realtime) {
+						//No clear functionality in java...
+						System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+								+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+						for (int i = 0; i < 5; i++) {
+							if (tway_objects[i] != null) {
+								if (initial_complete[i]) {
+									System.out.println(real_time_cmd_results[i]);
+								}
+							}
+						}
+					}
+				}
 
 			}
 		};
@@ -2739,31 +2785,31 @@ public class Main {
 
 		switch (tway) {
 		case "2way":
-			if (data.get_columns() < 2) {
+			if (ncols < 2) {
 				System.out.println("Cannot compute 2-way coverage for less than 2 parameters");
 				return false;
 			}
 			break;
 		case "3way":
-			if (data.get_columns() < 3) {
+			if (ncols < 3) {
 				System.out.println("Cannot compute 3-way coverage for less than 3 parameters");
 				return false;
 			}
 			break;
 		case "4way":
-			if (data.get_columns() < 4) {
+			if (ncols < 4) {
 				System.out.println("Cannot compute 4-way coverage for less than 4 parameters");
 				return false;
 			}
 			break;
 		case "5way":
-			if (data.get_columns() < 5) {
+			if (ncols < 5) {
 				System.out.println("Cannot compute 5-way coverage for less than 5 parameters");
 				return false;
 			}
 			break;
 		case "6way":
-			if (data.get_columns() < 6) {
+			if (ncols < 6) {
 				System.out.println("Cannot compute 6-way coverage for less than 6 parameters");
 				return false;
 			}
@@ -2848,7 +2894,7 @@ public class Main {
 				return results;
 			}
 
-			if (data.get_columns() > 100) {
+			if (ncols > 100) {
 				System.out.println("Heat mat will not shown. Max of 100 parameters for heat map.");
 			} else {
 				XYSeries red = new XYSeries("red", false, true);
@@ -2857,8 +2903,8 @@ public class Main {
 				XYSeries green = new XYSeries("green", false, true);
 				XYSeries blue = new XYSeries("blue", false, true);
 
-				for (int i = 0; i < data.get_columns() - 1; i++) {
-					for (int j = i + 1; j < data.get_columns(); j++) {
+				for (int i = 0; i < ncols - 1; i++) {
+					for (int j = i + 1; j < ncols; j++) {
 						if (hm_colors2[i][j] == 0) {
 							red.add(i, j);
 						}
@@ -2904,8 +2950,8 @@ public class Main {
 				plot.getRenderer().setSeriesPaint(data2.indexOf("green"), new Color(34, 177, 76));
 				plot.getRenderer().setSeriesPaint(data2.indexOf("blue"), Color.blue);
 
-				Shape cross = ShapeUtilities.createRegularCross(lblPointChart.getWidth() / data.get_columns(),
-						lblPointChart.getWidth() / data.get_columns());
+				Shape cross = ShapeUtilities.createRegularCross(lblPointChart.getWidth() / ncols,
+						lblPointChart.getWidth() / ncols);
 
 				plot.getRenderer().setSeriesShape(data2.indexOf("red"), cross);
 				plot.getRenderer().setSeriesShape(data2.indexOf("orange"), cross);
@@ -2917,11 +2963,11 @@ public class Main {
 
 				final NumberAxis domainAxis = new NumberAxis("");
 
-				domainAxis.setRange(0.00, data.get_columns());
-				domainAxis.setTickUnit(new NumberTickUnit(data.get_columns() > 10 ? 10 : 1));
+				domainAxis.setRange(0.00, ncols);
+				domainAxis.setTickUnit(new NumberTickUnit(ncols > 10 ? 10 : 1));
 
 				final NumberAxis rangeAxis = new NumberAxis("");
-				rangeAxis.setRange(0, data.get_columns());
+				rangeAxis.setRange(0, ncols);
 
 				rangeAxis.setVisible(false);
 
@@ -3498,7 +3544,8 @@ public class Main {
 		frame.setVisible(true);
 
 		if (mode_realtime) {
-			System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+			System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+					+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 			for (int i = 0; i < 5; i++) {
 				if (tway_objects[i] != null) {
 					if (initial_complete[i]) {
@@ -3649,9 +3696,9 @@ public class Main {
 			// public void run() {
 			CSolver solver = new CSolver();
 
-			solver.SetConstraints(data.get_constraints()); // set constraint to
+			solver.SetConstraints(constraints); // set constraint to
 			// solver model
-			solver.SetParameter(data.get_parameters()); // set parameters to
+			solver.SetParameter(parameters); // set parameters to
 														// solver
 			// model
 
@@ -3660,20 +3707,9 @@ public class Main {
 			// if (chkMeasureCoverage.isSelected()) {
 			if (true) {
 				infile = solver.infile();
-				// int ncols = data.get_columns();
-				// int nrows = solver.NoRandomTests();
-				// txtNumConstraints.setText(Integer.toString(constraints.size()));
-				data.set_rows(numberOfRandom);
+				nrows = numberOfRandom;
 				setupParams(false);
 				setupFile(0);
-				// tcMain.setEnabledAt(0, true);
-				// tcMain.setEnabledAt(1, false);
-				// tcMain.setSelectedIndex(0);
-				// nrowsBox.setValue(nrows);
-				// nColsBox.setValue(ncols);
-				// loadComplete = true;
-				// FileLoaded(loadComplete);
-
 			}
 			System.out.println("\n\nAdded randomly generated tests to " + random_path);
 			// }

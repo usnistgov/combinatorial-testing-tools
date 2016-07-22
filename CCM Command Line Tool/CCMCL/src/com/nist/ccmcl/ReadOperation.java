@@ -21,7 +21,7 @@ public abstract class ReadOperation implements Runnable {
 
 			@Override
 			public void run() {
-				running = false;
+				running = true;
 				try {
 					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
 					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
@@ -38,7 +38,11 @@ public abstract class ReadOperation implements Runnable {
 					@Override
 					public void run() {
 						try {
+							for(int i = 0; i < 5; i++)
+
+							running = false;
 							for(int i = 0; i < 5; i++){
+
 								if(Main.tway_objects[i] != null){
 									try{
 										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
@@ -47,16 +51,16 @@ public abstract class ReadOperation implements Runnable {
 										Files.write(Paths.get(Main.log_path), title.getBytes(), StandardOpenOption.APPEND);
 										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
 										Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-
-										int start = 0;
 										for(String[][] str : Main.tway_objects[i].get_InvalidComb()){
 											boolean newinvalid = false;
+											String invalidCombString = "";
 											for (int z = 0; z < str.length; z++) {
 												String inval = str[z][0] + " = " + str[z][1] + " ; ";
-												if(!Main.initial_invalid.containsKey(inval)){
-													Files.write(Paths.get(Main.log_path), inval.getBytes(), StandardOpenOption.APPEND);
-													newinvalid = true;
-												}
+												invalidCombString += inval;
+											}
+											if(!Main.initial_invalid.containsKey(invalidCombString)){
+												Files.write(Paths.get(Main.log_path), invalidCombString.getBytes(), StandardOpenOption.APPEND);
+												newinvalid = true;
 											}
 											if(newinvalid)
 												Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
@@ -123,7 +127,7 @@ public abstract class ReadOperation implements Runnable {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-
+						
 					}
 				});
 
@@ -131,10 +135,9 @@ public abstract class ReadOperation implements Runnable {
 				while (true) {
 					String input;
 					try {
-
 						input = buffer.take();
-						int position = TestData.get_rows();
-						if (TestData.get_rows() < 1) {
+						int position = Main.nrows;
+						if (Main.nrows < 1) {
 							Main.infile = new String[1];
 							Main.test = new int[1][];
 							Main.max_array_size = 0;
@@ -161,8 +164,8 @@ public abstract class ReadOperation implements Runnable {
 						}
 
 						Main.infile[position] = input;
-						Main.test[position] = new int[TestData.get_columns()];
-						TestData.set_rows(position + 1);
+						Main.test[position] = new int[Main.ncols];
+						Main.nrows = position + 1;
 						int status = Main.setupFile(position);
 						if (status == -1) {
 							continue;
