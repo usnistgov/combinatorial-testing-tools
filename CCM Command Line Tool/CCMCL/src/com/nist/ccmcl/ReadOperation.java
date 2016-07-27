@@ -23,12 +23,15 @@ public abstract class ReadOperation implements Runnable {
 			public void run() {
 				running = true;
 				try {
-					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-					String title = "NEW TEST CASES:";
-					Files.write(Paths.get(Main.log_path), title.getBytes(), StandardOpenOption.APPEND);
-					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-					Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+					if(Main.logRT){
+						Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+						Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+						String title = "NEW TEST CASES:";
+						Files.write(Paths.get(Main.log_path), title.getBytes(), StandardOpenOption.APPEND);
+						Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+						Files.write(Paths.get(Main.log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+					}
+
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -38,9 +41,8 @@ public abstract class ReadOperation implements Runnable {
 					@Override
 					public void run() {
 						try {
-							for(int i = 0; i < 5; i++)
-
 							running = false;
+							Thread.sleep(1000);
 							for(int i = 0; i < 5; i++){
 
 								if(Main.tway_objects[i] != null){
@@ -123,7 +125,7 @@ public abstract class ReadOperation implements Runnable {
 
 								}
 							}
-						} catch (IOException e) {
+						} catch (IOException | InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}

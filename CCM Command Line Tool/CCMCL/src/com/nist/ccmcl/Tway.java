@@ -274,6 +274,8 @@ public class Tway extends RecursiveTask {
 		
 		for (i = _start; i < _end; i++) {
 			for (j = i + 1; j < _ncols; j++) {
+				
+				/*
 				// nComs++; //number of combinations
 				int[][] comcount = new int[_nvals[i]][];
 				for (ti = 0; ti < _nvals[i]; ti++) {
@@ -281,6 +283,11 @@ public class Tway extends RecursiveTask {
 					for(int zz = 0; zz < _nvals[j]; zz++){
 						comcount[ti][zz] = 0;
 					}
+				}
+				*/
+				int[][] comcount = new int[_nvals[i]][];
+				for (ti = 0; ti < _nvals[i]; ti++) {
+					comcount[ti] = new int[_nvals[j]];
 				}
 				
 				
@@ -302,6 +309,7 @@ public class Tway extends RecursiveTask {
 					pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]).toString();
 					
 					if (_constraints.size() > 0) {
+
 						if (validcomb.EvaluateCombination(pars)){
 							comcount[_test[m][i]][_test[m][j]] = 1;
 						}
@@ -362,7 +370,6 @@ public class Tway extends RecursiveTask {
 								_aInvalidComb.add(pars);
 							}
 							if (comcount[ni][nj] == 0 && _constraints.size() > 0 && _nrows > 0) {
-
 								if (!validcomb.EvaluateCombination(pars)) {
 									// count how many invalid configs are not
 									// contained in the test
@@ -370,7 +377,6 @@ public class Tway extends RecursiveTask {
 									comcount[ni][nj] = -3;
 									_aInvalidNotIn.add(pars);
 								}
-
 							}
 
 						}

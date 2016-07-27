@@ -956,7 +956,7 @@ public class Main {
 						// constraints.add(line);
 						continue;
 					} else if (in_param_section && !line.replaceAll("\\s", "").equals("")) {
-						// do this later...
+						
 
 						/*
 						 * Need to parse range and boundary values if present.
@@ -964,13 +964,16 @@ public class Main {
 						 */
 
 						String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
-						// String[] vals = value_line.split(",");
 
+						// String[] vals = value_line.split(",");
+						
 						if (value_line.contains("[") || value_line.contains("]") || value_line.contains("(")
 								|| value_line.contains(")")) {
 							// Range value in Interval notation
 							// Type = 3 for RANGES
 							types.add(3);
+							String param_name = line.substring(0, line.indexOf("(") - 1);
+							constraints.add(build_implicit_constraint(value_line,param_name));
 
 							/*
 							 * Get all the boundary values from the interval
@@ -1298,7 +1301,7 @@ public class Main {
 								"Constraints defined in ACTS file. Using those instead of constraints text file.\n");
 					System.out.println("PROCESSING CONSTRAINTS...");
 					for (String str : constraints) {
-						System.out.println(str);
+						//System.out.println(str);
 						if (!AddConstraint(str.trim())) {
 							System.out.println("\nBad constraint... EXITING\n");
 							return false;
@@ -1619,6 +1622,7 @@ public class Main {
 								}
 
 								parameters.add(z, tp);
+								constraints.add(build_implicit_constraint(temp_values[x].trim(), tp.getName()));
 
 								continue;
 							} else if (types.get(z) == 4) {
@@ -1728,7 +1732,7 @@ public class Main {
 			if (!all_constraints.isEmpty()) {
 				System.out.println("PROCESSING CONSTRAINTS...\n");
 				for (String str : all_constraints) {
-					System.out.println(str);
+					//System.out.println(str);
 					if (!AddConstraint(str.trim())) {
 						System.out.println("\nBAD CONSTRAINT... EXITING...\n");
 						return false;
@@ -1863,7 +1867,7 @@ public class Main {
 			br.close();
 			System.out.println("PROCESSING CONSTRAINTS...\n");
 			for (String str : constraints) {
-				System.out.println(str);
+				//System.out.println(str);
 				if (!AddConstraint(str.trim())) {
 					System.out.println("\nBAD CONSTRAINT... EXITING...\n");
 					return false;
@@ -3732,6 +3736,117 @@ public class Main {
 
 	public static synchronized void increment_progress(int prog_id) {
 		progress[prog_id]++;
+	}
+	
+	
+	/*
+	 * FOR SET NOTATION
+	 * 
+	 * This can be changed. It was thrown together fairly quick as a means of building a constraint from interval notation...
+	 * It works though sooo, yeah.
+	 * 
+	 */
+	
+	public static String build_implicit_constraint(String interval, String parameter){
+		String constraint = "(";
+		int grp_index = 0;
+		int side = 0;
+		String charbuilder = "";
+		int num1 = 0;
+		int num2 = 0;
+		String sides = "";
+		boolean checknums = false;
+		boolean nextgroup = false;
+		for(char c:interval.toCharArray()){
+			if(c == '[' || c == '('){
+				if(sides.length() == 1){
+					sides += c;
+				}
+				side = 0;
+				continue;
+			}
+
+			else if(c == ')' || c == ']'){
+				
+				side = 1;
+				if(nextgroup){
+					nextgroup = false;
+					sides = String.valueOf(c);
+					if(!charbuilder.equals("*"))
+						num1 = Integer.parseInt(charbuilder);
+					charbuilder = "";
+				}
+
+				continue;
+			}
+			
+			if(charbuilder.equals("") && c == ',')
+				continue;
+				
+			else if(c == ','){
+				if(charbuilder.equals("*")){
+					if(side == 0){
+						constraint += parameter + " = " + String.valueOf(grp_index) + " || ";
+						grp_index++;
+						charbuilder = "";
+						nextgroup = true;
+						continue;
+					}else if(side == 1){
+						constraint += parameter + " = " + String.valueOf(grp_index) + ")";
+						continue;
+					}
+					
+				}else{
+					if(charbuilder.equals(""))
+						continue;
+					if(side == 0){
+						if(sides.length() == 2){
+							num2 = Integer.parseInt(charbuilder);
+							charbuilder = "";
+							if(sides.equals("][")){
+
+								if((num2 - num1) != 1){
+									grp_index++;
+								}
+							}else if(sides.equals(")[")){
+								if((num2 - num1) != 0){
+									grp_index++;
+								}
+							}else if(sides.equals("](")){
+								if((num2 - num1) != 0){
+									grp_index++;
+								}
+							}else if(sides.equals(")(")){
+								if((num2 - num1) != -1){
+									grp_index++;
+								}
+							}
+							constraint += parameter + " = " + String.valueOf(grp_index) + " || ";
+							grp_index++;
+							sides = "";
+							nextgroup = true;
+							continue;
+						}
+						grp_index++;
+						constraint += parameter + " = " + String.valueOf(grp_index) + " || ";
+						charbuilder = "";
+						nextgroup = true;
+						continue;
+					}
+					if(side == 1){
+						num1 = Integer.parseInt(charbuilder);
+						charbuilder = "";
+						checknums = true;
+					}
+				}
+			}else{
+				charbuilder += c;
+			}
+		}
+		
+		constraint = constraint.substring(0, constraint.lastIndexOf("|") - 2);
+		constraint = constraint.trim() + ")";
+		return constraint.trim();
 	}
 
 }
