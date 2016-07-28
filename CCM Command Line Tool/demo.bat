@@ -37,13 +37,13 @@ GOTO MENU
 java -jar ccmcl.jar -I Examples\Example4\input_test.csv -P -T 2,3,4,5 -p -S -H -B -G -m 100 -o Examples\Example4\missingCombinations.txt -a
 GOTO MENU
 :REALTIMEEXAMPLE1
-java -jar ccmcl.jar -A "Examples\RealTime Example 1\ACTSfile.txt" -T 2,3,4,5,6 -S -B -H -p -R -e "Examples\RealTime Example 1\generate_fast.jar" -u 200
+java -jar ccmcl.jar -A "Examples\RealTime Example 1\ACTSfile.txt" -T 2,3,4,5,6 -S -B -H -p -R -e "Examples\RealTime Example 1\generate_fast.jar"
 GOTO MENU
 :REALTIMEEXAMPLE2
 java -jar ccmcl.jar -A "Examples\RealTime Example 2\ACTSfile.txt" -S -B -H -p -T 2,3,4,5,6 -R -e "Examples\RealTime Example 2\generate_fastest.jar" 
 GOTO MENU
 :REALTIMEEXAMPLE3
-java -jar ccmcl.jar -A "Examples\RealTime Example 3\apache.txt -T 2 -S -B -p -R -e "Examples\RealTime Example 3\apache_simulation.jar" -d
+java -jar ccmcl.jar -A "Examples\RealTime Example 3\apache.txt" -T 2 -S -B -p -R -e "Examples\RealTime Example 3\apache_simulation.jar" -d
 GOTO MENU
 :EXIT
 echo End Demo
