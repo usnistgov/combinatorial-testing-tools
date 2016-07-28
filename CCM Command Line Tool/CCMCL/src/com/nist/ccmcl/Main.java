@@ -450,7 +450,7 @@ public class Main {
 		 */
 
 		// Classic mode based off of the GUI version
-		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		lblStepChart.setSize(500, 500);
 		lblColumnChart.setSize(500, 500);
 		lblPointChart.setSize(500, 300);
@@ -739,7 +739,7 @@ public class Main {
 				/*
 				 * Time to set up real time monitoring.
 				 */
-				//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				lblStepChart.setSize(500, 500);
 				frame.add(lblStepChart, BorderLayout.WEST);
 				frame.pack();
