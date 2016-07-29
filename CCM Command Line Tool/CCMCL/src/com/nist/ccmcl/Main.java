@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
@@ -119,16 +121,18 @@ public class Main {
 	public static String ext;
 	public static boolean[] initial_complete = new boolean[5];
 	public static double[] initial_coverage = new double[5];
-	
+
 	public static boolean ACTSfilePresent = false;
 	public static boolean paramNames = false;
 	public static int nrows = 0;
 	public static int ncols = 0;
 	public static List<Parameter> parameters = new ArrayList<Parameter>();
 	public static List<meConstraint> constraints = new ArrayList<meConstraint>();
-	
+
 	public static boolean display_progress = false;
 	
+	public static int real_time_buffer_size = 0;
+
 	public static int[] invalidCombIndex = new int[5];
 
 	public static int[] tway_threads = new int[5];
@@ -138,8 +142,8 @@ public class Main {
 	public static String[] real_time_cmd_results = new String[5];
 	public static boolean logRT = false;
 	public static String log_path = "";
-	
-	public static HashMap<String, Boolean> initial_invalid = new HashMap<String,Boolean>();
+
+	public static HashMap<String, Boolean> initial_invalid = new HashMap<String, Boolean>();
 	/*
 	 * Real time arguments
 	 */
@@ -164,7 +168,7 @@ public class Main {
 
 	// can change this or user define it as cmd parameter
 	public static int nmapMax = 50;
-
+	public static boolean all_complete = false;
 	public static String[] report = new String[5];
 
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
@@ -276,12 +280,12 @@ public class Main {
 					|| s.equals("-L") || s.equals("-t")) {
 				// Command Line parameter with an argument...
 				arg_count++;
-				if(arg_count >= args.length){
+				if (arg_count >= args.length) {
 					System.out.println("Incorrect command line usage. Check --help\n");
 					System.exit(0);
 				}
 				argument = args[arg_count];
-				if(argument.startsWith("-")){
+				if (argument.startsWith("-")) {
 					System.out.println("Incorrect command line usage: " + s + " " + argument);
 					System.exit(0);
 				}
@@ -303,7 +307,7 @@ public class Main {
 				break;
 			case "-e":
 				rtMode = 'e';
-				//stepchart = true;
+				// stepchart = true;
 				String[] execVals = argument.split(",");
 				rtExPath = execVals[0];
 				for (int i = 1; i < execVals.length; i++) {
@@ -458,8 +462,8 @@ public class Main {
 		frame.add(lblStepChart, BorderLayout.WEST);
 		frame.add(lblColumnChart, BorderLayout.EAST);
 		frame.pack();
-		
-		frame.addWindowListener(new WindowListener(){
+
+		frame.addWindowListener(new WindowListener() {
 
 			@Override
 			public void windowActivated(WindowEvent arg0) {
@@ -470,7 +474,7 @@ public class Main {
 			@Override
 			public void windowClosed(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
@@ -484,27 +488,27 @@ public class Main {
 			@Override
 			public void windowDeactivated(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowDeiconified(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowIconified(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowOpened(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 		});
 
 		// Check and make sure the tests input file is present...
@@ -584,7 +588,6 @@ public class Main {
 					if (tway_values[i] != null) {
 						while (!initial_complete[i]) {
 							Thread.sleep(1000);
-							continue;
 						}
 					}
 				}
@@ -598,6 +601,7 @@ public class Main {
 		max_array_size = nrows;
 
 		if (mode_realtime) {
+			parallel = false;
 			/*
 			 * This is for the report... Sorry for the weird output.
 			 */
@@ -608,87 +612,104 @@ public class Main {
 				String title = "";
 				title = "***************************************************************************";
 				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
 				title = "*  CCMCL: Combinatorial Coverage Measurement Tool (Command Line Version)  *";
 				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
 				title = "*              National Institute of Standards and Technology             *";
 				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
 				title = "***************************************************************************";
 				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
 				title = "Initial tests:";
 				Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
 				if (max_array_size > 0) {
 
 					try {
-						//Log initial tests...
+						// Log initial tests...
 						for (int i = 0; i < infile.length; i++) {
 							Files.write(Paths.get(log_path), infile[i].getBytes(), StandardOpenOption.APPEND);
-							Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+							Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+									StandardOpenOption.APPEND);
 						}
-						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+								StandardOpenOption.APPEND);
+						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+								StandardOpenOption.APPEND);
+						Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+								StandardOpenOption.APPEND);
 
 					} catch (IOException e) {
 						// exception handling left as an exercise for the reader
 					}
-					
-					//Log initial invalid combinations...
-					for(int i = 0; i < 5; i++){
-						if(tway_objects[i] != null){
-							try{
-								title = "\n\nInitial " + (i+2) + "-way invalid combinations: \n";
+
+					// Log initial invalid combinations...
+					for (int i = 0; i < 5; i++) {
+						if (tway_objects[i] != null) {
+							try {
+								title = "\n\nInitial " + (i + 2) + "-way invalid combinations: \n";
 								Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+										StandardOpenOption.APPEND);
+								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+										StandardOpenOption.APPEND);
 
-
-								for(String[][] str : tway_objects[i].get_InvalidComb()){
+								for (String[][] str : tway_objects[i].get_InvalidComb()) {
 									String invalidCombString = "";
 									for (int z = 0; z < str.length; z++) {
 										String inval = str[z][0] + " = " + str[z][1] + " ; ";
 										invalidCombString += inval;
 									}
-									Files.write(Paths.get(log_path), invalidCombString.getBytes(), StandardOpenOption.APPEND);
+									Files.write(Paths.get(log_path), invalidCombString.getBytes(),
+											StandardOpenOption.APPEND);
 									initial_invalid.put(invalidCombString, true);
 									invalidCombIndex[i]++;
-									Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+									Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+											StandardOpenOption.APPEND);
 								}
-								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+										StandardOpenOption.APPEND);
+								Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+										StandardOpenOption.APPEND);
 
-								
-							}catch(IOException e){
-								
+							} catch (IOException e) {
+
 							}
 						}
 					}
 				}
-				
+
 				/*
 				 * End of code for the reporting stuff...
 				 */
-				
-				
-				
-				
-				for(int i = 0; i < 5; i++){
-					if(tway_objects[i] != null){
-						try{
+
+				for (int i = 0; i < 5; i++) {
+					if (tway_objects[i] != null) {
+						try {
 							title = "";
-							switch(i){
-							
+							switch (i) {
+
 							case 0:
 								title = "Initial 2-way coverage: " + initial_coverage[0];
 								break;
@@ -706,19 +727,27 @@ public class Main {
 								break;
 							}
 							Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-							Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-							
-						}catch(IOException e){
-							
+							Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+									StandardOpenOption.APPEND);
+
+						} catch (IOException e) {
+
 						}
 					}
 				}
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), ("==========================================" + 
-				"=============================================================================").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
-				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(), StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path),
+						("=========================================="
+								+ "=============================================================================")
+										.getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
+				Files.write(Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+						StandardOpenOption.APPEND);
 			}
 			/*
 			 * Load the tests infile into a file...
@@ -726,7 +755,6 @@ public class Main {
 			 * Save beginning and end position on tests...
 			 */
 
-			parallel = false;
 			// Real time mode.
 			if (ACTSfilePresent) {
 
@@ -956,7 +984,6 @@ public class Main {
 						// constraints.add(line);
 						continue;
 					} else if (in_param_section && !line.replaceAll("\\s", "").equals("")) {
-						
 
 						/*
 						 * Need to parse range and boundary values if present.
@@ -966,14 +993,14 @@ public class Main {
 						String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
 
 						// String[] vals = value_line.split(",");
-						
+
 						if (value_line.contains("[") || value_line.contains("]") || value_line.contains("(")
 								|| value_line.contains(")")) {
 							// Range value in Interval notation
 							// Type = 3 for RANGES
 							types.add(3);
 							String param_name = line.substring(0, line.indexOf("(") - 1);
-							constraints.add(build_implicit_constraint(value_line,param_name));
+							constraints.add(build_implicit_constraint(value_line, param_name));
 
 							/*
 							 * Get all the boundary values from the interval
@@ -1209,12 +1236,11 @@ public class Main {
 						// with the appropriate data type.
 						String[] testcase_vals = line.trim().split(",");
 						for (int i = 0; i < testcase_vals.length; i++) {
-							if (!parameters.get(i).getBoundary()
-									&& !parameters.get(i).getGroup()) {
+							if (!parameters.get(i).getBoundary() && !parameters.get(i).getGroup()) {
 								if (!Arrays.asList(values_array.get(i)).contains(testcase_vals[i])) {
-									System.out.println("Undefined value in the test set\n("
-											+ parameters.get(i).getName() + ") = " + testcase_vals[i]
-											+ " @ Test Set Line: " + (test_index + 1));
+									System.out.println(
+											"Undefined value in the test set\n(" + parameters.get(i).getName() + ") = "
+													+ testcase_vals[i] + " @ Test Set Line: " + (test_index + 1));
 
 									return false;
 								}
@@ -1301,7 +1327,7 @@ public class Main {
 								"Constraints defined in ACTS file. Using those instead of constraints text file.\n");
 					System.out.println("PROCESSING CONSTRAINTS...");
 					for (String str : constraints) {
-						//System.out.println(str);
+						// System.out.println(str);
 						if (!AddConstraint(str.trim())) {
 							System.out.println("\nBad constraint... EXITING\n");
 							return false;
@@ -1732,7 +1758,7 @@ public class Main {
 			if (!all_constraints.isEmpty()) {
 				System.out.println("PROCESSING CONSTRAINTS...\n");
 				for (String str : all_constraints) {
-					//System.out.println(str);
+					// System.out.println(str);
 					if (!AddConstraint(str.trim())) {
 						System.out.println("\nBAD CONSTRAINT... EXITING...\n");
 						return false;
@@ -1867,7 +1893,7 @@ public class Main {
 			br.close();
 			System.out.println("PROCESSING CONSTRAINTS...\n");
 			for (String str : constraints) {
-				//System.out.println(str);
+				// System.out.println(str);
 				if (!AddConstraint(str.trim())) {
 					System.out.println("\nBAD CONSTRAINT... EXITING...\n");
 					return false;
@@ -1981,9 +2007,9 @@ public class Main {
 						for (int t = 0; t < values.length; t++) {
 							if (parameters.get(t).getBoundary()) {
 								if (!Tools.isNumeric(values[t])) {
-									System.out.println("Undefined value in the test set\n("
-											+ parameters.get(t).getName() + ") = " + values[t]
-											+ " @ Test Set Line: " + (i + 1));
+									System.out
+											.println("Undefined value in the test set\n(" + parameters.get(t).getName()
+													+ ") = " + values[t] + " @ Test Set Line: " + (i + 1));
 									return false;
 								}
 								continue;
@@ -1991,17 +2017,16 @@ public class Main {
 								// Add error checking here to ensure only values
 								// defined in groups are here
 								if (!parameters.get(t).getValuesO().contains(values[t])) {
-									System.out.println("Undefined value in the test set\n("
-											+ parameters.get(t).getName() + ") = " + values[t]
-											+ " @ Test Set Line: " + (i + 1));
+									System.out
+											.println("Undefined value in the test set\n(" + parameters.get(t).getName()
+													+ ") = " + values[t] + " @ Test Set Line: " + (i + 1));
 									return false;
 								}
 								continue;
 							}
 							if (!parameters.get(t).getValues().contains(values[t])) {
-								System.out.println(
-										"Undefined value in the test set\n(" + parameters.get(t).getName()
-												+ ") = " + values[t] + " @ Test Set Line: " + (i + 1));
+								System.out.println("Undefined value in the test set\n(" + parameters.get(t).getName()
+										+ ") = " + values[t] + " @ Test Set Line: " + (i + 1));
 
 								return false;
 							}
@@ -2457,9 +2482,9 @@ public class Main {
 
 					}
 					if (parameters.get(m).getValues().size() > nmapMax) {
-						System.out.println("Maximum parameter values exceeded for parameter "
-								+ parameters.get(m).getName() + "="
-								+ parameters.get(m).getValues().size() + " values." + "\n");
+						System.out.println(
+								"Maximum parameter values exceeded for parameter " + parameters.get(m).getName() + "="
+										+ parameters.get(m).getValues().size() + " values." + "\n");
 
 						return ERR;
 						// nmapMax = parameters[m].getValues().size();
@@ -2558,20 +2583,19 @@ public class Main {
 		if (!ACTSfilePresent) {
 			int j;
 			for (i = 0; i < ncols; i++) { // set up number of
-														// values for
-														// automatically
-														// detected parms
+											// values for
+											// automatically
+											// detected parms
 				if (!rng[i] && !grp[i]) { // count how many value mappings used
 					for (j = 0; j < nmapMax && map[i][j] != null; j++)
-						;
-					nvals[i] = j; // j = # of value mappings have been
-									// established
+
+						nvals[i] = j; // j = # of value mappings have been
+										// established
 				}
 			}
 		}
 
 		return 0;
-
 
 	}
 
@@ -2629,26 +2653,29 @@ public class Main {
 				Long timeway1 = System.currentTimeMillis();
 
 				if (tway_objects[tIndex] == null) {
-					tway_objects[tIndex] = new Tway(t_way, 0, temp_max, test, nvals, nrows,
-							ncols, parameters, constraints, map);
+					tway_objects[tIndex] = new Tway(t_way, 0, temp_max, test, nvals, nrows, ncols, parameters,
+							constraints, map);
 				} else {
+
 					switch (t_way) {
 					case "2way":
-						tway_objects[tIndex].updateTwoWay(nrows - 1, nrows, test);
+						// fix start and end here...
+						tway_objects[tIndex].updateTwoWay(nrows - 1, nrows, test, 0, temp_max);
 						break;
 					case "3way":
-						tway_objects[tIndex].updateThreeWay(nrows - 1, nrows, test);
+						tway_objects[tIndex].updateThreeWay(nrows - 1, nrows, test, 0, temp_max);
 						break;
 					case "4way":
-						tway_objects[tIndex].updateFourWay(nrows - 1, nrows, test);
+						tway_objects[tIndex].updateFourWay(nrows - 1, nrows, test, 0, temp_max);
 						break;
 					case "5way":
-						tway_objects[tIndex].updateFiveWay(nrows - 1, nrows, test);
+						tway_objects[tIndex].updateFiveWay(nrows - 1, nrows, test, 0, temp_max);
 						break;
 					case "6way":
-						tway_objects[tIndex].updateSixWay(nrows - 1, nrows, test);
+						tway_objects[tIndex].updateSixWay(nrows - 1, nrows, test, 0, temp_max);
 						break;
 					}
+
 				}
 
 				// address later with parallel processing
@@ -2682,7 +2709,6 @@ public class Main {
 				}
 
 				// End of generating missing tests
-
 				ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
 				pool.invoke(tway_objects[tIndex]);
 
@@ -2713,8 +2739,8 @@ public class Main {
 					}
 
 				}
-
 				synchronized (results) {
+
 					switch (t_way) {
 					case "2way":
 
@@ -2728,7 +2754,6 @@ public class Main {
 						break;
 					case "3way":
 						// hm_colors3 = way.hm_colors3;
-
 						results = graph3way(tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
 								tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig, results,
 								timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size());
@@ -2762,20 +2787,20 @@ public class Main {
 
 					}
 				}
-				
-				if(!stepchart){
 
+				if (!stepchart && !barchart && !heatmap) {
 					if (mode_realtime) {
-						//No clear functionality in java...
-						System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-								+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+						System.out.println(
+								"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+										+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 						for (int i = 0; i < 5; i++) {
 							if (tway_objects[i] != null) {
 								if (initial_complete[i]) {
-									System.out.println(real_time_cmd_results[i]);
+									System.out.println(real_time_cmd_results[i] + " | Measuring " + tway_threads[i] + " new tests");
 								}
 							}
 						}
+						System.out.println("Tests in Queue: " + real_time_buffer_size);
 					}
 				}
 
@@ -2990,8 +3015,25 @@ public class Main {
 
 				frame.add(pointChartPanel, BorderLayout.CENTER);
 				frame.pack();
-				if (!stepchart && !barchart)
+				if (!stepchart && !barchart){
+					if (mode_realtime) {
+						System.out.println(
+								"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+										+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+						for (int i = 0; i < 5; i++) {
+							if (tway_objects[i] != null) {
+								if (initial_complete[i]) {
+									System.out.println(real_time_cmd_results[i] + " | Measuring " + tway_threads[i] + " new tests");
+								}
+							}
+						}
+						System.out.println("Tests in Queue: " + real_time_buffer_size);
+					}
 					frame.setVisible(true);
+
+				}
+				
+				
 
 			}
 
@@ -3000,6 +3042,7 @@ public class Main {
 
 		}
 		tway_threads[0]--;
+		initial_complete[0] = true;
 
 		return results;
 
@@ -3548,15 +3591,17 @@ public class Main {
 		frame.setVisible(true);
 
 		if (mode_realtime) {
-			System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-					+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+			System.out.println(
+					"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+							+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 			for (int i = 0; i < 5; i++) {
 				if (tway_objects[i] != null) {
 					if (initial_complete[i]) {
-						System.out.println(real_time_cmd_results[i]);
+						System.out.println(real_time_cmd_results[i] + " | Measuring " + tway_threads[i] + " new tests");
 					}
 				}
 			}
+			System.out.println("Tests in Queue: " + real_time_buffer_size);
 		}
 
 	}
@@ -3665,8 +3710,23 @@ public class Main {
 		chartPanel.setVisible(true);
 
 		frame.pack();
-		if (!stepchart)
+		if (!stepchart){
 			frame.setVisible(true);
+			if (mode_realtime) {
+				System.out.println(
+						"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+								+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+				for (int i = 0; i < 5; i++) {
+					if (tway_objects[i] != null) {
+						if (initial_complete[i]) {
+							System.out.println(real_time_cmd_results[i] + " | Measuring " + tway_threads[i] + " new tests");
+						}
+					}
+				}
+				System.out.println("Tests in Queue: " + real_time_buffer_size);
+			}
+		}
+			
 
 	}
 
@@ -3703,7 +3763,7 @@ public class Main {
 			solver.SetConstraints(constraints); // set constraint to
 			// solver model
 			solver.SetParameter(parameters); // set parameters to
-														// solver
+												// solver
 			// model
 
 			solver.SolverRandomTests((int) numberOfRandom, bwRandomTests);
@@ -3737,17 +3797,17 @@ public class Main {
 	public static synchronized void increment_progress(int prog_id) {
 		progress[prog_id]++;
 	}
-	
-	
+
 	/*
 	 * FOR SET NOTATION
 	 * 
-	 * This can be changed. It was thrown together fairly quick as a means of building a constraint from interval notation...
-	 * It works though sooo, yeah.
+	 * This can be changed. It was thrown together fairly quick as a means of
+	 * building a constraint from interval notation... It works though sooo,
+	 * yeah.
 	 * 
 	 */
-	
-	public static String build_implicit_constraint(String interval, String parameter){
+
+	public static String build_implicit_constraint(String interval, String parameter) {
 		String constraint = "(";
 		int grp_index = 0;
 		int side = 0;
@@ -3757,67 +3817,67 @@ public class Main {
 		String sides = "";
 		boolean checknums = false;
 		boolean nextgroup = false;
-		for(char c:interval.toCharArray()){
-			if(c == '[' || c == '('){
-				if(sides.length() == 1){
+		for (char c : interval.toCharArray()) {
+			if (c == '[' || c == '(') {
+				if (sides.length() == 1) {
 					sides += c;
 				}
 				side = 0;
 				continue;
 			}
 
-			else if(c == ')' || c == ']'){
-				
+			else if (c == ')' || c == ']') {
+
 				side = 1;
-				if(nextgroup){
+				if (nextgroup) {
 					nextgroup = false;
 					sides = String.valueOf(c);
-					if(!charbuilder.equals("*"))
+					if (!charbuilder.equals("*"))
 						num1 = Integer.parseInt(charbuilder);
 					charbuilder = "";
 				}
 
 				continue;
 			}
-			
-			if(charbuilder.equals("") && c == ',')
+
+			if (charbuilder.equals("") && c == ',')
 				continue;
-				
-			else if(c == ','){
-				if(charbuilder.equals("*")){
-					if(side == 0){
+
+			else if (c == ',') {
+				if (charbuilder.equals("*")) {
+					if (side == 0) {
 						constraint += parameter + " = " + String.valueOf(grp_index) + " || ";
 						grp_index++;
 						charbuilder = "";
 						nextgroup = true;
 						continue;
-					}else if(side == 1){
+					} else if (side == 1) {
 						constraint += parameter + " = " + String.valueOf(grp_index) + ")";
 						continue;
 					}
-					
-				}else{
-					if(charbuilder.equals(""))
+
+				} else {
+					if (charbuilder.equals(""))
 						continue;
-					if(side == 0){
-						if(sides.length() == 2){
+					if (side == 0) {
+						if (sides.length() == 2) {
 							num2 = Integer.parseInt(charbuilder);
 							charbuilder = "";
-							if(sides.equals("][")){
+							if (sides.equals("][")) {
 
-								if((num2 - num1) != 1){
+								if ((num2 - num1) != 1) {
 									grp_index++;
 								}
-							}else if(sides.equals(")[")){
-								if((num2 - num1) != 0){
+							} else if (sides.equals(")[")) {
+								if ((num2 - num1) != 0) {
 									grp_index++;
 								}
-							}else if(sides.equals("](")){
-								if((num2 - num1) != 0){
+							} else if (sides.equals("](")) {
+								if ((num2 - num1) != 0) {
 									grp_index++;
 								}
-							}else if(sides.equals(")(")){
-								if((num2 - num1) != -1){
+							} else if (sides.equals(")(")) {
+								if ((num2 - num1) != -1) {
 									grp_index++;
 								}
 							}
@@ -3833,17 +3893,17 @@ public class Main {
 						nextgroup = true;
 						continue;
 					}
-					if(side == 1){
+					if (side == 1) {
 						num1 = Integer.parseInt(charbuilder);
 						charbuilder = "";
 						checknums = true;
 					}
 				}
-			}else{
+			} else {
 				charbuilder += c;
 			}
 		}
-		
+
 		constraint = constraint.substring(0, constraint.lastIndexOf("|") - 2);
 		constraint = constraint.trim() + ")";
 		return constraint.trim();
