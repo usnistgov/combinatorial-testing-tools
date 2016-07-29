@@ -7,7 +7,7 @@ ECHO CCM Command Line Tool Demo Batch
 ECHO ...............................................
 ECHO.
 ECHO 1 - Example 1
-ECHO 2 - Example 2
+ECHO 2 - Example 2 (Warning: Processor Intensive, Long Example)
 ECHO 3 - Example 3
 ECHO 4 - Example 4
 ECHO 5 - Real Time Example 1
