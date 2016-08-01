@@ -297,7 +297,6 @@ public class Tway extends RecursiveTask {
 				// comcount i,j == 0
 				// for the combination designated by i,j increment counts
 				for (m = 0; m < _nrows; m++) {
-
 					String[][] pars = new String[2][];
 					pars[0] = new String[2];
 					pars[1] = new String[2];

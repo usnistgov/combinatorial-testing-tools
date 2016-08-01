@@ -879,6 +879,7 @@ public class Main {
 						constraints.add(line);
 						continue;
 					} else if (in_param_section && !line.replaceAll("\\s", "").equals("")) {
+						
 						String parameter_name = line.substring(0, line.indexOf("("));
 						params.add(parameter_name);
 					} else if (in_tests_section && !line.replaceAll("\\s", "").equals("")) {
@@ -889,8 +890,8 @@ public class Main {
 						// not in any of the right sections...
 						continue;
 					}
-				}
 
+				}
 				// Create the initial parameters...
 				String param_arg = "";
 				for (String name : params) {
@@ -898,7 +899,11 @@ public class Main {
 					param_arg += ",";
 				}
 				param_arg.trim().replaceAll("\\s", "");
+				if(param_arg.equals("")){
+					System.out.println("Make sure the parameter section is defined right in the ACTS configuration file.\n\nCheck the spelling.\n\n");
+				}
 				param_arg = param_arg.substring(0, param_arg.length() - 1);
+
 				CreateParameters(param_arg.split(",").length, param_arg);
 
 				// Set the number of parameters and columns that should be
@@ -907,6 +912,7 @@ public class Main {
 				br.close();
 				ncols = param_arg.split(",").length;
 				values = new String[ncols];
+
 				HashMapParameters();
 				setupParams(true);
 				if (num_rows > 0) {
@@ -940,6 +946,7 @@ public class Main {
 					if (line.trim().length() == 0)
 						continue;
 					line = line.trim();
+
 					Matcher m = p.matcher(line);
 					if (m.find()) {
 						switch (m.group(1)) {
@@ -990,7 +997,7 @@ public class Main {
 						 * 
 						 */
 
-						String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim();
+						String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim().replaceAll("\\s", "");
 
 						// String[] vals = value_line.split(",");
 
@@ -1406,6 +1413,7 @@ public class Main {
 				if (!tempNode.getParentNode().getNodeName().equals("Parameters"))
 					continue;
 				if (tempNode.hasAttributes()) {
+					
 					if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
 						Element e = (Element) tempNode;
 						String name = e.getAttribute("name");
@@ -1443,11 +1451,11 @@ public class Main {
 			param_arg.trim().replaceAll("\\s", "");
 			param_arg = param_arg.substring(0, param_arg.length() - 1);
 			ncols = param_arg.split(",").length;
+
 			CreateParameters(param_arg.split(",").length, param_arg);
 			values = new String[ncols];
 			HashMapParameters();
 			setupParams(true);
-
 			int num_pars = 0;
 			int num_rows = 0;
 			if (!(testList == null)) {
@@ -1456,6 +1464,7 @@ public class Main {
 					if (!tempNode.getParentNode().getNodeName().equals("Testset")) {
 						continue;
 					}
+
 					if (tempNode.hasAttributes()) {
 						if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
 							Element e = (Element) tempNode;
@@ -1464,7 +1473,7 @@ public class Main {
 								if (!values.item(z).getTextContent().replaceAll("\\s", "").equals(""))
 									num_pars++;
 							}
-							if (num_pars != parameters.size() + 1) {
+							if (num_pars!= parameters.size() + 1) {
 								System.out.println(
 										"Error: Test cases don't have the same number of parameters as the defined parameters in configuration"
 												+ " file.\nCheck Testset " + (num_rows + 1) + "\n");
@@ -1474,6 +1483,7 @@ public class Main {
 							num_pars = 0;
 						}
 					}
+
 				}
 			}
 
@@ -1758,7 +1768,7 @@ public class Main {
 			if (!all_constraints.isEmpty()) {
 				System.out.println("PROCESSING CONSTRAINTS...\n");
 				for (String str : all_constraints) {
-					// System.out.println(str);
+					 System.out.println(str);
 					if (!AddConstraint(str.trim())) {
 						System.out.println("\nBAD CONSTRAINT... EXITING...\n");
 						return false;
@@ -1779,56 +1789,65 @@ public class Main {
 			int current = 0;
 			if (!(testList == null)) {
 				for (int i = 0; i < nrows;) {
+					System.out.println("CHECKING test " + i);
 					Node tempNode = testList.item(current);
 					if (!tempNode.getParentNode().getNodeName().equals("Testset")) {
 						continue;
 					}
+				
 					if (tempNode.hasAttributes()) {
 						String test_line = "";
 						if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
 							Element e = (Element) tempNode;
-							NodeList values = e.getChildNodes();
+							NodeList values_list = e.getChildNodes();
+							
 							int param = 0;
 							boolean first_value = true;
-							for (int z = 0; z < values.getLength(); z++) {
-								if (!values.item(z).getTextContent().replaceAll("\\s", "").equals("")) {
+							for (int z = 0; z < values_list.getLength(); z++) {
+								if (!values_list.item(z).getTextContent().replaceAll("\\s", "").equals("")) {
 									if (first_value) {
 										// The first value defines the test set
 										// number according to ACTS format
 										first_value = false;
 										continue;
 									}
-									test_line += (values.item(z).getTextContent().trim() + ",");
+									test_line += (values_list.item(z).getTextContent().trim() + ",");
+									System.out.println("ON parameter " + param + " | " + parameters.get(param).getName());
 									Parameter mp = parameters.get(param);
 									param++;
 									if (!mp.getGroup() && !mp.getBoundary()) {
-										if (!mp.getValues().contains(values.item(z).getTextContent().trim())) {
+										if (!mp.getValues().contains(values_list.item(z).getTextContent().trim())) {
 											System.out.println("\nNot a valid value in test case: " + (i + 1)
-													+ "\n(value) = " + values.item(z).getTextContent()
+													+ "\n(value) = " + values_list.item(z).getTextContent()
 													+ " [TEST SET LINE: " + test_line.split(",").length + "]\nEXITING");
+											
+											System.out.println("Valid values are: " );
+											for(String val : mp.getValues()){
+												System.out.println(val);
+											}
 											return false;
 										}
 									} else if (mp.getGroup() || mp.getBoundary()) {
 										if (mp.getGroup()) {
-											if (!mp.getValuesO().contains(values.item(z).getTextContent().trim())) {
+											if (!mp.getValuesO().contains(values_list.item(z).getTextContent().trim())) {
 												System.out.println(
 														"\nNot a valid value in test case: " + (i + 1) + "\n(value) = "
-																+ values.item(z).getTextContent() + " [TEST SET LINE: "
+																+ values_list.item(z).getTextContent() + " [TEST SET LINE: "
 																+ test_line.split(",").length + "]\nEXITING");
 												return false;
 											}
 										} else {
-											if (!Tools.isNumeric(values.item(z).getTextContent().trim())) {
+											if (!Tools.isNumeric(values_list.item(z).getTextContent().trim())) {
 												System.out.println(
 														"\nNot a valid value in test case: " + (i + 1) + "\n(value) = "
-																+ values.item(z).getTextContent() + " [TEST SET LINE: "
+																+ values_list.item(z).getTextContent() + " [TEST SET LINE: "
 																+ test_line.split(",").length + "]\nEXITING");
 												return false;
 											}
 										}
 									} else {
 										System.out.println("\nSomething went wrong processing the parameter value: "
-												+ values.item(z).getTextContent() + "\n");
+												+ values_list.item(z).getTextContent() + "\n");
 										return false;
 									}
 								}
