@@ -22,7 +22,7 @@ A real time combinatorial coverage measurement tool. Based off of [CCM](http://c
 
 
 ### Preview: ###
-![CCMCL Graphs](/../Images/ccmcl_graphs.png)
+![CCMCL Graphs](/../master/Images/ccmcl_graphs.png)
 
 ##Classic Mode##
 
@@ -65,10 +65,10 @@ Below is an explanation for each command line argument and what exactly it is do
  - This launches the ccmcl.jar program. (Be sure you have Java installed.)
 2. `-I input_test.csv`
  - This input parameter specifies that the test cases will come from a comma separated value file.
- - ![input_test.csv image](/../Images/input_test.csv.png)
+ - ![input_test.csv image](/../master/Images/input_test.csv.png)
 3. `-A ACTSfile.txt`
  - This input parameter specifies that an ACTS configuration file will used to define the input domain. ACTS files can be either `.txt` or `.xml` format.
- - ![ACTSfile image](/../Images/ACTSfile.txt.png)
+ - ![ACTSfile image](/../master/Images/ACTSfile.txt.png)
 4. `-P`
  - This option simply specifies that in the test case file (`input_test.csv`), the first row is the parameter names. Include this option if this is the case. 
 5. `-T 2,3,4,5,6`
