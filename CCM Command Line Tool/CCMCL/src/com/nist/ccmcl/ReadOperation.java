@@ -138,6 +138,7 @@ public abstract class ReadOperation implements Runnable {
 					String input;
 					try {
 						input = buffer.take();
+						Main.real_time_buffer_size = buffer.size();
 						int position = Main.nrows;
 						if (Main.nrows < 1) {
 							Main.infile = new String[1];
@@ -145,11 +146,6 @@ public abstract class ReadOperation implements Runnable {
 							Main.max_array_size = 0;
 						}
 						if (position == Main.max_array_size) {
-							
-							for(int i = 0; i < 5; i++)
-								while(Main.tway_threads[i] != 0 && Main.tway_objects[i] != null){
-									Thread.sleep(1000);
-								}
 						
 							if (Main.max_array_size < 1000) {
 								Main.max_array_size = 1000;
@@ -207,6 +203,7 @@ public abstract class ReadOperation implements Runnable {
 								}
 							}
 						}
+
 						if(Main.logRT){
 							if(running){
 								try {
