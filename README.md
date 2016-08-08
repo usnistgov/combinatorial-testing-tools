@@ -21,7 +21,7 @@ A real time combinatorial coverage measurement tool. Based off of [CCM](http://c
   - TCP/IP 
 - Specify robust constraints
 - Support for equivalence classes and groups via SET notation definitions
-- Read ACTS configuration files via .txt or .xml 
+- Read ACTS configuration files via `.txt` or `.xml` 
 
 
 ### Preview: ###
