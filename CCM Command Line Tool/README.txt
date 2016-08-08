@@ -1,1 +1,0 @@
-This is a Combinatorial Coverage Measurement tool designed to measure coverage in real time
