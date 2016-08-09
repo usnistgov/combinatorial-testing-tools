@@ -1368,13 +1368,11 @@ public class Main
 
                             for (char c : buffer.replaceAll("\\s", "").trim().toCharArray())
                             {
-//                                if (c == '{')
-//                                {
-//                                    continue;
-//
-//                                }
-                                /*else*/
-                                if (c == '}')
+                                if (c == '{')
+                                {
+                                    continue;
+                                }
+                                else if (c == '}')
                                 {
                                     groupDeclarations.add(temp_str);
                                     temp_str = "";
@@ -1527,10 +1525,10 @@ public class Main
                         test_index++;
 
                     }
-//                    else
-//                    {
-//                        continue;
-//                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
                 br.close();
 
@@ -1690,8 +1688,8 @@ public class Main
                         break;
                     case "Testset":
                         testList = topLevelNodes.item(i).getChildNodes();
-//                    default:
-//                        continue;
+                    default:
+                        continue;
                 }
             }
 
@@ -2075,13 +2073,12 @@ public class Main
 
                                     for (char c : buffer.toCharArray())
                                     {
-//                                        if (c == '{')
-//                                        {
-//                                            continue;
-//
-//                                        }
-                                        /*else */
-                                        if (c == '}')
+                                        if (c == '{')
+                                        {
+                                            continue;
+
+                                        }
+                                        else if (c == '}')
                                         {
                                             groupDeclarations.add(temp_str);
                                             temp_str = "";
@@ -2372,7 +2369,7 @@ public class Main
             while ((line = br.readLine()) != null)
             {
                 constraints.add(line);
-//                continue;
+                continue;
             }
             br.close();
             System.out.println("PROCESSING CONSTRAINTS...\n");
@@ -4763,12 +4760,12 @@ public class Main
                         grp_index++;
                         charbuilder = "";
                         nextgroup = true;
-//                        continue;
+                        continue;
                     }
                     else
                     {
                         constraint += parameter + " = " + String.valueOf(grp_index) + ")";
-//                        continue;
+                        continue;
                     }
 
                 }
