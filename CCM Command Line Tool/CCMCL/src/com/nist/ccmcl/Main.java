@@ -586,220 +586,7 @@ public class Main
             /*
              * This is for the report... Sorry for the weird output.
 			 */
-            if (logRT)
-            {
-                File f = new File(log_path);
-                f.delete();
-                f.createNewFile();
-                String title;
-                title = RepeatString("*", 75);
-                Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                title = "*  CCMCL: Combinatorial Coverage Measurement Tool (Command Line Version)  *";
-                Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                title = "*              National Institute of Standards and Technology             *";
-                Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                title = RepeatString("*", 75);
-                Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                title = "Initial tests:";
-                Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                if (max_array_size > 0)
-                {
-                    try
-                    {
-                        // Log initial tests...
-                        for (String anInfile : infile)
-                        {
-                            Files.write(Paths.get(log_path), anInfile.getBytes(), StandardOpenOption.APPEND);
-                            Files.write(
-                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                    StandardOpenOption.APPEND
-                                       );
-                        }
-                        Files.write(
-                                Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                StandardOpenOption.APPEND
-                                   );
-                        Files.write(
-                                Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                StandardOpenOption.APPEND
-                                   );
-                        Files.write(
-                                Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                StandardOpenOption.APPEND
-                                   );
-
-                    }
-                    catch (IOException e)
-                    {
-                        // exception handling left as an exercise for the reader
-                    }
-
-                    // Log initial invalid combinations...
-                    for (int i = 0; i < 5; i++)
-                    {
-                        if (tway_objects[i] != null)
-                        {
-                            try
-                            {
-                                title = "\n\nInitial " + (i + 2) + "-way invalid combinations: \n";
-                                Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-                                Files.write(
-                                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                        StandardOpenOption.APPEND
-                                           );
-                                Files.write(
-                                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                        StandardOpenOption.APPEND
-                                           );
-
-                                for (String[][] str : tway_objects[i].get_InvalidComb())
-                                {
-                                    String invalidCombString = "";
-                                    for (String[] aStr : str)
-                                    {
-                                        String inval = aStr[0] + " = " + aStr[1] + " ; ";
-                                        invalidCombString += inval;
-                                    }
-                                    Files.write(
-                                            Paths.get(log_path), invalidCombString.getBytes(),
-                                            StandardOpenOption.APPEND
-                                               );
-                                    initial_invalid.put(invalidCombString, true);
-                                    invalidCombIndex[i]++;
-                                    Files.write(
-                                            Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                            StandardOpenOption.APPEND
-                                               );
-                                }
-                                Files.write(
-                                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                        StandardOpenOption.APPEND
-                                           );
-                                Files.write(
-                                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                        StandardOpenOption.APPEND
-                                           );
-
-                            }
-                            catch (IOException ignored)
-                            {
-
-                            }
-                        }
-                    }
-                }
-
-				/*
-                 * End of code for the reporting stuff...
-				 */
-
-                for (int i = 0; i < 5; i++)
-                {
-                    if (tway_objects[i] != null)
-                    {
-                        try
-                        {
-                            title = "";
-                            switch (i)
-                            {
-
-                                case 0:
-                                    title = "Initial 2-way coverage: " + initial_coverage[0];
-                                    break;
-                                case 1:
-                                    title = "Initial 3-way coverage: " + initial_coverage[1];
-                                    break;
-                                case 2:
-                                    title = "Initial 4-way coverage: " + initial_coverage[2];
-                                    break;
-                                case 3:
-                                    title = "Initial 5-way coverage: " + initial_coverage[3];
-                                    break;
-                                case 4:
-                                    title = "Initial 6-way coverage: " + initial_coverage[4];
-                                    break;
-                            }
-                            Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
-                            Files.write(
-                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                    StandardOpenOption.APPEND
-                                       );
-
-                        }
-                        catch (IOException ignored)
-                        {
-
-                        }
-                    }
-                }
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), RepeatString("=", 114).getBytes(), StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-                Files.write(
-                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                        StandardOpenOption.APPEND
-                           );
-            }
+            LogRealTimeData();
             /*
              * Load the tests infile into a file...
 			 * 
@@ -819,7 +606,7 @@ public class Main
 				/*
                  * Time to set up real time monitoring.
 				 */
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 lblStepChart.setSize(500, 500);
                 frame.add(lblStepChart, BorderLayout.WEST);
                 frame.pack();
@@ -851,6 +638,224 @@ public class Main
             }
         }
 
+    }
+
+    private static void LogRealTimeData() throws IOException
+    {
+        if (logRT)
+        {
+            File f = new File(log_path);
+            boolean isDeleted = f.delete();
+            boolean isCreated = f.createNewFile();
+            String title;
+            title = RepeatString("*", 75);
+            Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            title = "*  CCMCL: Combinatorial Coverage Measurement Tool (Command Line Version)  *";
+            Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            title = "*              National Institute of Standards and Technology             *";
+            Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            title = RepeatString("*", 75);
+            Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            title = "Initial tests:";
+            Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            if (max_array_size > 0)
+            {
+                try
+                {
+                    // Log initial tests...
+                    for (String anInfile : infile)
+                    {
+                        Files.write(Paths.get(log_path), anInfile.getBytes(), StandardOpenOption.APPEND);
+                        Files.write(
+                                Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                StandardOpenOption.APPEND
+                                   );
+                    }
+                    Files.write(
+                            Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                            StandardOpenOption.APPEND
+                               );
+                    Files.write(
+                            Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                            StandardOpenOption.APPEND
+                               );
+                    Files.write(
+                            Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                            StandardOpenOption.APPEND
+                               );
+
+                }
+                catch (IOException e)
+                {
+                    // exception handling left as an exercise for the reader
+                }
+
+                // Log initial invalid combinations...
+                for (int i = 0; i < 5; i++)
+                {
+                    if (tway_objects[i] != null)
+                    {
+                        try
+                        {
+                            title = "\n\nInitial " + (i + 2) + "-way invalid combinations: \n";
+                            Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+                            Files.write(
+                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                    StandardOpenOption.APPEND
+                                       );
+                            Files.write(
+                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                    StandardOpenOption.APPEND
+                                       );
+
+                            for (String[][] str : tway_objects[i].get_InvalidComb())
+                            {
+                                String invalidCombString = "";
+                                for (String[] aStr : str)
+                                {
+                                    String inval = aStr[0] + " = " + aStr[1] + " ; ";
+                                    invalidCombString += inval;
+                                }
+                                Files.write(
+                                        Paths.get(log_path), invalidCombString.getBytes(),
+                                        StandardOpenOption.APPEND
+                                           );
+                                initial_invalid.put(invalidCombString, true);
+                                invalidCombIndex[i]++;
+                                Files.write(
+                                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                        StandardOpenOption.APPEND
+                                           );
+                            }
+                            Files.write(
+                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                    StandardOpenOption.APPEND
+                                       );
+                            Files.write(
+                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                    StandardOpenOption.APPEND
+                                       );
+
+                        }
+                        catch (IOException ignored)
+                        {
+
+                        }
+                    }
+                }
+            }
+
+				/*
+                 * End of code for the reporting stuff...
+				 */
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (tway_objects[i] != null)
+                {
+                    try
+                    {
+                        title = "";
+                        switch (i)
+                        {
+
+                            case 0:
+                                title = "Initial 2-way coverage: " + initial_coverage[0];
+                                break;
+                            case 1:
+                                title = "Initial 3-way coverage: " + initial_coverage[1];
+                                break;
+                            case 2:
+                                title = "Initial 4-way coverage: " + initial_coverage[2];
+                                break;
+                            case 3:
+                                title = "Initial 5-way coverage: " + initial_coverage[3];
+                                break;
+                            case 4:
+                                title = "Initial 6-way coverage: " + initial_coverage[4];
+                                break;
+                        }
+                        Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
+                        Files.write(
+                                Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                StandardOpenOption.APPEND
+                                   );
+
+                    }
+                    catch (IOException ignored)
+                    {
+
+                    }
+                }
+            }
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), RepeatString("=", 114).getBytes(), StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+            Files.write(
+                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                    StandardOpenOption.APPEND
+                       );
+        }
     }
 
     private static String RepeatString(String repeat, int amount)
