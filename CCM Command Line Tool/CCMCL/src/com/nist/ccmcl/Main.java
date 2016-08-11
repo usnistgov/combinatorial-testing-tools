@@ -140,43 +140,43 @@ public class Main
     public static String[] report         = new String[5];
     //public        LinkedBlockingQueue<String> buffer_queue   = new LinkedBlockingQueue<>(); // never used
 
-    private static ArrayList<String> ValidArguments = new ArrayList<>();
+    private static ArrayList<String> ParametersWithArguments = new ArrayList<>();
 
-    private static void SetupValidArgumentList()
+    private static void SetupParametersWithArgumentsList()
     {
-        ValidArguments.add("-I");
-        ValidArguments.add("-M");
-        ValidArguments.add("-o");
-        ValidArguments.add("-m");
-        ValidArguments.add("-C");
-        ValidArguments.add("-T");
+        ParametersWithArguments.add("-I");
+        ParametersWithArguments.add("-M");
+        ParametersWithArguments.add("-o");
+        ParametersWithArguments.add("-m");
+        ParametersWithArguments.add("-C");
+        ParametersWithArguments.add("-T");
 
-        ValidArguments.add("-n");
-        ValidArguments.add("-f");
-        ValidArguments.add("-A");
-        ValidArguments.add("--inputfile");
+        ParametersWithArguments.add("-n");
+        ParametersWithArguments.add("-f");
+        ParametersWithArguments.add("-A");
+        ParametersWithArguments.add("--inputfile");
 
-        ValidArguments.add("--ACTSfile");
-        ValidArguments.add("--mode");
-        ValidArguments.add("--constraints");
-        ValidArguments.add("--tway");
+        ParametersWithArguments.add("--ACTSfile");
+        ParametersWithArguments.add("--mode");
+        ParametersWithArguments.add("--constraints");
+        ParametersWithArguments.add("--tway");
 
-        ValidArguments.add("--output-missing");
-        ValidArguments.add("--output-random");
-        ValidArguments.add("--minimum-coverage");
+        ParametersWithArguments.add("--output-missing");
+        ParametersWithArguments.add("--output-random");
+        ParametersWithArguments.add("--minimum-coverage");
 
-        ValidArguments.add("-e");
-        ValidArguments.add("--thread-max");
-        ValidArguments.add("-tm");
-        ValidArguments.add("--log");
+        ParametersWithArguments.add("-e");
+        ParametersWithArguments.add("--thread-max");
+        ParametersWithArguments.add("-tm");
+        ParametersWithArguments.add("--log");
 
-        ValidArguments.add("-L");
-        ValidArguments.add("-t");
+        ParametersWithArguments.add("-L");
+        ParametersWithArguments.add("-t");
     }
 
     private static void SetUp()
     {
-        SetupValidArgumentList();
+        SetupParametersWithArgumentsList();
     }
 
     private static void HandleArguments(String[] args, String tway_values[])
@@ -200,7 +200,7 @@ public class Main
                 continue;
             }
             String argument = "";
-            if (ValidArguments.contains(arg))
+            if (ParametersWithArguments.contains(arg))
             {
                 // Command Line parameter with an argument...
                 arg_count++;
