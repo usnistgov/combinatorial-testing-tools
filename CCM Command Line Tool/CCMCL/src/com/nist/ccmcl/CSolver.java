@@ -362,6 +362,13 @@ public class CSolver {
      	try
      	{
     	 ArrayList<ArrayList<Integer>> solution = new ArrayList<ArrayList<Integer>>();
+    	 String paramnames = "";
+    	 for(int i = 0; i < Main.parameters.size(); i++){
+    		 paramnames += Main.parameters.get(i).getName() + ",";
+    	 }
+    	 paramnames = paramnames.substring(0,paramnames.lastIndexOf(","));
+    	 bw.write(paramnames);
+    	 bw.newLine();
     	 
              m = new CPModel();
              

@@ -182,6 +182,7 @@ public class Main {
 			initial_coverage[i] = 0.0f;
 			invalidCombIndex[i] = 0;
 		}
+		parallel = false;
 
 		/*
 		 * Parse the command line arguments
@@ -374,6 +375,10 @@ public class Main {
 			case "--output-missing":
 			case "-o":
 				missingCombinationsFilePath = argument;
+				if(argument.startsWith("-")){
+					System.out.println("Illegal output file name for -o: " + argument);
+					System.exit(0);
+				}
 				break;
 			case "--generate-random":
 			case "-r":
@@ -565,6 +570,9 @@ public class Main {
 
 		// Generate T-way coverage maps
 		// The user wants to measure the random tests also...
+		if(generateRandom){
+			System.exit(0);
+		}
 		System.out.println("\n\nCALCULATING T-WAY COVERAGE OF TEST CASES...\n");
 		boolean measured = false;
 		for (int i = 0; i < tway_values.length; i++) {
@@ -1789,7 +1797,6 @@ public class Main {
 			int current = 0;
 			if (!(testList == null)) {
 				for (int i = 0; i < nrows;) {
-					System.out.println("CHECKING test " + i);
 					Node tempNode = testList.item(current);
 					if (!tempNode.getParentNode().getNodeName().equals("Testset")) {
 						continue;
@@ -1812,7 +1819,6 @@ public class Main {
 										continue;
 									}
 									test_line += (values_list.item(z).getTextContent().trim() + ",");
-									System.out.println("ON parameter " + param + " | " + parameters.get(param).getName());
 									Parameter mp = parameters.get(param);
 									param++;
 									if (!mp.getGroup() && !mp.getBoundary()) {
@@ -1956,6 +1962,10 @@ public class Main {
 				String line = "";
 				// Read File Line By Line
 				while ((line = br.readLine()) != null) {
+					if(line.trim().startsWith("#")){
+						continue;
+					}
+						
 					values = line.split(",");
 					int columns = values.length;
 					if (columns != ncols) {
@@ -2013,13 +2023,18 @@ public class Main {
 				int i = 0;
 				boolean read_params = false;
 				while ((line = br.readLine()) != null) {
-					line.trim();
-					values = line.split(",");
+					if(line.trim().startsWith("#")){
+						System.out.println("SKIPPING");
+						continue;
+
+					}
+					values = line.trim().split(",");
 					int columns = values.length;
 					if (paramNames && i == 0 && !read_params) {
 						read_params = true;
 						continue;
 					} else if (line.contains(",")) {
+
 						values = line.trim().split(",");
 						infile[i] = line;
 
@@ -2083,15 +2098,16 @@ public class Main {
 			// Read File Line By Line
 
 			while ((line = br.readLine()) != null) {
-				line.trim();
-				values = line.split(",");
+				if(line.trim().startsWith("#"))
+					continue;
+				values = line.trim().split(",");
 				int columns = values.length;
 				if (paramNames && cols == 0) {
 					// Essentially auto detection mode for parameter values
 					CreateParameters(columns, line);
 					cols = columns;
 					continue;
-				} else if (paramNames && cols == 0) {
+				} else if (!paramNames && cols == 0) {
 					CreateParameters(columns, "");
 					cols = columns;
 					rows++;
@@ -2142,8 +2158,9 @@ public class Main {
 			int i = 0;
 			boolean read_params = false;
 			while ((line = br.readLine()) != null) {
-				line.trim();
-				values = line.split(",");
+				if(line.trim().startsWith("#"))
+					continue;
+				values = line.trim().split(",");
 				if (paramNames && i == 0 && !read_params) {
 					read_params = true;
 					continue;
@@ -2222,11 +2239,7 @@ public class Main {
 		try {
 
 			String[] x = ConstraintManager.JustParameterValues(str.trim());
-			/*
-			 * Need to modify constraint if it has a boolean operator in front
-			 * of parameter name (This is mainly to support parsing of ACTS .xml
-			 * files)
-			 */
+
 
 			if (Checker(x) && !ConstraintExists(str)) {
 				// create parser object
@@ -2601,15 +2614,11 @@ public class Main {
 
 		if (!ACTSfilePresent) {
 			int j;
-			for (i = 0; i < ncols; i++) { // set up number of
-											// values for
-											// automatically
-											// detected parms
-				if (!rng[i] && !grp[i]) { // count how many value mappings used
-					for (j = 0; j < nmapMax && map[i][j] != null; j++)
-
-						nvals[i] = j; // j = # of value mappings have been
-										// established
+			for (i = 0; i < ncols; i++) {
+				if (!rng[i] && !grp[i]) { 
+					for (j = 0; j < nmapMax && map[i][j] != null; j++){
+						nvals[i] = j + 1; 
+					}
 				}
 			}
 		}
@@ -3781,6 +3790,7 @@ public class Main {
 
 			solver.SetConstraints(constraints); // set constraint to
 			// solver model
+
 			solver.SetParameter(parameters); // set parameters to
 												// solver
 			// model

@@ -275,7 +275,7 @@ public class Tway extends RecursiveTask {
 		for (i = _start; i < _end; i++) {
 			for (j = i + 1; j < _ncols; j++) {
 				
-				/*
+				
 				// nComs++; //number of combinations
 				int[][] comcount = new int[_nvals[i]][];
 				for (ti = 0; ti < _nvals[i]; ti++) {
@@ -284,11 +284,7 @@ public class Tway extends RecursiveTask {
 						comcount[ti][zz] = 0;
 					}
 				}
-				*/
-				int[][] comcount = new int[_nvals[i]][];
-				for (ti = 0; ti < _nvals[i]; ti++) {
-					comcount[ti] = new int[_nvals[j]];
-				}
+				
 				
 				
 				String temp_key = _tway + "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
@@ -303,13 +299,16 @@ public class Tway extends RecursiveTask {
 
 					pars[0][0] = _parameters.get(i).getName();
 					pars[1][0] = _parameters.get(j).getName();
-
+										
 					pars[0][1] = _parameters.get(i).getValues().get(_test[m][i]).toString();
 					pars[1][1] = _parameters.get(j).getValues().get(_test[m][j]).toString();
+					
+
 					
 					if (_constraints.size() > 0) {
 
 						if (validcomb.EvaluateCombination(pars)){
+
 							comcount[_test[m][i]][_test[m][j]] = 1;
 						}
 							 // flag
