@@ -217,8 +217,7 @@ public class Main
                 }
                 param = arg;
                 skip = true;
-            }
-            else
+            } else
             {
                 arg_count++;
                 param = arg;
@@ -300,6 +299,11 @@ public class Main
                 case "--output-missing":
                 case "-o":
                     missingCombinationsFilePath = argument;
+                    if (argument.startsWith("-"))
+                    {
+                        System.out.println("Illegal output file name for -o: " + argument);
+                        System.exit(0);
+                    }
                     break;
                 case "--generate-random":
                 case "-r":
@@ -367,7 +371,7 @@ public class Main
                     break;
                 default:
                     System.out.println(
-                            "USAGE: java -jar ccmcl.jar [param1] [param2] ...\n\nor type java -jar ccmcl.jar --help for more options."
+                                              "USAGE: java -jar ccmcl.jar [param1] [param2] ...\n\nor type java -jar ccmcl.jar --help for more options."
                                       );
                     System.exit(0);
                     break;
@@ -389,53 +393,53 @@ public class Main
         frame.pack();
 
         frame.addWindowListener(
-                new WindowListener()
-                {
-                    @Override
-                    public void windowActivated(WindowEvent arg0)
-                    {
-                        frame.setFocusableWindowState(false);
-                    }
+                                       new WindowListener()
+                                       {
+                                           @Override
+                                           public void windowActivated(WindowEvent arg0)
+                                           {
+                                               frame.setFocusableWindowState(false);
+                                           }
 
-                    @Override
-                    public void windowClosed(WindowEvent arg0)
-                    {
-                        // empty
-                    }
+                                           @Override
+                                           public void windowClosed(WindowEvent arg0)
+                                           {
+                                               // empty
+                                           }
 
-                    @Override
-                    public void windowClosing(WindowEvent arg0)
-                    {
-                        stepchart = false;
-                        barchart = false;
-                        heatmap = false;
-                    }
+                                           @Override
+                                           public void windowClosing(WindowEvent arg0)
+                                           {
+                                               stepchart = false;
+                                               barchart = false;
+                                               heatmap = false;
+                                           }
 
-                    @Override
-                    public void windowDeactivated(WindowEvent arg0)
-                    {
-                        // empty
-                    }
+                                           @Override
+                                           public void windowDeactivated(WindowEvent arg0)
+                                           {
+                                               // empty
+                                           }
 
-                    @Override
-                    public void windowDeiconified(WindowEvent arg0)
-                    {
-                        // empty
-                    }
+                                           @Override
+                                           public void windowDeiconified(WindowEvent arg0)
+                                           {
+                                               // empty
+                                           }
 
-                    @Override
-                    public void windowIconified(WindowEvent arg0)
-                    {
-                        // empty
-                    }
+                                           @Override
+                                           public void windowIconified(WindowEvent arg0)
+                                           {
+                                               // empty
+                                           }
 
-                    @Override
-                    public void windowOpened(WindowEvent arg0)
-                    {
-                        // empty
-                    }
+                                           @Override
+                                           public void windowOpened(WindowEvent arg0)
+                                           {
+                                               // empty
+                                           }
 
-                }
+                                       }
                                );
     }
 
@@ -452,8 +456,8 @@ public class Main
             initial_coverage[i] = 0.0f;
             invalidCombIndex[i] = 0;
         }
-
-		/*
+        parallel = false;
+        /*
          * Parse the command line arguments
 		 */
         HandleArguments(args, tway_values);
@@ -484,8 +488,7 @@ public class Main
             {
                 GetRandomTests();
             }
-        }
-        else
+        } else
         {
             if (!tests_input_file_path.equals(""))
             {
@@ -493,8 +496,7 @@ public class Main
                 {
                     System.out.println("Error: Something went wrong reading the test case .csv file.\n");
                     return;
-                }
-                else
+                } else
                 {
                     // Test Case input file has been processed and
                     // everything is fine.
@@ -511,8 +513,8 @@ public class Main
                         if (fwRandomFile == null || numberOfRandom == 0)
                         {
                             System.out.println(
-                                    "Can't generate random test cases without an output file "
-                                    + "and number of test cases wanted specified.\n"
+                                                      "Can't generate random test cases without an output file "
+                                                      + "and number of test cases wanted specified.\n"
                                               );
                             System.exit(0);
                             return;
@@ -539,6 +541,10 @@ public class Main
 
         // Generate T-way coverage maps
         // The user wants to measure the random tests also...
+        if (generateRandom)
+        {
+            System.exit(0);
+        }
         System.out.println("\n\nCALCULATING T-WAY COVERAGE OF TEST CASES...\n");
         boolean measured = false;
         for (String tway_value : tway_values)
@@ -630,8 +636,7 @@ public class Main
                 Thread read_input = new Thread(readData);
                 read_input.start();
 
-            }
-            else
+            } else
             {
                 System.out.println("Must specify an ACTS configuration file.\n");
                 System.exit(0);
@@ -651,60 +656,60 @@ public class Main
             title = RepeatString("*", 75);
             Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             title = "*  CCMCL: Combinatorial Coverage Measurement Tool (Command Line Version)  *";
             Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             title = "*              National Institute of Standards and Technology             *";
             Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             title = RepeatString("*", 75);
             Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             title = "Initial tests:";
             Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             if (max_array_size > 0)
             {
@@ -715,21 +720,21 @@ public class Main
                     {
                         Files.write(Paths.get(log_path), anInfile.getBytes(), StandardOpenOption.APPEND);
                         Files.write(
-                                Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                StandardOpenOption.APPEND
+                                           Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                           StandardOpenOption.APPEND
                                    );
                     }
                     Files.write(
-                            Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                            StandardOpenOption.APPEND
+                                       Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                       StandardOpenOption.APPEND
                                );
                     Files.write(
-                            Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                            StandardOpenOption.APPEND
+                                       Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                       StandardOpenOption.APPEND
                                );
                     Files.write(
-                            Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                            StandardOpenOption.APPEND
+                                       Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                       StandardOpenOption.APPEND
                                );
 
                 }
@@ -748,12 +753,12 @@ public class Main
                             title = "\n\nInitial " + (i + 2) + "-way invalid combinations: \n";
                             Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
                             Files.write(
-                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                    StandardOpenOption.APPEND
+                                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                               StandardOpenOption.APPEND
                                        );
                             Files.write(
-                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                    StandardOpenOption.APPEND
+                                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                               StandardOpenOption.APPEND
                                        );
 
                             for (String[][] str : tway_objects[i].get_InvalidComb())
@@ -765,23 +770,23 @@ public class Main
                                     invalidCombString += inval;
                                 }
                                 Files.write(
-                                        Paths.get(log_path), invalidCombString.getBytes(),
-                                        StandardOpenOption.APPEND
+                                                   Paths.get(log_path), invalidCombString.getBytes(),
+                                                   StandardOpenOption.APPEND
                                            );
                                 initial_invalid.put(invalidCombString, true);
                                 invalidCombIndex[i]++;
                                 Files.write(
-                                        Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                        StandardOpenOption.APPEND
+                                                   Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                                   StandardOpenOption.APPEND
                                            );
                             }
                             Files.write(
-                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                    StandardOpenOption.APPEND
+                                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                               StandardOpenOption.APPEND
                                        );
                             Files.write(
-                                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                    StandardOpenOption.APPEND
+                                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                               StandardOpenOption.APPEND
                                        );
 
                         }
@@ -825,8 +830,8 @@ public class Main
                         }
                         Files.write(Paths.get(log_path), title.getBytes(), StandardOpenOption.APPEND);
                         Files.write(
-                                Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                                StandardOpenOption.APPEND
+                                           Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                                           StandardOpenOption.APPEND
                                    );
 
                     }
@@ -837,23 +842,23 @@ public class Main
                 }
             }
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), RepeatString("=", 114).getBytes(), StandardOpenOption.APPEND
+                               Paths.get(log_path), RepeatString("=", 114).getBytes(), StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
             Files.write(
-                    Paths.get(log_path), System.getProperty("line.separator").getBytes(),
-                    StandardOpenOption.APPEND
+                               Paths.get(log_path), System.getProperty("line.separator").getBytes(),
+                               StandardOpenOption.APPEND
                        );
         }
     }
@@ -892,9 +897,9 @@ public class Main
         System.out.println("--constraints (-C): [path to .txt file containing constraints]\n");
         System.out.println("--tway (-T): [2,3,4,5,6] *any order and any combination of these values*\n");
         System.out.println(
-                "--generate-missing (-G): *generates missing combinations not in test file.*\n"
-                + "                         *Must include  \"-m\"  and  \"-o\"  with this option.*\n"
-                + "                         *Not available for real time mode (-R).*\n"
+                                  "--generate-missing (-G): *generates missing combinations not in test file.*\n"
+                                  + "                         *Must include  \"-m\"  and  \"-o\"  with this option.*\n"
+                                  + "                         *Not available for real time mode (-R).*\n"
                           );
         System.out.println("--minimum-coverage (-m): *Minimum coverage for generating missing combinations*\n");
         System.out.println("--output-missing (-o): *output path for the missing combinations.*\n");
@@ -902,9 +907,9 @@ public class Main
         System.out.println("--parameter-names (-P): *parameter names are first line of test case file (-I)*\n");
         System.out.println("--parallel (-p): *Puts the program in parallel processing mode.*\n");
         System.out.println(
-                "--generate-random (-r): *Sets the program to generate a random set of inputs.*\n"
-                + "                        *Must include  \"-n\"  and  \"-f\"  with this option.*\n"
-                + "                        *Not available in real time mode (-R).*\n"
+                                  "--generate-random (-r): *Sets the program to generate a random set of inputs.*\n"
+                                  + "                        *Must include  \"-n\"  and  \"-f\"  with this option.*\n"
+                                  + "                        *Not available in real time mode (-R).*\n"
                           );
         System.out.println("--number-random (-n): *Amount of random inputs to generate.*\n");
         System.out.println("--output-random (-f): *Path to output the random test cases to.*\n");
@@ -922,28 +927,28 @@ public class Main
         System.out.println("-k : *Specifies real time mode to accept keyboard (stdin) input*\n");
         System.out.println("-e : [path to executable ,program argument 1,program argument 2,etc.]\n");
         System.out.print(
-                "\nNOTE: The (-e) option specifies real time mode to accept input from\n"
-                + "the standard output (console output) of another program.\n\n"
+                                "\nNOTE: The (-e) option specifies real time mode to accept input from\n"
+                                + "the standard output (console output) of another program.\n\n"
                         );
 
         System.out.println("-t : [port] *Specifies real time mode to accept TCP input on the port*\n");
 
         System.out.println("--thread-max (-tm): [max number of threads] *Default 500 threads*\n");
         System.out.print(
-                "\nNOTE: Setting a high thread rate can cause problems in certain situations.\n"
-                + "It is recommended to either throttle data coming into the program or use\n"
-                + "the recommended (default settings)... Unless you know what you are doing...\n\n"
+                                "\nNOTE: Setting a high thread rate can cause problems in certain situations.\n"
+                                + "It is recommended to either throttle data coming into the program or use\n"
+                                + "the recommended (default settings)... Unless you know what you are doing...\n\n"
                         );
         System.out.println("--log (-L): [log file path] *Logs incoming data and measurement information*");
         System.out.println(
-                "\nNOTE: --log creates a report holding invalid combinations, total coverage, new\n"
-                + "tests, etc. that occur while measuring in real time mode."
+                                  "\nNOTE: --log creates a report holding invalid combinations, total coverage, new\n"
+                                  + "tests, etc. that occur while measuring in real time mode."
                           );
     }
 
 
     /*
-	 * Zach
+     * Zach
 	 * 
 	 * Reads the test case configuration file. This file should follow the same
 	 * format as the ACTS input files specified in the ACTS User manual.
@@ -952,8 +957,8 @@ public class Main
     public static boolean readTestCaseConfigurationFile(String path)
             throws ParserConfigurationException, SAXException, IOException
     {
-		/*
-		 * First read through the ACTS file and create all the parameters...
+        /*
+         * First read through the ACTS file and create all the parameters...
 		 */
         List<String> constraints = new ArrayList<String>();
         ext = ACTSpath.substring(ACTSpath.lastIndexOf("."), ACTSpath.length());
@@ -1035,14 +1040,12 @@ public class Main
                     if (in_constraint_section && !line.replaceAll("\\s", "").equals(""))
                     {
                         constraints.add(line);
-                    }
-                    else if (in_param_section && !line.replaceAll("\\s", "").equals(""))
+                    } else if (in_param_section && !line.replaceAll("\\s", "").equals(""))
                     {
 
                         String parameter_name = line.substring(0, line.indexOf("("));
                         params.add(parameter_name);
-                    }
-                    else if (in_tests_section && !line.replaceAll("\\s", "").equals(""))
+                    } else if (in_tests_section && !line.replaceAll("\\s", "").equals(""))
                     {
                         // In tests section and tests are present... ignore
                         // input file if present.
@@ -1065,7 +1068,7 @@ public class Main
                 if (param_arg.equals(""))
                 {
                     System.out.println(
-                            "Make sure the parameter section is defined right in the ACTS configuration file.\n\nCheck the spelling.\n\n"
+                                              "Make sure the parameter section is defined right in the ACTS configuration file.\n\nCheck the spelling.\n\n"
                                       );
                 }
                 param_arg = param_arg.substring(0, param_arg.length() - 1);
@@ -1169,17 +1172,17 @@ public class Main
                         // add the line to the constraints...
                         // constraints.add(line);
                         continue;
-                    }
-                    else if (in_param_section && !line.replaceAll("\\s", "").equals(""))
+                    } else if (in_param_section && !line.replaceAll("\\s", "").equals(""))
                     {
 
 						/*
-						 * Need to parse range and boundary values if present.
+                         * Need to parse range and boundary values if present.
 						 * 
 						 */
 
                         String value_line = line.substring(line.lastIndexOf(":") + 1, line.length()).trim().replaceAll(
-                                "\\s", ""
+                                                                                                                              "\\s",
+                                                                                                                              ""
                                                                                                                       );
 
                         // String[] vals = value_line.split(",");
@@ -1218,38 +1221,36 @@ public class Main
                                             if (interval_side == 1)
                                             {
                                                 if (include && !boundary_vals
-                                                        .contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+                                                                        .contains(String.valueOf(Integer.parseInt(current_number) -
+                                                                                                 1)))
                                                 {
                                                     boundary_vals.add(
-                                                            String.valueOf(
-                                                                    Integer.parseInt(current_number)
-                                                                    - 1
-                                                                          )
+                                                                             String.valueOf(
+                                                                                                   Integer.parseInt(current_number)
+                                                                                                   - 1
+                                                                                           )
                                                                      );
-                                                }
-                                                else if (!include && !boundary_vals.contains(current_number))
+                                                } else if (!include && !boundary_vals.contains(current_number))
                                                 {
                                                     boundary_vals.add(current_number);
                                                 }
-                                            }
-                                            else if (interval_side == 2)
+                                            } else if (interval_side == 2)
                                             {
                                                 if (include && !boundary_vals.contains(current_number))
                                                 {
                                                     boundary_vals.add(current_number);
-                                                }
-                                                else if (!include && !boundary_vals
-                                                        .contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+                                                } else if (!include && !boundary_vals
+                                                                                .contains(String.valueOf(Integer.parseInt(current_number) -
+                                                                                                         1)))
                                                 {
                                                     boundary_vals.add(
-                                                            String.valueOf(
-                                                                    Integer.parseInt(current_number)
-                                                                    - 1
-                                                                          )
+                                                                             String.valueOf(
+                                                                                                   Integer.parseInt(current_number)
+                                                                                                   - 1
+                                                                                           )
                                                                      );
                                                 }
-                                            }
-                                            else if (current_number.equals(""))
+                                            } else if (current_number.equals(""))
                                             {
                                                 // Between Range Intervals...
                                                 continue;
@@ -1285,8 +1286,7 @@ public class Main
                                             System.out.println("Incorrect Range Value defintion in ACTS input file.\n");
                                             return false;
                                     }
-                                }
-                                else
+                                } else
                                 {
                                     current_number += c;
                                 }
@@ -1299,9 +1299,9 @@ public class Main
                                 if (include && !boundary_vals.contains(current_number))
                                 {
                                     boundary_vals.add(current_number);
-                                }
-                                else if (!include && !boundary_vals
-                                        .contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+                                } else if (!include && !boundary_vals
+                                                                .contains(String.valueOf(Integer.parseInt(current_number) -
+                                                                                         1)))
                                 {
                                     boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
                                 }
@@ -1370,8 +1370,7 @@ public class Main
 
                             paramIndex++;
 
-                        }
-                        else if (line.contains("{"))
+                        } else if (line.contains("{"))
                         {
 
                             // Its a group
@@ -1394,13 +1393,11 @@ public class Main
                                 if (c == '{')
                                 {
                                     continue;
-                                }
-                                else if (c == '}')
+                                } else if (c == '}')
                                 {
                                     groupDeclarations.add(temp_str);
                                     temp_str = "";
-                                }
-                                else
+                                } else
                                 {
                                     temp_str += c;
                                 }
@@ -1442,8 +1439,7 @@ public class Main
 
                             paramIndex++;
 
-                        }
-                        else
+                        } else
                         {
                             // Normal input definition with no groups or
                             // boundary values.
@@ -1477,15 +1473,14 @@ public class Main
                             values_array.add(vals);
                             paramIndex++;
                         }
-                    }
-                    else if (in_tests_section && !line.replaceAll("\\s", "").equals(""))
+                    } else if (in_tests_section && !line.replaceAll("\\s", "").equals(""))
                     {
                         // Process the tests...
                         if (line.split(",").length != ncols)
                         {
                             System.out.println(
-                                    "Test Set section of ACTS files has different number of parameters than specified in "
-                                    + "Parameter section.\nExiting..."
+                                                      "Test Set section of ACTS files has different number of parameters than specified in "
+                                                      + "Parameter section.\nExiting..."
                                               );
                             return false;
                         }
@@ -1499,45 +1494,57 @@ public class Main
                                 if (!Arrays.asList(values_array.get(i)).contains(testcase_vals[i]))
                                 {
                                     System.out.println(
-                                            "Undefined value in the test set\n(" + parameters.get(i).getName() + ") = "
-                                            + testcase_vals[i] + " @ Test Set Line: " + (test_index + 1)
+                                                              "Undefined value in the test set\n(" +
+                                                              parameters.get(i).getName() +
+                                                              ") = "
+                                                              +
+                                                              testcase_vals[i] +
+                                                              " @ Test Set Line: " +
+                                                              (test_index + 1)
                                                       );
 
                                     return false;
                                 }
-                            }
-                            else
+                            } else
                             {
                                 if (parameters.get(i).getBoundary())
                                 {
                                     if (!Tools.isNumeric(testcase_vals[i]))
                                     {
                                         System.out.println(
-                                                "Undefined value in the test set\n("
-                                                + parameters.get(i).getName() + ") = " + testcase_vals[i]
-                                                + " @ Test Set Line: " + (test_index + 1)
+                                                                  "Undefined value in the test set\n("
+                                                                  +
+                                                                  parameters.get(i).getName() +
+                                                                  ") = " +
+                                                                  testcase_vals[i]
+                                                                  +
+                                                                  " @ Test Set Line: " +
+                                                                  (test_index + 1)
                                                           );
                                         return false;
                                     }
-                                }
-                                else if (parameters.get(i).getGroup())
+                                } else if (parameters.get(i).getGroup())
                                 {
                                     if (!parameters.get(i).getValuesO().contains(testcase_vals[i]))
                                     {
                                         System.out.println(
-                                                "Undefined value in the test set\n("
-                                                + parameters.get(i).getName() + ") = " + testcase_vals[i]
-                                                + " @ Test Set Line: " + (test_index + 1)
+                                                                  "Undefined value in the test set\n("
+                                                                  +
+                                                                  parameters.get(i).getName() +
+                                                                  ") = " +
+                                                                  testcase_vals[i]
+                                                                  +
+                                                                  " @ Test Set Line: " +
+                                                                  (test_index + 1)
                                                           );
 
                                         return false;
                                     }
-                                }
-                                else
+                                } else
                                 {
                                     System.out.println(
-                                            "Something went wrong processing the ACTS input .txt file, while processing the test cases"
-                                            + " at test case " + test_index
+                                                              "Something went wrong processing the ACTS input .txt file, while processing the test cases"
+                                                              + " at test case " + test_index
                                                       );
                                     return false;
                                 }
@@ -1547,8 +1554,7 @@ public class Main
                         infile[test_index] = line.trim();
                         test_index++;
 
-                    }
-                    else
+                    } else
                     {
                         continue;
                     }
@@ -1577,18 +1583,15 @@ public class Main
                                 if (types.get(z) == 0)
                                 {
                                     tp.setType(Parameter.PARAM_TYPE_INT);
-                                }
-                                else
+                                } else
                                 {
                                     if (types.get(z) == 2)
                                     {
                                         tp.setType(Parameter.PARAM_TYPE_BOOL);
-                                    }
-                                    else if (types.get(z) == 1)
+                                    } else if (types.get(z) == 1)
                                     {
                                         tp.setType(Parameter.PARAM_TYPE_ENUM);
-                                    }
-                                    else
+                                    } else
                                     {
                                         break;
                                     }
@@ -1620,7 +1623,7 @@ public class Main
                     if (!constraints_path.equals(""))
                     {
                         System.out.println(
-                                "Constraints defined in ACTS file. Using those instead of constraints text file.\n"
+                                                  "Constraints defined in ACTS file. Using those instead of constraints text file.\n"
                                           );
                     }
                     System.out.println("PROCESSING CONSTRAINTS...");
@@ -1635,9 +1638,7 @@ public class Main
                     }
                     System.out.println("\n");
 
-                }
-
-                else
+                } else
                 {
                     if (!constraints_path.equals(""))
                     {
@@ -1657,8 +1658,7 @@ public class Main
                     {
                         return false;
                     }
-                }
-                else
+                } else
                 {
                     if (!tests_input_file_path.equals(""))
                     {
@@ -1803,8 +1803,8 @@ public class Main
                             if (num_pars != parameters.size() + 1)
                             {
                                 System.out.println(
-                                        "Error: Test cases don't have the same number of parameters as the defined parameters in configuration"
-                                        + " file.\nCheck Testset " + (num_rows + 1) + "\n"
+                                                          "Error: Test cases don't have the same number of parameters as the defined parameters in configuration"
+                                                          + " file.\nCheck Testset " + (num_rows + 1) + "\n"
                                                   );
                                 return false;
                             }
@@ -1845,16 +1845,13 @@ public class Main
                             if (types.get(z) == 0)
                             {
                                 tp.setType(Parameter.PARAM_TYPE_INT);
-                            }
-                            else if (types.get(z) == 2)
+                            } else if (types.get(z) == 2)
                             {
                                 tp.setType(Parameter.PARAM_TYPE_BOOL);
-                            }
-                            else if (types.get(z) == 1)
+                            } else if (types.get(z) == 1)
                             {
                                 tp.setType(Parameter.PARAM_TYPE_ENUM);
-                            }
-                            else if (types.get(z) == 3)
+                            } else if (types.get(z) == 3)
                             {
                                 // Range value
                                 tp.setType(Parameter.PARAM_TYPE_INT);
@@ -1862,11 +1859,18 @@ public class Main
                                 if (values_array.get(z).length > 1)
                                 {
                                     System.out.println(
-                                            "Incorrectly defined group value in XML file: \n"
-                                            + temp_values[x] + "\n" + temp_values[x + 1] + "\n...\n"
-                                            + "\nUse \"<value>{1,2,3},{4,5,6}</value>\" format for groups (type = 4).\nOR\n"
-                                            + "Use \"<value>(*,6],[7,*)</value>\" format for ranges (type = 3).\n"
-                                            + "\nExiting"
+                                                              "Incorrectly defined group value in XML file: \n"
+                                                              +
+                                                              temp_values[x] +
+                                                              "\n" +
+                                                              temp_values[x + 1] +
+                                                              "\n...\n"
+                                                              +
+                                                              "\nUse \"<value>{1,2,3},{4,5,6}</value>\" format for groups (type = 4).\nOR\n"
+                                                              +
+                                                              "Use \"<value>(*,6],[7,*)</value>\" format for ranges (type = 3).\n"
+                                                              +
+                                                              "\nExiting"
                                                       );
                                     return false;
                                 }
@@ -1896,50 +1900,47 @@ public class Main
                                                 if (interval_side == 1)
                                                 {
                                                     if (include && !boundary_vals
-                                                            .contains(
-                                                                    String.valueOf(
-                                                                            Integer.parseInt(current_number)
-                                                                            - 1
-                                                                                  )
-                                                                     ))
+                                                                            .contains(
+                                                                                             String.valueOf(
+                                                                                                                   Integer.parseInt(current_number)
+                                                                                                                   - 1
+                                                                                                           )
+                                                                                     ))
                                                     {
                                                         boundary_vals
                                                                 .add(
-                                                                        String.valueOf(
-                                                                                Integer.parseInt(current_number)
-                                                                                - 1
-                                                                                      )
+                                                                            String.valueOf(
+                                                                                                  Integer.parseInt(current_number)
+                                                                                                  - 1
+                                                                                          )
                                                                     );
-                                                    }
-                                                    else if (!include && !boundary_vals.contains(current_number))
+                                                    } else if (!include && !boundary_vals.contains(current_number))
                                                     {
                                                         boundary_vals.add(current_number);
                                                     }
-                                                }
-                                                else if (interval_side == 2)
+                                                } else if (interval_side == 2)
                                                 {
                                                     if (include && !boundary_vals.contains(current_number))
                                                     {
                                                         boundary_vals.add(current_number);
-                                                    }
-                                                    else if (!include && !boundary_vals
-                                                            .contains(
-                                                                    String.valueOf(
-                                                                            Integer.parseInt(current_number)
-                                                                            - 1
-                                                                                  )
-                                                                     ))
+                                                    } else if (!include && !boundary_vals
+                                                                                    .contains(
+                                                                                                     String.valueOf(
+                                                                                                                           Integer.parseInt(current_number)
+                                                                                                                           -
+                                                                                                                           1
+                                                                                                                   )
+                                                                                             ))
                                                     {
                                                         boundary_vals
                                                                 .add(
-                                                                        String.valueOf(
-                                                                                Integer.parseInt(current_number)
-                                                                                - 1
-                                                                                      )
+                                                                            String.valueOf(
+                                                                                                  Integer.parseInt(current_number)
+                                                                                                  - 1
+                                                                                          )
                                                                     );
                                                     }
-                                                }
-                                                else if (current_number.equals(""))
+                                                } else if (current_number.equals(""))
                                                 {
                                                     // Between Range Intervals...
                                                     continue;
@@ -1973,12 +1974,11 @@ public class Main
                                                 break;
                                             default:
                                                 System.out.println(
-                                                        "Incorrect Range Value defintion in ACTS input file.\n"
+                                                                          "Incorrect Range Value defintion in ACTS input file.\n"
                                                                   );
                                                 return false;
                                         }
-                                    }
-                                    else
+                                    } else
                                     {
                                         current_number += c;
                                     }
@@ -1992,9 +1992,9 @@ public class Main
                                     if (include && !boundary_vals.contains(current_number))
                                     {
                                         boundary_vals.add(current_number);
-                                    }
-                                    else if (!include && !boundary_vals
-                                            .contains(String.valueOf(Integer.parseInt(current_number) - 1)))
+                                    } else if (!include && !boundary_vals
+                                                                    .contains(String.valueOf(Integer.parseInt(current_number) -
+                                                                                             1)))
                                     {
                                         boundary_vals.add(String.valueOf(Integer.parseInt(current_number) - 1));
                                     }
@@ -2009,7 +2009,7 @@ public class Main
                                 if (n < 2)
                                 {
                                     System.out.println(
-                                            "Must have at least 2 values when defining an equivalence class.\n"
+                                                              "Must have at least 2 values when defining an equivalence class.\n"
                                                       );
                                     return false;
                                 }
@@ -2066,8 +2066,7 @@ public class Main
                                 constraints.add(build_implicit_constraint(temp_values[x].trim(), tp.getName()));
 
                                 continue;
-                            }
-                            else if (types.get(z) == 4)
+                            } else if (types.get(z) == 4)
                             {
                                 // group value
                                 // Make all group values ENUM type
@@ -2075,9 +2074,15 @@ public class Main
                                 if (values_array.get(z).length > 1)
                                 {
                                     System.out.println(
-                                            "Incorrectly defined group value (type = 4) in XML file: "
-                                            + temp_values[x] + "\n" + temp_values[x + 1] + "\n...\n"
-                                            + "\nUse \"<value>{1,2,3},{4,5,6}</value>\" format." + "\nExiting"
+                                                              "Incorrectly defined group value (type = 4) in XML file: "
+                                                              +
+                                                              temp_values[x] +
+                                                              "\n" +
+                                                              temp_values[x + 1] +
+                                                              "\n...\n"
+                                                              +
+                                                              "\nUse \"<value>{1,2,3},{4,5,6}</value>\" format." +
+                                                              "\nExiting"
                                                       );
                                     return false;
                                 }
@@ -2090,8 +2095,9 @@ public class Main
                                     // Get the information
                                     List<String> groupDeclarations = new ArrayList<String>();
                                     String buffer = temp_values[x]
-                                            .substring(temp_values[x].indexOf("{"), temp_values[x].length())
-                                            .replaceAll("\\s", "");
+                                                            .substring(temp_values[x].indexOf("{"),
+                                                                       temp_values[x].length())
+                                                            .replaceAll("\\s", "");
                                     String temp_str = "";
 
                                     for (char c : buffer.toCharArray())
@@ -2100,13 +2106,11 @@ public class Main
                                         {
                                             continue;
 
-                                        }
-                                        else if (c == '}')
+                                        } else if (c == '}')
                                         {
                                             groupDeclarations.add(temp_str);
                                             temp_str = "";
-                                        }
-                                        else
+                                        } else
                                         {
                                             temp_str += c;
                                         }
@@ -2145,26 +2149,27 @@ public class Main
                                                                            .replaceAll("\\s", "");
                                         tp.addValue(Integer.toString(index));
                                         tp.addGroup(
-                                                groupDeclarations.get(index).trim().replaceAll("\\s", "")
+                                                           groupDeclarations.get(index).trim().replaceAll("\\s", "")
                                                    );
                                     }
                                     continue;
 
-                                }
-                                else
+                                } else
                                 {
                                     System.out.println(
-                                            "Not a valid group value in .xml file: ("
-                                            + parameters.get(z).getName() + ") value = " + temp_values[x]
+                                                              "Not a valid group value in .xml file: ("
+                                                              +
+                                                              parameters.get(z).getName() +
+                                                              ") value = " +
+                                                              temp_values[x]
                                                       );
                                     return false;
                                 }
-                            }
-                            else
+                            } else
                             {
                                 System.out.println(
-                                        "Value type not supported in .xml file: ("
-                                        + parameters.get(z).getName() + ") type = " + types.get(z)
+                                                          "Value type not supported in .xml file: ("
+                                                          + parameters.get(z).getName() + ") type = " + types.get(z)
                                                   );
                                 return false;
                             }
@@ -2217,9 +2222,7 @@ public class Main
                     }
                 }
 
-            }
-
-            else
+            } else
             {
                 if (!constraints_path.equals(""))
                 {
@@ -2236,7 +2239,6 @@ public class Main
             {
                 for (int i = 0; i < nrows; )
                 {
-                    System.out.println("CHECKING test " + i);
                     Node tempNode = testList.item(current);
                     if (!tempNode.getParentNode().getNodeName().equals("Testset"))
                     {
@@ -2265,9 +2267,6 @@ public class Main
                                         continue;
                                     }
                                     test_line += (values_list.item(z).getTextContent().trim() + ",");
-                                    System.out.println(
-                                            "ON parameter " + param + " | " + parameters.get(param).getName()
-                                                      );
                                     Parameter mp = parameters.get(param);
                                     param++;
                                     if (!mp.getGroup() && !mp.getBoundary())
@@ -2275,9 +2274,15 @@ public class Main
                                         if (!mp.getValues().contains(values_list.item(z).getTextContent().trim()))
                                         {
                                             System.out.println(
-                                                    "\nNot a valid value in test case: " + (i + 1)
-                                                    + "\n(value) = " + values_list.item(z).getTextContent()
-                                                    + " [TEST SET LINE: " + test_line.split(",").length + "]\nEXITING"
+                                                                      "\nNot a valid value in test case: " +
+                                                                      (i + 1)
+                                                                      +
+                                                                      "\n(value) = " +
+                                                                      values_list.item(z).getTextContent()
+                                                                      +
+                                                                      " [TEST SET LINE: " +
+                                                                      test_line.split(",").length +
+                                                                      "]\nEXITING"
                                                               );
 
                                             System.out.println("Valid values are: ");
@@ -2287,39 +2292,48 @@ public class Main
                                             }
                                             return false;
                                         }
-                                    }
-                                    else if (mp.getGroup() || mp.getBoundary())
+                                    } else if (mp.getGroup() || mp.getBoundary())
                                     {
                                         if (mp.getGroup())
                                         {
                                             if (!mp.getValuesO().contains(values_list.item(z).getTextContent().trim()))
                                             {
                                                 System.out.println(
-                                                        "\nNot a valid value in test case: " + (i + 1) + "\n(value) = "
-                                                        + values_list.item(z).getTextContent() + " [TEST SET LINE: "
-                                                        + test_line.split(",").length + "]\nEXITING"
+                                                                          "\nNot a valid value in test case: " +
+                                                                          (i + 1) +
+                                                                          "\n(value) = "
+                                                                          +
+                                                                          values_list.item(z).getTextContent() +
+                                                                          " [TEST SET LINE: "
+                                                                          +
+                                                                          test_line.split(",").length +
+                                                                          "]\nEXITING"
                                                                   );
                                                 return false;
                                             }
-                                        }
-                                        else
+                                        } else
                                         {
                                             if (!Tools.isNumeric(values_list.item(z).getTextContent().trim()))
                                             {
                                                 System.out.println(
-                                                        "\nNot a valid value in test case: " + (i + 1) + "\n(value) = "
-                                                        + values_list.item(z).getTextContent() + " [TEST SET LINE: "
-                                                        + test_line.split(",").length + "]\nEXITING"
+                                                                          "\nNot a valid value in test case: " +
+                                                                          (i + 1) +
+                                                                          "\n(value) = "
+                                                                          +
+                                                                          values_list.item(z).getTextContent() +
+                                                                          " [TEST SET LINE: "
+                                                                          +
+                                                                          test_line.split(",").length +
+                                                                          "]\nEXITING"
                                                                   );
                                                 return false;
                                             }
                                         }
-                                    }
-                                    else
+                                    } else
                                     {
                                         System.out.println(
-                                                "\nSomething went wrong processing the parameter value: "
-                                                + values_list.item(z).getTextContent() + "\n"
+                                                                  "\nSomething went wrong processing the parameter value: "
+                                                                  + values_list.item(z).getTextContent() + "\n"
                                                           );
                                         return false;
                                     }
@@ -2352,16 +2366,14 @@ public class Main
                 if (!(infile == null))
                 {
                     System.out.println("\nTest cases defined in .xml configuration file... Using those instead.\n");
-                }
-                else if (!readTestCaseInputFile(tests_input_file_path))
+                } else if (!readTestCaseInputFile(tests_input_file_path))
                 {
                     return false;
                 }
             }
 
             return true;
-        }
-        else
+        } else
         {
             System.out.println("File type not supported. Must use .xml or .txt file extension.");
         }
@@ -2410,7 +2422,8 @@ public class Main
         catch (IOException e)
         {
             System.out.println(
-                    "ERROR: Something went wrong in the constraints .txt file you provided. " + e.getMessage()
+                                      "ERROR: Something went wrong in the constraints .txt file you provided. " +
+                                      e.getMessage()
                               );
             return false;
         }
@@ -2450,6 +2463,10 @@ public class Main
                 // Read File Line By Line
                 while ((line = br.readLine()) != null)
                 {
+                    if (line.trim().startsWith("#"))
+                    {
+                        continue;
+                    }
                     values = line.split(",");
                     int columns = values.length;
                     if (columns != ncols)
@@ -2470,9 +2487,11 @@ public class Main
                                 // The parameter names aren't in the same order
                                 // as the ACTS file.
                                 System.out.println(
-                                        "Error: Make sure the test case file parameter names are in the same order as"
-                                        + " the parameter names in the ACTS configuration file.\nIf the test case file has parameter "
-                                        + "names in the first row, add a -P option to the command line arguments.\n"
+                                                          "Error: Make sure the test case file parameter names are in the same order as"
+                                                          +
+                                                          " the parameter names in the ACTS configuration file.\nIf the test case file has parameter "
+                                                          +
+                                                          "names in the first row, add a -P option to the command line arguments.\n"
                                                   );
                                 return false;
                             }
@@ -2517,15 +2536,18 @@ public class Main
                 boolean read_params = false;
                 while ((line = br.readLine()) != null)
                 {
-                    line = line.trim();
-                    values = line.split(",");
+                    if (line.trim().startsWith("#"))
+                    {
+                        System.out.println("SKIPPING");
+                        continue;
+                    }
+                    values = line.trim().split(",");
                     int columns = values.length;
                     if (paramNames && i == 0 && !read_params)
                     {
                         read_params = true;
                         continue;
-                    }
-                    else if (line.contains(","))
+                    } else if (line.contains(","))
                     {
                         values = line.trim().split(",");
                         infile[i] = line;
@@ -2538,14 +2560,18 @@ public class Main
                                 {
                                     System.out
                                             .println(
-                                                    "Undefined value in the test set\n(" + parameters.get(t).getName()
-                                                    + ") = " + values[t] + " @ Test Set Line: " + (i + 1)
+                                                            "Undefined value in the test set\n(" +
+                                                            parameters.get(t).getName()
+                                                            +
+                                                            ") = " +
+                                                            values[t] +
+                                                            " @ Test Set Line: " +
+                                                            (i + 1)
                                                     );
                                     return false;
                                 }
                                 continue;
-                            }
-                            else if (parameters.get(t).getGroup())
+                            } else if (parameters.get(t).getGroup())
                             {
                                 // Add error checking here to ensure only values
                                 // defined in groups are here
@@ -2553,8 +2579,13 @@ public class Main
                                 {
                                     System.out
                                             .println(
-                                                    "Undefined value in the test set\n(" + parameters.get(t).getName()
-                                                    + ") = " + values[t] + " @ Test Set Line: " + (i + 1)
+                                                            "Undefined value in the test set\n(" +
+                                                            parameters.get(t).getName()
+                                                            +
+                                                            ") = " +
+                                                            values[t] +
+                                                            " @ Test Set Line: " +
+                                                            (i + 1)
                                                     );
                                     return false;
                                 }
@@ -2563,8 +2594,13 @@ public class Main
                             if (!parameters.get(t).getValues().contains(values[t]))
                             {
                                 System.out.println(
-                                        "Undefined value in the test set\n(" + parameters.get(t).getName()
-                                        + ") = " + values[t] + " @ Test Set Line: " + (i + 1)
+                                                          "Undefined value in the test set\n(" +
+                                                          parameters.get(t).getName()
+                                                          +
+                                                          ") = " +
+                                                          values[t] +
+                                                          " @ Test Set Line: " +
+                                                          (i + 1)
                                                   );
 
                                 return false;
@@ -2605,8 +2641,11 @@ public class Main
 
             while ((line = br.readLine()) != null)
             {
-                line = line.trim();
-                values = line.split(",");
+                if (line.trim().startsWith("#"))
+                {
+                    continue;
+                }
+                values = line.trim().split(",");
                 int columns = values.length;
                 if (paramNames && cols == 0)
                 {
@@ -2614,15 +2653,13 @@ public class Main
                     CreateParameters(columns, line);
                     cols = columns;
                     continue;
-                }
-                else if (paramNames && cols == 0)
+                } else if (!paramNames && cols == 0)
                 {
                     CreateParameters(columns, "");
                     cols = columns;
                     rows++;
                     continue;
-                }
-                else if (paramNames && cols == 0)
+                } else if (paramNames && cols == 0)
                 {
                     cols = parameters.size();
                     continue;
@@ -2637,8 +2674,7 @@ public class Main
                         System.out.println("Invalid input file.\n must have same number of columns all rows");
                         br.close();
                         return false;
-                    }
-                    else
+                    } else
                     {
                         lastlen = cols;
                     }
@@ -2660,8 +2696,8 @@ public class Main
         catch (Exception ex)
         {
             System.out.println(
-                    "File cannot be opened for initial test and parameter counting.\nFile may be open in another process."
-                    + "\nError: " + ex.getMessage()
+                                      "File cannot be opened for initial test and parameter counting.\nFile may be open in another process."
+                                      + "\nError: " + ex.getMessage()
                               );
             return false;
         }
@@ -2679,14 +2715,16 @@ public class Main
             boolean read_params = false;
             while ((line = br.readLine()) != null)
             {
-                line = line.trim();
-                values = line.split(",");
+                if (line.trim().startsWith("#"))
+                {
+                    continue;
+                }
+                values = line.trim().split(",");
                 if (paramNames && i == 0 && !read_params)
                 {
                     read_params = true;
                     continue;
-                }
-                else if (line.contains(","))
+                } else if (line.contains(","))
                 {
                     values = line.split(",");
                     infile[i] = line;
@@ -2730,15 +2768,13 @@ public class Main
                     if (Tools.isNumeric(values[x]))
                     {
                         p.setType(Parameter.PARAM_TYPE_INT);
-                    }
-                    else
+                    } else
                     {
                         if (values[x].trim().toUpperCase().equals("TRUE")
                             || values[x].trim().toUpperCase().equals("FALSE"))
                         {
                             p.setType(Parameter.PARAM_TYPE_BOOL);
-                        }
-                        else
+                        } else
                         {
                             p.setType(Parameter.PARAM_TYPE_ENUM);
                         }
@@ -2771,8 +2807,7 @@ public class Main
             if (!paramNames && !ACTSfilePresent)
             {
                 p = new Parameter("P" + (i + 1));
-            }
-            else
+            } else
             {
                 p = new Parameter(names[i].trim());
             }
@@ -2871,8 +2906,7 @@ public class Main
                         return false;
                     }
 
-                }
-                else
+                } else
                 {
 
                     // Its a parameter
@@ -2882,8 +2916,7 @@ public class Main
                         {
                             used_parameters.add(str[i].trim());
                         }
-                    }
-                    else
+                    } else
                     {
                         System.out.println("Invalid Parameter/Value!: " + str[i].trim());
                         return false;
@@ -2993,8 +3026,7 @@ public class Main
                         }
                     }
                     prev_ncols = ncols;
-                }
-                else
+                } else
                 {
 
                     // allocate array for in-memory storage of tests
@@ -3005,8 +3037,7 @@ public class Main
                     }
 
                 }
-            }
-            else
+            } else
             {
 				/*
 				 * No ACTS File present... Set up everything here.
@@ -3141,14 +3172,18 @@ public class Main
                     if (parameters.get(m).getValues().size() > nmapMax)
                     {
                         System.out.println(
-                                "Maximum parameter values exceeded for parameter " + parameters.get(m).getName() + "="
-                                + parameters.get(m).getValues().size() + " values." + "\n"
+                                                  "Maximum parameter values exceeded for parameter " +
+                                                  parameters.get(m).getName() +
+                                                  "="
+                                                  +
+                                                  parameters.get(m).getValues().size() +
+                                                  " values." +
+                                                  "\n"
                                           );
 
                         return ERR;
                         // nmapMax = parameters[m].getValues().size();
-                    }
-                    else
+                    } else
                     {// if matching value not in map array, add it and
                         // save index
 
@@ -3166,8 +3201,7 @@ public class Main
                             {
                                 map[m][j] = values[m];
                                 locn = j;
-                            }
-                            else
+                            } else
                             {
                                 System.out.println("Invalid value: " + values[m] + " in parameter " + m + "\n");
                                 return -1;
@@ -3176,8 +3210,7 @@ public class Main
                         }
                         test[i][m] = locn;
                     }
-                }
-                else
+                } else
                 {
 
                     if (rng[m])
@@ -3274,18 +3307,13 @@ public class Main
         {
             int j;
             for (i = 0; i < ncols; i++)
-            { // set up number of
-                // values for
-                // automatically
-                // detected parms
+            {
                 if (!rng[i] && !grp[i])
-                { // count how many value mappings used
+                {
                     for (j = 0; j < nmapMax && map[i][j] != null; j++)
-
                     {
-                        nvals[i] = j; // j = # of value mappings have been
+                        nvals[i] = j + 1;
                     }
-                    // established
                 }
             }
         }
@@ -3356,11 +3384,10 @@ public class Main
                 if (tway_objects[tIndex] == null)
                 {
                     tway_objects[tIndex] = new Tway(
-                            t_way, 0, temp_max, test, nvals, nrows, ncols, parameters,
-                            constraints, map
+                                                           t_way, 0, temp_max, test, nvals, nrows, ncols, parameters,
+                                                           constraints, map
                     );
-                }
-                else
+                } else
                 {
 
                     switch (t_way)
@@ -3409,8 +3436,7 @@ public class Main
                     if (paramNames)
                     {
                         tway_objects[tIndex].set_parmName(1);
-                    }
-                    else
+                    } else
                     {
                         tway_objects[tIndex].set_parmName(0);
                     }
@@ -3464,9 +3490,15 @@ public class Main
                             hm_colors2 = tway_objects[tIndex].hm_colors2;
 
                             results = graph2way(
-                                    tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
-                                    tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig, results,
-                                    timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size()
+                                                       tway_objects[tIndex]._n_tot_tway_cov,
+                                                       tway_objects[tIndex]._varvalStatN,
+                                                       tway_objects[tIndex]._nComs,
+                                                       tway_objects[tIndex]._tot_varvalconfig,
+                                                       results,
+                                                       timeConsTotal,
+                                                       timewaytotal,
+                                                       aInvalidComb.size(),
+                                                       aInvalidNotIn.size()
                                                );
                             initial_complete[tIndex] = true;
                             // FillInvalidDataTable(2);
@@ -3474,9 +3506,15 @@ public class Main
                         case "3way":
                             // hm_colors3 = way.hm_colors3;
                             results = graph3way(
-                                    tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
-                                    tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig, results,
-                                    timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size()
+                                                       tway_objects[tIndex]._n_tot_tway_cov,
+                                                       tway_objects[tIndex]._varvalStatN,
+                                                       tway_objects[tIndex]._nComs,
+                                                       tway_objects[tIndex]._tot_varvalconfig,
+                                                       results,
+                                                       timeConsTotal,
+                                                       timewaytotal,
+                                                       aInvalidComb.size(),
+                                                       aInvalidNotIn.size()
                                                );
                             initial_complete[tIndex] = true;
                             // FillInvalidDataTable(3);
@@ -3484,9 +3522,15 @@ public class Main
                         case "4way":
 
                             results = graph4way(
-                                    tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
-                                    tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig, results,
-                                    timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size()
+                                                       tway_objects[tIndex]._n_tot_tway_cov,
+                                                       tway_objects[tIndex]._varvalStatN,
+                                                       tway_objects[tIndex]._nComs,
+                                                       tway_objects[tIndex]._tot_varvalconfig,
+                                                       results,
+                                                       timeConsTotal,
+                                                       timewaytotal,
+                                                       aInvalidComb.size(),
+                                                       aInvalidNotIn.size()
                                                );
                             initial_complete[tIndex] = true;
                             // FillInvalidDataTable(4);
@@ -3494,9 +3538,15 @@ public class Main
                         case "5way":
 
                             results = graph5way(
-                                    tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
-                                    tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig, results,
-                                    timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size()
+                                                       tway_objects[tIndex]._n_tot_tway_cov,
+                                                       tway_objects[tIndex]._varvalStatN,
+                                                       tway_objects[tIndex]._nComs,
+                                                       tway_objects[tIndex]._tot_varvalconfig,
+                                                       results,
+                                                       timeConsTotal,
+                                                       timewaytotal,
+                                                       aInvalidComb.size(),
+                                                       aInvalidNotIn.size()
                                                );
                             initial_complete[tIndex] = true;
                             // FillInvalidDataTable(5);
@@ -3504,9 +3554,15 @@ public class Main
                         case "6way":
 
                             results = graph6way(
-                                    tway_objects[tIndex]._n_tot_tway_cov, tway_objects[tIndex]._varvalStatN,
-                                    tway_objects[tIndex]._nComs, tway_objects[tIndex]._tot_varvalconfig, results,
-                                    timeConsTotal, timewaytotal, aInvalidComb.size(), aInvalidNotIn.size()
+                                                       tway_objects[tIndex]._n_tot_tway_cov,
+                                                       tway_objects[tIndex]._varvalStatN,
+                                                       tway_objects[tIndex]._nComs,
+                                                       tway_objects[tIndex]._tot_varvalconfig,
+                                                       results,
+                                                       timeConsTotal,
+                                                       timewaytotal,
+                                                       aInvalidComb.size(),
+                                                       aInvalidNotIn.size()
                                                );
                             initial_complete[tIndex] = true;
                             // FillInvalidDataTable(6);
@@ -3520,8 +3576,9 @@ public class Main
                     if (mode_realtime)
                     {
                         System.out.println(
-                                "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-                                + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                                                  "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                                                  +
+                                                  "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
                                           );
                         for (int i = 0; i < 5; i++)
                         {
@@ -3530,7 +3587,10 @@ public class Main
                                 if (initial_complete[i])
                                 {
                                     System.out.println(
-                                            real_time_cmd_results[i] + " | Measuring " + tway_threads[i] + " new tests"
+                                                              real_time_cmd_results[i] +
+                                                              " | Measuring " +
+                                                              tway_threads[i] +
+                                                              " new tests"
                                                       );
                                 }
                             }
@@ -3653,13 +3713,12 @@ public class Main
                 synchronized (report)
                 {
                     System.out.println(
-                            "\n2-way Coverage Results:\n" + "Total 2-way coverage: "
-                            + String.format("%.5f", TotCov2way) + "\n" + results
+                                              "\n2-way Coverage Results:\n" + "Total 2-way coverage: "
+                                              + String.format("%.5f", TotCov2way) + "\n" + results
                                       );
                     initial_coverage[0] = TotCov2way;
                 }
-            }
-            else
+            } else
             {
                 // System.out.println("Total 2-way coverage: " +
                 // String.format("%.5f", TotCov2way));
@@ -3685,8 +3744,7 @@ public class Main
             if (ncols > 100)
             {
                 System.out.println("Heat mat will not shown. Max of 100 parameters for heat map.");
-            }
-            else
+            } else
             {
                 XYSeries red = new XYSeries("red", false, true);
                 XYSeries orange = new XYSeries("orange", false, true);
@@ -3714,8 +3772,7 @@ public class Main
                         if (hm_colors2[i][j] == 3)
                         {
                             green.add(i, j);
-                        }
-                        else
+                        } else
                         {
                             blue.add(i, j);
                         }
@@ -3733,8 +3790,14 @@ public class Main
                 data2.addSeries(blue);
 
                 final JFreeChart my_chart = ChartFactory.createScatterPlot(
-                        "", "", "", data2, PlotOrientation.VERTICAL,
-                        true, false, false
+                                                                                  "",
+                                                                                  "",
+                                                                                  "",
+                                                                                  data2,
+                                                                                  PlotOrientation.VERTICAL,
+                                                                                  true,
+                                                                                  false,
+                                                                                  false
                                                                           );
 
                 XYPlot plot = (XYPlot) my_chart.getPlot();
@@ -3754,8 +3817,8 @@ public class Main
                 plot.getRenderer().setSeriesPaint(data2.indexOf("blue"), Color.blue);
 
                 Shape cross = ShapeUtilities.createRegularCross(
-                        lblPointChart.getWidth() / ncols,
-                        lblPointChart.getWidth() / ncols
+                                                                       lblPointChart.getWidth() / ncols,
+                                                                       lblPointChart.getWidth() / ncols
                                                                );
 
                 plot.getRenderer().setSeriesShape(data2.indexOf("red"), cross);
@@ -3806,7 +3869,10 @@ public class Main
                                 if (initial_complete[i])
                                 {
                                     System.out.println(
-                                            real_time_cmd_results[i] + " | Measuring " + tway_threads[i] + " new tests"
+                                                              real_time_cmd_results[i] +
+                                                              " | Measuring " +
+                                                              tway_threads[i] +
+                                                              " new tests"
                                                       );
                                 }
                             }
@@ -3899,14 +3965,13 @@ public class Main
                 synchronized (report)
                 {
                     System.out.println(
-                            "\n3-way Coverage Results:\n" + "Total 3-way coverage: "
-                            + String.format("%.5f", TotCov3way) + "\n" + results
+                                              "\n3-way Coverage Results:\n" + "Total 3-way coverage: "
+                                              + String.format("%.5f", TotCov3way) + "\n" + results
                                       );
                     initial_coverage[1] = TotCov3way;
 
                 }
-            }
-            else
+            } else
             {
                 // System.out.println("Total 3-way coverage: " +
                 // String.format("%.5f", TotCov3way));
@@ -4020,14 +4085,13 @@ public class Main
                 synchronized (report)
                 {
                     System.out.println(
-                            "\n4-way Coverage Results:\n" + "Total 4-way coverage: "
-                            + String.format("%.5f", TotCov4way) + "\n" + results
+                                              "\n4-way Coverage Results:\n" + "Total 4-way coverage: "
+                                              + String.format("%.5f", TotCov4way) + "\n" + results
                                       );
                     initial_coverage[2] = TotCov4way;
 
                 }
-            }
-            else
+            } else
             {
                 // System.out.println("Total 4-way coverage: " +
                 // String.format("%.5f", TotCov4way));
@@ -4141,14 +4205,13 @@ public class Main
                 synchronized (report)
                 {
                     System.out.println(
-                            "\n5-way Coverage Results:\n" + "Total 5-way coverage: "
-                            + String.format("%.5f", TotCov5way) + "\n" + results
+                                              "\n5-way Coverage Results:\n" + "Total 5-way coverage: "
+                                              + String.format("%.5f", TotCov5way) + "\n" + results
                                       );
                     initial_coverage[3] = TotCov5way;
 
                 }
-            }
-            else
+            } else
             {
                 // System.out.println("Total 5-way coverage: " +
                 // String.format("%.5f", TotCov5way));
@@ -4261,14 +4324,13 @@ public class Main
                 synchronized (report)
                 {
                     System.out.println(
-                            "\n6-way Coverage Results:\n" + "Total 6-way coverage: "
-                            + String.format("%.5f", TotCov6way) + "\n" + results
+                                              "\n6-way Coverage Results:\n" + "Total 6-way coverage: "
+                                              + String.format("%.5f", TotCov6way) + "\n" + results
                                       );
                     initial_coverage[4] = TotCov6way;
 
                 }
-            }
-            else
+            } else
             {
                 // System.out.println("Total 6-way coverage: " +
                 // String.format("%.5f", TotCov6way));
@@ -4345,8 +4407,14 @@ public class Main
     {
 
         chart = ChartFactory.createXYStepChart(
-                "", "Coverage", "Combinations", chart_data, PlotOrientation.HORIZONTAL,
-                true, false, false
+                                                      "",
+                                                      "Coverage",
+                                                      "Combinations",
+                                                      chart_data,
+                                                      PlotOrientation.HORIZONTAL,
+                                                      true,
+                                                      false,
+                                                      false
                                               );
 
         // LegendTitle legend = chart.getLegend();
@@ -4370,9 +4438,14 @@ public class Main
         {
             plot.getRenderer().setSeriesPaint(chart_data.indexOf("3way"), new Color(63, 72, 204));
             plot.getRenderer().setSeriesStroke(
-                    chart_data.indexOf("3way"), new BasicStroke(
-                            3.0f, BasicStroke.CAP_ROUND,
-                            BasicStroke.JOIN_MITER, 1.0f, new float[]{6.0f, 6.0f}, 0.0f
+                                                      chart_data.indexOf("3way"), new BasicStroke(
+                                                                                                         3.0f,
+                                                                                                         BasicStroke.CAP_ROUND,
+                                                                                                         BasicStroke.JOIN_MITER,
+                                                                                                         1.0f,
+                                                                                                         new float[]{6.0f,
+                                                                                                                     6.0f},
+                                                                                                         0.0f
                     )
                                               );
 
@@ -4382,9 +4455,16 @@ public class Main
         {
             plot.getRenderer().setSeriesPaint(chart_data.indexOf("4way"), new Color(34, 177, 76));
             plot.getRenderer().setSeriesStroke(
-                    chart_data.indexOf("4way"), new BasicStroke(
-                            3.0f, BasicStroke.CAP_BUTT,
-                            BasicStroke.JOIN_ROUND, 1.0f, new float[]{10.0f, 3.0f, 2.0f, 3.0f}, 0.0f
+                                                      chart_data.indexOf("4way"), new BasicStroke(
+                                                                                                         3.0f,
+                                                                                                         BasicStroke.CAP_BUTT,
+                                                                                                         BasicStroke.JOIN_ROUND,
+                                                                                                         1.0f,
+                                                                                                         new float[]{10.0f,
+                                                                                                                     3.0f,
+                                                                                                                     2.0f,
+                                                                                                                     3.0f},
+                                                                                                         0.0f
                     )
                                               );
         }
@@ -4392,9 +4472,18 @@ public class Main
         {
             plot.getRenderer().setSeriesPaint(chart_data.indexOf("5way"), new Color(210, 105, 30));
             plot.getRenderer().setSeriesStroke(
-                    chart_data.indexOf("5way"), new BasicStroke(
-                            3.0f, BasicStroke.CAP_BUTT,
-                            BasicStroke.JOIN_ROUND, 1.0f, new float[]{10.0f, 6.0f, 2.0f, 6.0f, 2.0f, 10.0f}, 0.0f
+                                                      chart_data.indexOf("5way"), new BasicStroke(
+                                                                                                         3.0f,
+                                                                                                         BasicStroke.CAP_BUTT,
+                                                                                                         BasicStroke.JOIN_ROUND,
+                                                                                                         1.0f,
+                                                                                                         new float[]{10.0f,
+                                                                                                                     6.0f,
+                                                                                                                     2.0f,
+                                                                                                                     6.0f,
+                                                                                                                     2.0f,
+                                                                                                                     10.0f},
+                                                                                                         0.0f
                     )
                                               );
         }
@@ -4402,9 +4491,17 @@ public class Main
         {
             plot.getRenderer().setSeriesPaint(chart_data.indexOf("6way"), new Color(139, 0, 139));
             plot.getRenderer().setSeriesStroke(
-                    chart_data.indexOf("6way"), new BasicStroke(
-                            3.0f, BasicStroke.CAP_BUTT,
-                            BasicStroke.JOIN_ROUND, 1.0f, new float[]{4.0f, 4.0f, 4.0f, 4.0f, 4.0f}, 2.0f
+                                                      chart_data.indexOf("6way"), new BasicStroke(
+                                                                                                         3.0f,
+                                                                                                         BasicStroke.CAP_BUTT,
+                                                                                                         BasicStroke.JOIN_ROUND,
+                                                                                                         1.0f,
+                                                                                                         new float[]{4.0f,
+                                                                                                                     4.0f,
+                                                                                                                     4.0f,
+                                                                                                                     4.0f,
+                                                                                                                     4.0f},
+                                                                                                         2.0f
                     )
                                               );
         }
@@ -4538,8 +4635,15 @@ public class Main
         bars.addSeries(twaySerie);
 
         chartcolumn = ChartFactory.createXYBarChart(
-                "", "t-way", false, "% Coverage", bars, PlotOrientation.VERTICAL,
-                true, false, false
+                                                           "",
+                                                           "t-way",
+                                                           false,
+                                                           "% Coverage",
+                                                           bars,
+                                                           PlotOrientation.VERTICAL,
+                                                           true,
+                                                           false,
+                                                           false
                                                    );
 
         // LegendTitle legend = chart.getLegend();
@@ -4580,8 +4684,18 @@ public class Main
         SymbolAxis saX = new SymbolAxis("t-ways", new String[]{"", "2-way", "3-way", "4-way", "5-way", "6-way"});
 
         SymbolAxis saY = new SymbolAxis(
-                "% Coverage",
-                new String[]{"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"}
+                                               "% Coverage",
+                                               new String[]{"0%",
+                                                            "10%",
+                                                            "20%",
+                                                            "30%",
+                                                            "40%",
+                                                            "50%",
+                                                            "60%",
+                                                            "70%",
+                                                            "80%",
+                                                            "90%",
+                                                            "100%"}
         );
 
         plot.setDomainAxis(saX);
@@ -4629,7 +4743,10 @@ public class Main
                         if (initial_complete[i])
                         {
                             System.out.println(
-                                    real_time_cmd_results[i] + " | Measuring " + tway_threads[i] + " new tests"
+                                                      real_time_cmd_results[i] +
+                                                      " | Measuring " +
+                                                      tway_threads[i] +
+                                                      " new tests"
                                               );
                         }
                     }
@@ -4741,9 +4858,7 @@ public class Main
                 }
                 side = 0;
                 continue;
-            }
-
-            else if (c == ')' || c == ']')
+            } else if (c == ')' || c == ']')
             {
 
                 side = 1;
@@ -4764,8 +4879,7 @@ public class Main
             if (charbuilder.equals("") && c == ',')
             {
                 continue;
-            }
-            else if (c == ',')
+            } else if (c == ',')
             {
                 if (charbuilder.equals("*"))
                 {
@@ -4776,15 +4890,13 @@ public class Main
                         charbuilder = "";
                         nextgroup = true;
                         continue;
-                    }
-                    else
+                    } else
                     {
                         constraint += parameter + " = " + String.valueOf(grp_index) + ")";
                         continue;
                     }
 
-                }
-                else
+                } else
                 {
                     if (charbuilder.equals(""))
                     {
@@ -4840,8 +4952,7 @@ public class Main
                     charbuilder = "";
 //                    checknums = true;
                 }
-            }
-            else
+            } else
             {
                 charbuilder += c;
             }

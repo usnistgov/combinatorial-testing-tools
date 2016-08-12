@@ -125,8 +125,7 @@ public class CSolver
                 if (!parm[1].equals(""))
                 {
                     values.add(Integer.parseInt(parm[1]));
-                }
-                else
+                } else
                 {
                     for (String v : p.getValues())
                     {
@@ -139,21 +138,18 @@ public class CSolver
                 {
                     chocoVariables.add(new ChocoVariable(p, values));
                 }
-            }
-            else if (p.getType() == Parameter.PARAM_TYPE_BOOL) // for  bool type, true=1 and false=0
+            } else if (p.getType() == Parameter.PARAM_TYPE_BOOL) // for  bool type, true=1 and false=0
             {
                 if (!parm[1].equals(""))
                 {
                     if (parm[1].toLowerCase().equals("true"))
                     {
                         values.add(new java.lang.Integer(1));
-                    }
-                    else
+                    } else
                     {
                         values.add(new java.lang.Integer(0));
                     }
-                }
-                else
+                } else
                 {
                     values.add(new java.lang.Integer(1));
                     values.add(new java.lang.Integer(0));
@@ -163,15 +159,14 @@ public class CSolver
                 {
                     chocoVariables.add(new ChocoVariable(p, values));
                 }
-            }
-            else if (p.getType()
-                     == Parameter.PARAM_TYPE_ENUM) //for enum type is the index from the general list of enum values created above
+            } else if (p.getType()
+                       ==
+                       Parameter.PARAM_TYPE_ENUM) //for enum type is the index from the general list of enum values created above
             {
                 if (!parm[1].equals(""))
                 {
                     values.add(enumList.indexOf(parm[1]));
-                }
-                else
+                } else
                 {
                     for (String v : p.getValues())
                     {
@@ -181,9 +176,9 @@ public class CSolver
                 if (!values.isEmpty())
                 {
                     chocoVariables.add(
-                            new ChocoVariable(
-                                    p, values
-                            )
+                                              new ChocoVariable(
+                                                                       p, values
+                                              )
                                       );//add to the chocoVariable list all parameters with their values
                 }
             }
@@ -247,15 +242,14 @@ public class CSolver
                 }
 
                 chocoVariables.add(new ChocoVariable(p, values));
-            }
-            else if (p.getType() == Parameter.PARAM_TYPE_BOOL) // for  bool type, true=1 and false=0
+            } else if (p.getType() == Parameter.PARAM_TYPE_BOOL) // for  bool type, true=1 and false=0
             {
                 values.add(new java.lang.Integer(1));
                 values.add(new java.lang.Integer(0));
                 chocoVariables.add(new ChocoVariable(p, values));
-            }
-            else if (p.getType()
-                     == Parameter.PARAM_TYPE_ENUM) //for enum type is the index from the general list of enum values created above
+            } else if (p.getType()
+                       ==
+                       Parameter.PARAM_TYPE_ENUM) //for enum type is the index from the general list of enum values created above
             {
 
 
@@ -266,9 +260,9 @@ public class CSolver
 
 
                 chocoVariables.add(
-                        new ChocoVariable(
-                                p, values
-                        )
+                                          new ChocoVariable(
+                                                                   p, values
+                                          )
                                   );//add to the chocoVariable list all parameters with their values
             }
         }
@@ -304,8 +298,10 @@ public class CSolver
 
             //create parser object
             ConstraintChocoParser parser = new ConstraintChocoParser(
-                    i.get_cons(), parameters, new Constants(
-                    enumList, varInUse, chocoVariables
+                                                                            i.get_cons(), parameters, new Constants(
+                                                                                                                           enumList,
+                                                                                                                           varInUse,
+                                                                                                                           chocoVariables
             )
             );
             varInUse.clear();
@@ -352,8 +348,10 @@ public class CSolver
 
         //create parser object
         ConstraintChocoParser parser = new ConstraintChocoParser(
-                cons.get_cons(), parameters, new Constants(
-                enumList, varInUse, chocoVariables
+                                                                        cons.get_cons(), parameters, new Constants(
+                                                                                                                          enumList,
+                                                                                                                          varInUse,
+                                                                                                                          chocoVariables
         )
         );
         varInUse.clear();
@@ -388,7 +386,14 @@ public class CSolver
         try
         {
             ArrayList<ArrayList<Integer>> solution = new ArrayList<ArrayList<Integer>>();
-
+            String paramnames = "";
+            for (int i = 0; i < Main.parameters.size(); i++)
+            {
+                paramnames += Main.parameters.get(i).getName() + ",";
+            }
+            paramnames = paramnames.substring(0, paramnames.lastIndexOf(","));
+            bw.write(paramnames);
+            bw.newLine();
             m = new CPModel();
 
             CreateVariables();//crate variable for the model
@@ -509,8 +514,7 @@ public class CSolver
             if (ex.getMessage().equals(""))
             {
                 JOptionPane.showMessageDialog(parentFrame, "Error getting random test!!");
-            }
-            else
+            } else
             {
                 JOptionPane.showMessageDialog(parentFrame, ex.getMessage());
             }
