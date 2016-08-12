@@ -340,9 +340,19 @@ public class Tway
                     pars[0] = new String[2];
                     pars[1] = new String[2];
 
+                    if (i >= _parameters.size() ||
+                        j >= _parameters.size())
+                    {
+                        continue;
+                    }
                     pars[0][0] = _parameters.get(i).getName();
                     pars[1][0] = _parameters.get(j).getName();
 
+                    if (v1 >= _parameters.get(i).getValues().size() ||
+                        v2 >= _parameters.get(j).getValues().size())
+                    {
+                        continue;
+                    }
                     pars[0][1] = _parameters.get(i).getValues().get(v1);
                     pars[1][1] = _parameters.get(j).getValues().get(v2);
 
@@ -389,9 +399,18 @@ public class Tway
                             pars[0] = new String[2];
                             pars[1] = new String[2];
 
+                            if (i >= _parameters.size() || j >= _parameters.size())
+                            {
+                                continue;
+                            }
                             pars[0][0] = _parameters.get(i).getName();
                             pars[1][0] = _parameters.get(j).getName();
 
+                            if (ni >= _parameters.get(i).getValues().size() ||
+                                nj >= _parameters.get(j).getValues().size())
+                            {
+                                continue;
+                            }
                             pars[0][1] = _parameters.get(i).getValues().get(ni);
                             pars[1][1] = _parameters.get(j).getValues().get(nj);
 
@@ -583,10 +602,22 @@ public class Tway
                         pars[1] = new String[2];
                         pars[2] = new String[2];
 
+                        if (i >= _parameters.size() ||
+                            j >= _parameters.size() ||
+                            k >= _parameters.size())
+                        {
+                            continue;
+                        }
                         pars[0][0] = _parameters.get(i).getName();
                         pars[1][0] = _parameters.get(j).getName();
                         pars[2][0] = _parameters.get(k).getName();
 
+                        if (v1 >= _parameters.get(i).getValues().size() ||
+                            v2 >= _parameters.get(j).getValues().size() ||
+                            v3 >= _parameters.get(k).getValues().size())
+                        {
+                            continue;
+                        }
                         pars[0][1] = _parameters.get(i).getValues().get(v1);
                         pars[1][1] = _parameters.get(j).getValues().get(v2);
                         pars[2][1] = _parameters.get(k).getValues().get(v3);
@@ -638,10 +669,22 @@ public class Tway
                                     pars[1] = new String[2];
                                     pars[2] = new String[2];
 
+                                    if (i >= _parameters.size() ||
+                                        j >= _parameters.size() ||
+                                        k >= _parameters.size())
+                                    {
+                                        continue;
+                                    }
                                     pars[0][0] = _parameters.get(i).getName();
                                     pars[1][0] = _parameters.get(j).getName();
                                     pars[2][0] = _parameters.get(k).getName();
 
+                                    if (ni >= _parameters.get(i).getValues().size() ||
+                                        nj >= _parameters.get(j).getValues().size() ||
+                                        nk >= _parameters.get(k).getValues().size())
+                                    {
+                                        continue;
+                                    }
                                     pars[0][1] = _parameters.get(i).getValues().get(ni);
                                     pars[1][1] = _parameters.get(j).getValues().get(nj);
                                     pars[2][1] = _parameters.get(k).getValues().get(nk);
@@ -808,11 +851,25 @@ public class Tway
                             pars[2] = new String[2];
                             pars[3] = new String[2];
 
+                            if (i >= _parameters.size() ||
+                                j >= _parameters.size() ||
+                                k >= _parameters.size() ||
+                                r >= _parameters.size())
+                            {
+                                continue;
+                            }
                             pars[0][0] = _parameters.get(i).getName();
                             pars[1][0] = _parameters.get(j).getName();
                             pars[2][0] = _parameters.get(k).getName();
                             pars[3][0] = _parameters.get(r).getName();
 
+                            if (v1 >= _parameters.get(i).getValues().size() ||
+                                v2 >= _parameters.get(j).getValues().size() ||
+                                v3 >= _parameters.get(k).getValues().size() ||
+                                v4 >= _parameters.get(r).getValues().size())
+                            {
+                                continue;
+                            }
                             pars[0][1] = _parameters.get(i).getValues().get(v1);
                             pars[1][1] = _parameters.get(j).getValues().get(v2);
                             pars[2][1] = _parameters.get(k).getValues().get(v3);
@@ -868,11 +925,25 @@ public class Tway
                                             pars[2] = new String[2];
                                             pars[3] = new String[2];
 
+                                            if (i >= _parameters.size() ||
+                                                j >= _parameters.size() ||
+                                                k >= _parameters.size() ||
+                                                r >= _parameters.size())
+                                            {
+                                                continue;
+                                            }
                                             pars[0][0] = _parameters.get(i).getName();
                                             pars[1][0] = _parameters.get(j).getName();
                                             pars[2][0] = _parameters.get(k).getName();
                                             pars[3][0] = _parameters.get(r).getName();
 
+                                            if (ni >= _parameters.get(i).getValues().size() ||
+                                                nj >= _parameters.get(j).getValues().size() ||
+                                                nk >= _parameters.get(k).getValues().size() ||
+                                                nr >= _parameters.get(r).getValues().size())
+                                            {
+                                                continue;
+                                            }
                                             pars[0][1] = _parameters.get(i).getValues().get(ni);
                                             pars[1][1] = _parameters.get(j).getValues().get(nj);
                                             pars[2][1] = _parameters.get(k).getValues().get(nk);
@@ -1071,12 +1142,29 @@ public class Tway
                                 pars[3] = new String[2];
                                 pars[4] = new String[2];
 
+                                if (i >= _parameters.size() ||
+                                    j >= _parameters.size() ||
+                                    k >= _parameters.size() ||
+                                    r >= _parameters.size() ||
+                                    x >= _parameters.size())
+                                {
+                                    continue;
+                                }
                                 pars[0][0] = _parameters.get(i).getName();
                                 pars[1][0] = _parameters.get(j).getName();
                                 pars[2][0] = _parameters.get(k).getName();
                                 pars[3][0] = _parameters.get(r).getName();
                                 pars[4][0] = _parameters.get(x).getName();
 
+
+                                if (v1 >= _parameters.get(i).getValues().size() ||
+                                    v2 >= _parameters.get(j).getValues().size() ||
+                                    v3 >= _parameters.get(k).getValues().size() ||
+                                    v4 >= _parameters.get(r).getValues().size() ||
+                                    v5 >= _parameters.get(x).getValues().size())
+                                {
+                                    continue;
+                                }
                                 pars[0][1] = _parameters.get(i).getValues().get(v1);
                                 pars[1][1] = _parameters.get(j).getValues().get(v2);
                                 pars[2][1] = _parameters.get(k).getValues().get(v3);
@@ -1140,12 +1228,28 @@ public class Tway
                                                     pars[3] = new String[2];
                                                     pars[4] = new String[2];
 
+                                                    if (i >= _parameters.size() ||
+                                                        j >= _parameters.size() ||
+                                                        k >= _parameters.size() ||
+                                                        r >= _parameters.size() ||
+                                                        x >= _parameters.size())
+                                                    {
+                                                        continue;
+                                                    }
                                                     pars[0][0] = _parameters.get(i).getName();
                                                     pars[1][0] = _parameters.get(j).getName();
                                                     pars[2][0] = _parameters.get(k).getName();
                                                     pars[3][0] = _parameters.get(r).getName();
                                                     pars[4][0] = _parameters.get(x).getName();
 
+                                                    if (ni >= _parameters.get(i).getValues().size() ||
+                                                        nj >= _parameters.get(j).getValues().size() ||
+                                                        nk >= _parameters.get(k).getValues().size() ||
+                                                        nr >= _parameters.get(r).getValues().size() ||
+                                                        nx >= _parameters.get(x).getValues().size())
+                                                    {
+                                                        continue;
+                                                    }
                                                     pars[0][1] = _parameters.get(i).getValues().get(ni);
                                                     pars[1][1] = _parameters.get(j).getValues().get(nj);
                                                     pars[2][1] = _parameters.get(k).getValues().get(nk);
@@ -1229,37 +1333,6 @@ public class Tway
                                                                                                _map[r][nr],
                                                                                                _map[x][nx]
                                                                                        );
-//                                                            String outl = i
-//                                                                          + ","
-//                                                                          + j
-//                                                                          + ","
-//                                                                          + k
-//                                                                          + ","
-//                                                                          + r
-//                                                                          + ","
-//                                                                          + x
-//                                                                          + " = "
-//                                                                          + ni
-//                                                                          + ","
-//                                                                          + nj
-//                                                                          + ","
-//                                                                          + nk
-//                                                                          + ","
-//                                                                          + nr
-//                                                                          + ","
-//                                                                          + nx
-//                                                                          + " ||"
-//                                                                          + _map[i][ni]
-//                                                                          + ","
-//                                                                          + _map[j][nj]
-//                                                                          + ","
-//                                                                          + _map[k][nk]
-//                                                                          + ","
-//                                                                          + _map[r][nr]
-//                                                                          + ","
-//                                                                          + _map[x][nx]
-//                                                                          + "\n";
-
                                                             write(_fileNameReport, outl);
 
                                                         }
@@ -1390,6 +1463,15 @@ public class Tway
                                     pars[4] = new String[2];
                                     pars[5] = new String[2];
 
+                                    if (i >= _parameters.size() ||
+                                        j >= _parameters.size() ||
+                                        k >= _parameters.size() ||
+                                        r >= _parameters.size() ||
+                                        x >= _parameters.size() ||
+                                        z >= _parameters.size())
+                                    {
+                                        continue;
+                                    }
                                     pars[0][0] = _parameters.get(i).getName();
                                     pars[1][0] = _parameters.get(j).getName();
                                     pars[2][0] = _parameters.get(k).getName();
@@ -1397,6 +1479,16 @@ public class Tway
                                     pars[4][0] = _parameters.get(x).getName();
                                     pars[5][0] = _parameters.get(z).getName();
 
+
+                                    if (v1 >= _parameters.get(i).getValues().size() ||
+                                        v2 >= _parameters.get(j).getValues().size() ||
+                                        v3 >= _parameters.get(k).getValues().size() ||
+                                        v4 >= _parameters.get(r).getValues().size() ||
+                                        v5 >= _parameters.get(x).getValues().size() ||
+                                        v6 >= _parameters.get(z).getValues().size())
+                                    {
+                                        continue;
+                                    }
                                     pars[0][1] = _parameters.get(i).getValues().get(v1);
                                     pars[1][1] = _parameters.get(j).getValues().get(v2);
                                     pars[2][1] = _parameters.get(k).getValues().get(v3);
@@ -1467,6 +1559,15 @@ public class Tway
                                                             pars[4] = new String[2];
                                                             pars[5] = new String[2];
 
+                                                            if (i >= _parameters.size() ||
+                                                                j >= _parameters.size() ||
+                                                                k >= _parameters.size() ||
+                                                                r >= _parameters.size() ||
+                                                                x >= _parameters.size() ||
+                                                                z >= _parameters.size())
+                                                            {
+                                                                continue;
+                                                            }
                                                             pars[0][0] = _parameters.get(i).getName();
                                                             pars[1][0] = _parameters.get(j).getName();
                                                             pars[2][0] = _parameters.get(k).getName();
@@ -1474,6 +1575,15 @@ public class Tway
                                                             pars[4][0] = _parameters.get(x).getName();
                                                             pars[5][0] = _parameters.get(z).getName();
 
+                                                            if (ni >= _parameters.get(i).getValues().size() ||
+                                                                nj >= _parameters.get(j).getValues().size() ||
+                                                                nk >= _parameters.get(k).getValues().size() ||
+                                                                nr >= _parameters.get(r).getValues().size() ||
+                                                                nx >= _parameters.get(x).getValues().size() ||
+                                                                nz >= _parameters.get(z).getValues().size())
+                                                            {
+                                                                continue;
+                                                            }
                                                             pars[0][1] = _parameters.get(i).getValues().get(ni);
                                                             pars[1][1] = _parameters.get(j).getValues().get(nj);
                                                             pars[2][1] = _parameters.get(k).getValues().get(nk);
@@ -1565,42 +1675,6 @@ public class Tway
                                                                                                        _map[x][nx],
                                                                                                        _map[z][nz]
                                                                                                );
-//                                                                    String outl = i
-//                                                                                  + ","
-//                                                                                  + j
-//                                                                                  + ","
-//                                                                                  + k
-//                                                                                  + ","
-//                                                                                  + r
-//                                                                                  + ","
-//                                                                                  + x
-//                                                                                  + ","
-//                                                                                  + z
-//                                                                                  + " = "
-//                                                                                  + ni
-//                                                                                  + ","
-//                                                                                  + nj
-//                                                                                  + ","
-//                                                                                  + nk
-//                                                                                  + ","
-//                                                                                  + nr
-//                                                                                  + ","
-//                                                                                  + nx
-//                                                                                  + ","
-//                                                                                  + nz
-//                                                                                  + " ||"
-//                                                                                  + _map[i][ni]
-//                                                                                  + ","
-//                                                                                  + _map[j][nj]
-//                                                                                  + ","
-//                                                                                  + _map[k][nk]
-//                                                                                  + ","
-//                                                                                  + _map[r][nr]
-//                                                                                  + ","
-//                                                                                  + _map[x][nx]
-//                                                                                  + ","
-//                                                                                  + _map[x][nz]
-//                                                                                  + "\n";
                                                                     write(_fileNameReport, outl);
                                                                 }
                                                                 int[] im = new int[12];
