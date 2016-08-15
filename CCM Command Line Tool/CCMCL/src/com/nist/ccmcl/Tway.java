@@ -1012,8 +1012,10 @@ public class Tway
                                                 if (_rptMissingCom)
                                                 {
                                                     String outl = String.format(
-                                                            "%d,%d,%d,%d = %d,%d,%d,%d || %s,%s,%s,%s\n", i, j, k, r,
-                                                            ni, nj, nk, nr, _map[i][ni], _map[j][nj], _map[k][nk],
+                                                            "%d,%d,%d,%d = %d,%d,%d,%d || %s,%s,%s,%s\n",
+                                                            i, j, k, r,
+                                                            ni, nj, nk, nr,
+                                                            _map[i][ni], _map[j][nj], _map[k][nk],
                                                             _map[r][nr]
                                                                                );
                                                     write(_fileNameReport, outl);
@@ -1313,7 +1315,8 @@ public class Tway
                                                         {
                                                             String outl = String.format(
                                                                     "%d,%d,%d,%d,%d = %d,%d,%d,%d,%d || %s,%s,%s,%s,%s\n",
-                                                                    i, j, k, r, x, ni, nj, nk, nr, nx,
+                                                                    i, j, k, r, x,
+                                                                    ni, nj, nk, nr, nx,
                                                                     _map[i][ni], _map[j][nj], _map[k][nk], _map[r][nr],
                                                                     _map[x][nx]
                                                                                        );
@@ -1643,7 +1646,8 @@ public class Tway
                                                                 {
                                                                     String outl = String.format(
                                                                             "%d,%d,%d,%d,%d,%d = %d,%d,%d,%d,%d,%d || %s,%s,%s,%s,%s,%s\n",
-                                                                            i, j, k, r, x, z, ni, nj, nk, nr, nx, nz,
+                                                                            i, j, k, r, x, z,
+                                                                            ni, nj, nk, nr, nx, nz,
                                                                             _map[i][ni], _map[j][nj], _map[k][nk],
                                                                             _map[r][nr], _map[x][nx], _map[z][nz]
                                                                                                );
