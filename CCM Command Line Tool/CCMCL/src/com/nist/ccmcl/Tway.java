@@ -365,11 +365,13 @@ public class Tway
                                 if (validcomb.EvaluateCombination(pars))
                                 {
                                     comcount[v1][v2] = 1; // flag valid var-val config in set test
-                                } else
+                                }
+                                else
                                 {
                                     comcount[v1][v2] = -1; // flag invalid var-val config in set test
                                 }
-                            } else
+                            }
+                            else
                             {
                                 comcount[v1][v2] = 1; // flag var-val config in set test
                             }
@@ -393,7 +395,8 @@ public class Tway
                         {
                             varval_cnt++;
                             n_tot_tway_cov++;
-                        } else
+                        }
+                        else
                         {
                             String[][] pars = new String[2][];
                             pars[0] = new String[2];
@@ -467,16 +470,20 @@ public class Tway
                 if (varval_cov < 0.2)
                 {
                     hm_colors2[i][j] = 0;
-                } else if (varval_cov < 0.4)
+                }
+                else if (varval_cov < 0.4)
                 {
                     hm_colors2[i][j] = 1;
-                } else if (varval_cov < 0.6)
+                }
+                else if (varval_cov < 0.6)
                 {
                     hm_colors2[i][j] = 2;
-                } else if (varval_cov < 0.8)
+                }
+                else if (varval_cov < 0.8)
                 {
                     hm_colors2[i][j] = 3;
-                } else
+                }
+                else
                 {
                     hm_colors2[i][j] = 4;
                 }
@@ -506,13 +513,11 @@ public class Tway
                                 if (_rptMissingCom)
                                 {
                                     String outl = String.format(
-                                                                       "%d,%d = %d,%d || %s,%s\n",
-                                                                       i, j,
-                                                                       ni, nj,
-                                                                       _map[i][ni], _map[j][nj]
+                                            "%d,%d = %d,%d || %s,%s\n",
+                                            i, j,
+                                            ni, nj,
+                                            _map[i][ni], _map[j][nj]
                                                                );
-                                    //String outl = i + "," + j + " = " + ni + "," + nj + " ||" + _map[i][ni] + ","
-                                    //              + _map[j][nj] + "\n";
                                     write(_fileNameReport, outl);
                                 }
 
@@ -633,11 +638,13 @@ public class Tway
                                         if (validcomb.EvaluateCombination(pars))
                                         {
                                             comcount[v1][v2][v3] = 1;
-                                        } else
+                                        }
+                                        else
                                         {
                                             comcount[v1][v2][v3] = -1;
                                         }
-                                    } else
+                                    }
+                                    else
                                     {
                                         comcount[v1][v2][v3] = 1;
                                     }
@@ -746,14 +753,11 @@ public class Tway
                                         {
 
                                             String outl = String.format(
-                                                                               "%d,%d,%d = %d,%d,%d || %s,%s,%s\n",
-                                                                               i, j, k,
-                                                                               ni, nj, nk,
-                                                                               _map[i][ni], _map[j][nj], _map[k][nk]
+                                                    "%d,%d,%d = %d,%d,%d || %s,%s,%s\n",
+                                                    i, j, k,
+                                                    ni, nj, nk,
+                                                    _map[i][ni], _map[j][nj], _map[k][nk]
                                                                        );
-                                            //String outl = i + "," + j + "," + k + " = " + ni + "," + nj + "," + nk
-                                            //              + " ||" + _map[i][ni] + "," + _map[j][nj] + "," + _map[k][nk]
-                                            //              + "\n";
                                             write(_fileNameReport, outl);
                                         }
 
@@ -887,12 +891,14 @@ public class Tway
                                                 if (validcomb.EvaluateCombination(pars))
                                                 {
                                                     comcount[v1][v2][v3][v4] = 1;
-                                                } else
+                                                }
+                                                else
                                                 {
                                                     comcount[v1][v2][v3][v4] = -1;
                                                 }
 
-                                            } else
+                                            }
+                                            else
                                             {
                                                 comcount[v1][v2][v3][v4] = 1;
                                             }
@@ -917,7 +923,8 @@ public class Tway
                                         {
                                             varval_cnt++;
                                             n_tot_tway_cov++;
-                                        } else
+                                        }
+                                        else
                                         {
                                             String[][] pars = new String[4][];
                                             pars[0] = new String[2];
@@ -1005,24 +1012,12 @@ public class Tway
                                                 if (_rptMissingCom)
                                                 {
                                                     String outl = String.format(
-                                                                                       "%d,%d,%d,%d = %d,%d,%d,%d || %s,%s,%s,%s\n",
-                                                                                       i,
-                                                                                       j,
-                                                                                       k,
-                                                                                       r,
-                                                                                       ni,
-                                                                                       nj,
-                                                                                       nk,
-                                                                                       nr,
-                                                                                       _map[i][ni],
-                                                                                       _map[i][ni],
-                                                                                       _map[k][nk],
-                                                                                       _map[r][nr]
+                                                            "%d,%d,%d,%d = %d,%d,%d,%d || %s,%s,%s,%s\n",
+                                                            i, j, k, r,
+                                                            ni, nj, nk, nr,
+                                                            _map[i][ni], _map[j][nj], _map[k][nk],
+                                                            _map[r][nr]
                                                                                );
-//                                                    String outl = i + "," + j + "," + k + "," + r + " = " + ni + ","
-//                                                                  + nj + "," + nk + "," + nr + " ||" + _map[i][ni] + ","
-//                                                                  + _map[i][ni] + "," + _map[k][nk] + "," + _map[r][nr]
-//                                                                  + "\n";
                                                     write(_fileNameReport, outl);
                                                 }
 
@@ -1185,11 +1180,13 @@ public class Tway
                                                         if (validcomb.EvaluateCombination(pars))
                                                         {
                                                             comcount[v1][v2][v3][v4][v5] = 1;
-                                                        } else
+                                                        }
+                                                        else
                                                         {
                                                             comcount[v1][v2][v3][v4][v5] = -1;
                                                         }
-                                                    } else
+                                                    }
+                                                    else
                                                     {
                                                         comcount[v1][v2][v3][v4][v5] = 1;
                                                     }
@@ -1219,7 +1216,8 @@ public class Tway
                                                 {
                                                     varval_cnt++;
                                                     n_tot_tway_cov++;
-                                                } else
+                                                }
+                                                else
                                                 {
                                                     String[][] pars = new String[5][];
                                                     pars[0] = new String[2];
@@ -1316,22 +1314,11 @@ public class Tway
                                                         if (_rptMissingCom)
                                                         {
                                                             String outl = String.format(
-                                                                                               "%d,%d,%d,%d,%d = %d,%d,%d,%d,%d || %s,%s,%s,%s,%s\n",
-                                                                                               i,
-                                                                                               j,
-                                                                                               k,
-                                                                                               r,
-                                                                                               x,
-                                                                                               ni,
-                                                                                               nj,
-                                                                                               nk,
-                                                                                               nr,
-                                                                                               nx,
-                                                                                               _map[i][ni],
-                                                                                               _map[i][ni],
-                                                                                               _map[k][nk],
-                                                                                               _map[r][nr],
-                                                                                               _map[x][nx]
+                                                                    "%d,%d,%d,%d,%d = %d,%d,%d,%d,%d || %s,%s,%s,%s,%s\n",
+                                                                    i, j, k, r, x,
+                                                                    ni, nj, nk, nr, nx,
+                                                                    _map[i][ni], _map[j][nj], _map[k][nk], _map[r][nr],
+                                                                    _map[x][nx]
                                                                                        );
                                                             write(_fileNameReport, outl);
 
@@ -1512,12 +1499,14 @@ public class Tway
                                                                 if (validcomb.EvaluateCombination(pars))
                                                                 {
                                                                     comcount[v1][v2][v3][v4][v5][v6] = 1;
-                                                                } else
+                                                                }
+                                                                else
                                                                 {
                                                                     comcount[v1][v2][v3][v4][v5][v6] = -1;
                                                                 }
 
-                                                            } else
+                                                            }
+                                                            else
                                                             {
                                                                 comcount[v1][v2][v3][v4][v5][v6] = 1;
                                                             }
@@ -1549,7 +1538,8 @@ public class Tway
                                                         {
                                                             varval_cnt++;
                                                             n_tot_tway_cov++;
-                                                        } else
+                                                        }
+                                                        else
                                                         {
                                                             String[][] pars = new String[6][];
                                                             pars[0] = new String[2];
@@ -1655,25 +1645,11 @@ public class Tway
                                                                 if (_rptMissingCom)
                                                                 {
                                                                     String outl = String.format(
-                                                                                                       "%d,%d,%d,%d,%d,%d = %d,%d,%d,%d,%d,%d || %s,%s,%s,%s,%s,%s\n",
-                                                                                                       i,
-                                                                                                       j,
-                                                                                                       k,
-                                                                                                       r,
-                                                                                                       x,
-                                                                                                       z,
-                                                                                                       ni,
-                                                                                                       nj,
-                                                                                                       nk,
-                                                                                                       nr,
-                                                                                                       nx,
-                                                                                                       nz,
-                                                                                                       _map[i][ni],
-                                                                                                       _map[i][ni],
-                                                                                                       _map[k][nk],
-                                                                                                       _map[r][nr],
-                                                                                                       _map[x][nx],
-                                                                                                       _map[z][nz]
+                                                                            "%d,%d,%d,%d,%d,%d = %d,%d,%d,%d,%d,%d || %s,%s,%s,%s,%s,%s\n",
+                                                                            i, j, k, r, x, z,
+                                                                            ni, nj, nk, nr, nx, nz,
+                                                                            _map[i][ni], _map[j][nj], _map[k][nk],
+                                                                            _map[r][nr], _map[x][nx], _map[z][nz]
                                                                                                );
                                                                     write(_fileNameReport, outl);
                                                                 }
@@ -2413,7 +2389,8 @@ public class Tway
                                 parV[0][1] = _parameters.get(jj).getValues().get(ntmp);
                             }
                             while (!validcomb.EvaluateCombination(parV));
-                        } else
+                        }
+                        else
                         {
                             ntmp = 0; // use first index into value array for
                         }
@@ -2424,7 +2401,8 @@ public class Tway
                     if (!_rng[jj] && !_grp[jj])
                     {
                         outl += _map[jj][ntmp];
-                    } else
+                    }
+                    else
                     {
                         //for (int b = 0; b < _ncols; b++) {
                         // parameter has boundaries specified
@@ -2544,12 +2522,14 @@ public class Tway
                                 if (validcomb.EvaluateCombination(pars))
                                 {
                                     comcount[v1][v2] = 2;
-                                } else
+                                }
+                                else
                                 {
                                     comcount[v1][v2] = -2;
                                 }
                                 // flag invalid var-val config in set test
-                            } else
+                            }
+                            else
                             {
                                 comcount[v1][v2] = 2; // flag var-val config in set test
                             }
@@ -2576,7 +2556,8 @@ public class Tway
                             varval_cnt++;
                             n_tot_tway_cov++;
                             comcount[ni][nj] = 1;
-                        } else
+                        }
+                        else
                         {
                             String[][] pars = new String[2][];
                             pars[0] = new String[2];
@@ -2635,16 +2616,20 @@ public class Tway
                 if (varval_cov < 0.2)
                 {
                     hm_colors2[i][j] = 0;
-                } else if (varval_cov < 0.4)
+                }
+                else if (varval_cov < 0.4)
                 {
                     hm_colors2[i][j] = 1;
-                } else if (varval_cov < 0.6)
+                }
+                else if (varval_cov < 0.6)
                 {
                     hm_colors2[i][j] = 2;
-                } else if (varval_cov < 0.8)
+                }
+                else if (varval_cov < 0.8)
                 {
                     hm_colors2[i][j] = 3;
-                } else
+                }
+                else
                 {
                     hm_colors2[i][j] = 4;
                 }
@@ -2740,12 +2725,14 @@ public class Tway
                                         if (validcomb.EvaluateCombination(pars))
                                         {
                                             comcount[v1][v2][v3] = 2;
-                                        } else
+                                        }
+                                        else
                                         {
                                             comcount[v1][v2][v3] = -2;
                                         }
 
-                                    } else
+                                    }
+                                    else
                                     {
                                         comcount[v1][v2][v3] = 2;
                                     }
@@ -2924,12 +2911,14 @@ public class Tway
                                                 if (validcomb.EvaluateCombination(pars))
                                                 {
                                                     comcount[v1][v2][v3][v4] = 2;
-                                                } else
+                                                }
+                                                else
                                                 {
                                                     comcount[v1][v2][v3][v4] = -2;
                                                 }
 
-                                            } else
+                                            }
+                                            else
                                             {
                                                 comcount[v1][v2][v3][v4] = 2;
                                             }
@@ -2960,7 +2949,8 @@ public class Tway
                                             varval_cnt++;
                                             n_tot_tway_cov++;
                                             comcount[ni][nj][nk][nr] = 1;
-                                        } else
+                                        }
+                                        else
                                         {
                                             String[][] pars = new String[4][];
                                             pars[0] = new String[2];
@@ -3126,11 +3116,13 @@ public class Tway
                                                         if (validcomb.EvaluateCombination(pars))
                                                         {
                                                             comcount[v1][v2][v3][v4][v5] = 2;
-                                                        } else
+                                                        }
+                                                        else
                                                         {
                                                             comcount[v1][v2][v3][v4][v5] = -2;
                                                         }
-                                                    } else
+                                                    }
+                                                    else
                                                     {
                                                         comcount[v1][v2][v3][v4][v5] = 2;
                                                     }
@@ -3164,7 +3156,8 @@ public class Tway
                                                     varval_cnt++;
                                                     n_tot_tway_cov++;
                                                     comcount[ni][nj][nk][nr][nx] = 1;
-                                                } else
+                                                }
+                                                else
                                                 {
                                                     String[][] pars = new String[5][];
                                                     pars[0] = new String[2];
@@ -3366,12 +3359,14 @@ public class Tway
                                                                 if (validcomb.EvaluateCombination(pars))
                                                                 {
                                                                     comcount[v1][v2][v3][v4][v5][v6] = 2;
-                                                                } else
+                                                                }
+                                                                else
                                                                 {
                                                                     comcount[v1][v2][v3][v4][v5][v6] = -2;
                                                                 }
 
-                                                            } else
+                                                            }
+                                                            else
                                                             {
                                                                 comcount[v1][v2][v3][v4][v5][v6] = 2;
                                                             }
@@ -3408,7 +3403,8 @@ public class Tway
                                                             varval_cnt++;
                                                             n_tot_tway_cov++;
                                                             comcount[ni][nj][nk][nr][nx][nz] = 1;
-                                                        } else
+                                                        }
+                                                        else
                                                         {
                                                             String[][] pars = new String[6][];
                                                             pars[0] = new String[2];
