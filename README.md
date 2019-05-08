@@ -28,4 +28,5 @@ A real time combinatorial coverage measurement tool. Based off of [CCM](http://c
 ![CCMCL Graphs](/Images/ccmcl_graphs.png)
 
 ##Sequence Covering Arrays##
+
 Produces arrays for more efficient testing of event-driven systems.
