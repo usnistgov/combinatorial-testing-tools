@@ -16,5 +16,8 @@ helps to narrow down the set of possible fault-triggering combinations in failin
 Access Control Policy Test (ACPT) - uses combinatorial testing with model checking to produce tests for access control policies
 
 ### Separately distributed tools 
-- Advanced Combinatorial Testing System (ACTS) - generates test sets that ensure t-way coverage of input parameter values; includes support for constraints and variable-strength tests.  Both at GUI and command-line version are included. (runs on Java platforms) -> contact Renee Bryce at Univ of North Texas
-- Web app Testing Tool - CPUT (Combinatorial-based Prioritization of User-session-based Testsuites) applies combinatorial methods to testing web applications. Test prioritization is used to make web app testing much more manageable. (runs on Java platforms) -> contact Vincent Hu at NIST
+- Advanced Combinatorial Testing System (ACTS) - generates test sets that ensure t-way coverage of input parameter values; includes support for constraints and variable-strength tests.  Both at GUI and command-line version are included. (runs on Java platforms) -> contact Rick Kuhn at kuhn@nist.gov
+
+- Web app Testing Tool - CPUT (Combinatorial-based Prioritization of User-session-based Testsuites) applies combinatorial methods to testing web applications. Test prioritization is used to make web app testing much more manageable. (runs on Java platforms) -> contact Renee Bryce at Univ of North Texas
+
+- Access Control Policy Test (ACPT) - uses combinatorial testing with model checking to produce tests for access control policies -> contact Vincent Hu at NIST
