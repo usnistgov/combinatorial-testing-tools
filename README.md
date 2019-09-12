@@ -3,17 +3,15 @@ Some of the NIST tools for combinatorial testing are available on this site.
 
 -> For the covering array generator tool ACTS, please email Rick Kuhn at kuhn@nist.gov.  ACTS is distributed separately. 
 
-### PEV tool for testing rule-based expert systems or business rule engine/workflow systems.  
+### Available on this Github directory
+- PEV tool for testing rule-based expert systems or business rule engine/workflow systems.  
 (runs on Java platforms;  GUI and command line versions here)  
 
-### Combinatorial Coverage Measurement
-computes a number of coverage measures of an existing test set.  Both at GUI and command-line version are included. (runs on Java platforms;  GUI and command line versions here) 
+- Combinatorial Coverage Measurement - computes a number of coverage measures of an existing test set.  Both at GUI and command-line version are included. (runs on Java platforms;  GUI and command line versions here) 
 
-### Combinatorial Sequence Test Generator
-generates sequence covering arrays, useful for event driven systems including GUIs, protocols, hardware testing. (C source, compile for target platform)
+- Combinatorial Sequence Test Generator - generates sequence covering arrays, useful for event driven systems including GUIs, protocols, hardware testing. (C source, compile for target platform)
 
-### Fault Identification tool
-helps to narrow down the set of possible fault-triggering combinations in failing tests
+- Fault Identification tool - helps to narrow down the set of possible fault-triggering combinations in failing tests
 Access Control Policy Test (ACPT) - uses combinatorial testing with model checking to produce tests for access control policies
 
 ### Separately distributed tools 
