@@ -1,31 +1,20 @@
 # Combinatorial Testing Tools #
-Tools for combinatorial testing developed by the NIST ACTS project
+Tools for combinatorial testing developed by the NIST ACTS project available on this site.  For the covering array generator tool ACTS, please email Rick Kuhn at kuhn@nist.gov.   ACTS is distributed separately. 
 
-## CCMCL - Combinatorial Coverage Measurement Command Line Tool##
-A real time combinatorial coverage measurement tool. Based off of [CCM](http://csrc.nist.gov/groups/SNS/acts/download_tools.html#measure), but with enhanced functionality. 
+### PEV tool for testing rule-based expert systems or business rule engine/workflow systems.  
+(runs on Java platforms;  GUI and command line versions here)  
 
-### Supported Operating Systems: ###
+### Combinatorial Coverage Measurement
+computes a number of coverage measures of an existing test set.  Both at GUI and command-line version are included. (runs on Java platforms;  GUI and command line versions here) 
 
-- Windows
-- Mac OS
-- Linux
+### Combinatorial Sequence Test Generator
+generates sequence covering arrays, useful for event driven systems including GUIs, protocols, hardware testing. (C source, compile for target platform)
 
-### Key Features:###
-
-- Measure the combinatorial coverage of static test case files
-- Generate missing combinations from given test cases
-- Generate random tests
-- Measure combinatorial coverage in real time via various input modes
-  - Standard Input
-  - Output of external programs
-  - TCP/IP 
-- Specify robust constraints
-- Support for equivalence classes and groups via SET notation definitions
-- Read ACTS configuration files via `.txt` or `.xml` 
+### Fault Identification tool
+helps to narrow down the set of possible fault-triggering combinations in failing tests
+Access Control Policy Test (ACPT) - uses combinatorial testing with model checking to produce tests for access control policies
 
 
-### Preview: ###
-![CCMCL Graphs](/Images/ccmcl_graphs.png)
-
-##Sequence Covering Arrays##
-Produces arrays for more efficient testing of event-driven systems.
+### Separately distributed tools 
+- Advanced Combinatorial Testing System (ACTS) - generates test sets that ensure t-way coverage of input parameter values; includes support for constraints and variable-strength tests.  Both at GUI and command-line version are included. (runs on Java platforms) -> contact Renee Bryce at Univ of North Texas
+- Web app Testing Tool - CPUT (Combinatorial-based Prioritization of User-session-based Testsuites) applies combinatorial methods to testing web applications. Test prioritization is used to make web app testing much more manageable. (runs on Java platforms) -> contact Vincent Hu at NIST
