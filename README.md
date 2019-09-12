@@ -1,5 +1,6 @@
 # Combinatorial Testing Tools #
-Tools for combinatorial testing developed by the combinatorial testing project available on this site.  
+Some of the NIST tools for combinatorial testing are available on this site.  
+
 -> For the covering array generator tool ACTS, please email Rick Kuhn at kuhn@nist.gov.  ACTS is distributed separately. 
 
 ### PEV tool for testing rule-based expert systems or business rule engine/workflow systems.  
