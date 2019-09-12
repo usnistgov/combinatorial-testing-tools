@@ -4,8 +4,7 @@ Some of the NIST tools for combinatorial testing are available on this site.
 -> For the covering array generator tool ACTS, please email Rick Kuhn at kuhn@nist.gov.  ACTS is distributed separately. 
 
 ### Available on this Github directory
-- PEV tool for testing rule-based expert systems or business rule engine/workflow systems.  
-(runs on Java platforms;  GUI and command line versions here)  
+- PEV tool - for testing rule-based expert systems or business rule engine/workflow systems. (runs on Java platforms;  GUI and command line versions here)  
 
 - Combinatorial Coverage Measurement - computes a number of coverage measures of an existing test set.  Both at GUI and command-line version are included. (runs on Java platforms;  GUI and command line versions here) 
 
